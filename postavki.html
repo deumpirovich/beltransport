@@ -1,4 +1,4 @@
-<!-- postavki.html (полный код) -->
+<!-- postavki.html (полный код: центрирование, sticky поиск+табы, sticky шапка таблицы) -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -7,7 +7,6 @@
   <title>Транспорт Минска — поставки</title>
   <style>
     body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f7fa; color: #23263a; margin: 0; padding: 0;}
-
     .cont { max-width: 1100px; margin: 15px auto; padding: 0 10px; }
 
     /* ====== закрепляем верх (поиск + табы) ====== */
@@ -31,9 +30,25 @@
     .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
 
     table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size:13px;}
+
     /* ====== центрируем ВСЕ данные ====== */
     th, td { padding: 3px 5px; text-align: center; }
-    th { background: #ecf1fa; color: #2543a5; font-weight: 600; cursor: pointer; user-select: none; border-bottom:1.5px solid #abc;}
+
+    /* ====== закрепляем шапку таблицы ======
+       ВАЖНО: top должен быть равен высоте .stickyTop.
+       Я сделал переменную --stickyTopOffset, чтобы можно было подправить в одном месте. */
+    :root{
+      --stickyTopOffset: 122px; /* если вдруг не идеально — скажи, подгоним под твою высоту */
+    }
+    thead th{
+      position: sticky;
+      top: var(--stickyTopOffset);
+      z-index: 40;
+      background: #ecf1fa;
+      border-bottom:1.5px solid #abc;
+    }
+
+    th { color: #2543a5; font-weight: 600; cursor: pointer; user-select: none; }
     th.active { background: #d2e3ff; }
     tr { border-bottom: 1px solid #eee;}
     tr:hover { background: #f0f5ff;}
@@ -42,9 +57,9 @@
     .empty {padding:18px 0; text-align:center; color:#9aa6c3; font-style:italic;}
     .err {margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px; white-space:pre-wrap;}
 
-    /* чтобы закрепленная зона выглядела аккуратно на маленьких экранах */
     @media (max-width: 560px){
       input[type="text"]{width: 100%;}
+      :root{ --stickyTopOffset: 150px; } /* на мобилках верх обычно выше из-за переносов */
     }
   </style>
 </head>
@@ -52,7 +67,7 @@
 <div class="cont">
 
   <!-- ЗАКРЕПЛЕННЫЙ БЛОК: сообщение + поиск + tabs -->
-  <div class="stickyTop">
+  <div class="stickyTop" id="stickyTop">
     <div class="topbar">
       <div class="msg">
         Поиск через запятую (“и”): <b>маз, 2025</b>
@@ -99,6 +114,15 @@ let sortF = "vehicleNumber";
 let sortDesc = true;
 let activeTab = "_all";
 let allTabMonthKey = ''; // последний месяц с данными (для таба "Все")
+
+/** === автоматически подгоняем top для sticky шапки === */
+function updateStickyHeaderOffset(){
+  const top = document.getElementById('stickyTop');
+  if(!top) return;
+  const h = Math.ceil(top.getBoundingClientRect().height);
+  document.documentElement.style.setProperty('--stickyTopOffset', h + 'px');
+}
+window.addEventListener('resize', updateStickyHeaderOffset);
 
 /** ===== month helpers ===== */
 function pad2(n){ return String(n).padStart(2,'0'); }
@@ -329,11 +353,15 @@ async function loadJson(){
 
     renderTabs();
     render();
+
+    // после того как табы/updatedAt отрисовались — пересчитываем высоту stickyTop
+    requestAnimationFrame(updateStickyHeaderOffset);
   } catch(err){
     DATA = [];
     renderTabs();
     render();
     showErr('Не загрузился ' + JSON_URL + ' — ' + err.message);
+    requestAnimationFrame(updateStickyHeaderOffset);
   }
 }
 
