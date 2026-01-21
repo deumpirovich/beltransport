@@ -1,6 +1,6 @@
 <!-- postavki.html -->
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -25,13 +25,16 @@
     .num { font-weight: bold; color: #2543a5; }
     .no { color:#bbb; font-style:italic; }
     .empty {padding:18px 0; text-align:center; color:#9aa6c3; font-style:italic;}
-    .err {margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px;}
+    .err {margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px; white-space:pre-wrap;}
   </style>
 </head>
 <body>
 <div class="cont">
   <div class="topbar">
-    <div class="msg">Поиск через запятую (“и”): <b>маз, 2025</b> — ищет по всем словам.</div>
+    <div class="msg">
+      Поиск через запятую (“и”): <b>маз, 2025</b> — ищет по всем словам.
+      <span id="monthHint" style="color:#5b6b98;"></span>
+    </div>
     <div class="counts"><span id="countShown">0</span> / <span id="countAll">0</span></div>
   </div>
 
@@ -72,7 +75,51 @@ let DATA = [];
 let VIEW = [];
 let sortF = "vehicleNumber";
 let sortDesc = true;
-let activeTab = "_all"; // _all | автобус | троллейбус | трамвай | электробус | туах
+let activeTab = "_all";
+let allTabMonthKey = ''; // MM.YYYY (последний месяц с данными)
+
+/** ========= MONTH HELPERS ========= */
+function pad2(n){ return String(n).padStart(2,'0'); }
+function monthKeyFromDeliveryDate(s){
+  const m = String(s||'').trim().match(/^(\d{1,2})\.(\d{4})$/);
+  if(!m) return '';
+  return `${pad2(m[1])}.${m[2]}`;
+}
+function computeAllTabMonthKeyLatest(){
+  const set = new Set();
+  DATA.forEach(v=>{
+    const mk = monthKeyFromDeliveryDate(v.deliveryDate);
+    if(mk) set.add(mk);
+  });
+  if(!set.size){
+    allTabMonthKey = '';
+    document.getElementById('monthHint').textContent = '';
+    return;
+  }
+  const best = [...set].sort((a,b)=>{
+    const [am,ay]=a.split('.'); const [bm,by]=b.split('.');
+    const av = Number(ay+am), bv = Number(by+bm);
+    return bv-av;
+  })[0];
+
+  allTabMonthKey = best;
+  document.getElementById('monthHint').textContent = ` | “Все”: ${allTabMonthKey}`;
+}
+
+/** ========= CYR->LAT normalizer ========= */
+/**
+ * Похожие символы: АВЕКМНОРСТУХ -> ABEKMHOPCTYX
+ * + lower-case
+ */
+const CYR_TO_LAT = {
+  'А':'A','В':'B','Е':'E','К':'K','М':'M','Н':'H','О':'O','Р':'P','С':'C','Т':'T','У':'Y','Х':'X',
+  'а':'a','в':'b','е':'e','к':'k','м':'m','н':'h','о':'o','р':'p','с':'c','т':'t','у':'y','х':'x'
+};
+function fixCyrToLat(s){
+  s = (s==null) ? '' : String(s);
+  if(!/[А-Яа-яЁё]/.test(s)) return s;
+  return s.replace(/[АВЕКМНОРСТУХавекмнорстух]/g, ch => CYR_TO_LAT[ch] || ch);
+}
 
 /** ========= TYPES ========= */
 function normType(t){
@@ -130,16 +177,15 @@ function renderTabs(){
 
 /** ========= SORT ========= */
 function numSortAlg(a, b){
+  // на всякий: сортируем уже нормализованный номер
   let an = (a.vehicleNumber||'').toUpperCase(), bn = (b.vehicleNumber||'').toUpperCase();
   if (!an && !bn) return 0; if (!an) return 1; if (!bn) return -1;
 
-  // буква на 3 позиции — выше
   let aB = (an.length>=3 && !/\d/.test(an[2])) ? 1 : 0;
   let bB = (bn.length>=3 && !/\d/.test(bn[2])) ? 1 : 0;
   if (aB !== bB) return bB - aB;
 
-  // убывание
-  return an > bn ? -1 : an < bn ? 1 : 0;
+  return an > bn ? -1 : an < bn ? 1 : 0; // desc
 }
 
 function generalSort(a, b){
@@ -169,6 +215,12 @@ function render(){
   VIEW = DATA
     .filter(v=>{
       if(activeTab !== '_all' && normType(v.type) !== activeTab) return false;
+
+      if(activeTab === '_all' && allTabMonthKey){
+        const mk = monthKeyFromDeliveryDate(v.deliveryDate);
+        if(mk !== allTabMonthKey) return false;
+      }
+
       if(filters.length){
         const vals = Object.values(v).map(x => (x||'').toString().toLowerCase());
         return filters.every(f => vals.some(val => val.includes(f)));
@@ -213,8 +265,7 @@ document.querySelectorAll('th[data-f]').forEach(th=>{
     if(sortF === f) sortDesc = !sortDesc;
     else {
       sortF = f;
-      // дефолт направления: номер desc, остальные asc
-      sortDesc = (f === "vehicleNumber") ? true : false;
+      sortDesc = (f === "vehicleNumber") ? true : false; // номер desc, остальные asc
     }
     render();
   };
@@ -222,6 +273,7 @@ document.querySelectorAll('th[data-f]').forEach(th=>{
 
 document.getElementById('q').oninput = render;
 
+/** ========= ERROR UI ========= */
 function showErr(msg){
   const e = document.getElementById('err');
   e.style.display = '';
@@ -233,7 +285,36 @@ function hideErr(){
   e.textContent = '';
 }
 
-/** ========= LOAD JSON ========= */
+/** ========= JSON PARSE + LOAD ========= */
+function pickArray(j){
+  if(Array.isArray(j)) return j;
+  if(j && Array.isArray(j.vehicles)) return j.vehicles;
+  if(j && Array.isArray(j.data)) return j.data;
+  if(j && Array.isArray(j.items)) return j.items;
+  return [];
+}
+
+function mapRow(r){
+  const factoryFixed = fixCyrToLat(r.factoryNumber || '');
+
+  // Нормализуем госномер (он же vehicleNumber у нас в таблице)
+  // Берём как обычно: licensePlate/registrationNumber/vehicleNumber
+  const rawPlate = (r.licensePlate || r.registrationNumber || r.vehicleNumber || '');
+  const plateFixed = fixCyrToLat(rawPlate);
+
+  return {
+    type: r.type || '',
+    model: r.model || '',
+    year: r.year || '',
+    deliveryDate: r.deliveryDate || '',
+    park: r.park || '',
+    vehicleNumber: plateFixed,
+    factoryNumber: factoryFixed,
+    garageNumber: r.garageNumber || '',
+    color: r.color || ''
+  };
+}
+
 async function loadJson(){
   try{
     hideErr();
@@ -241,22 +322,15 @@ async function loadJson(){
     if(!r.ok) throw new Error('HTTP '+r.status);
     const j = await r.json();
 
-    const arr = Array.isArray(j) ? j : (j.vehicles || []);
-    const updatedAt = (!Array.isArray(j) && j.updatedAt) ? j.updatedAt : '';
+    const arr = pickArray(j);
+    const updatedAt = (j && !Array.isArray(j) && j.updatedAt) ? j.updatedAt : '';
 
-    DATA = arr.map(r => ({
-      type: r.type || '',
-      model: r.model || '',
-      year: r.year || '',
-      deliveryDate: r.deliveryDate || '',
-      park: r.park || '',
-      vehicleNumber: (r.licensePlate || r.registrationNumber || ''),
-      factoryNumber: r.factoryNumber || '',
-      garageNumber: r.garageNumber || '',
-      color: r.color || ''
-    }));
+    DATA = arr.map(mapRow);
 
-    document.getElementById('updatedAt').textContent = updatedAt ? ('Обновлено: '+updatedAt) : '';
+    document.getElementById('updatedAt').textContent = updatedAt ? ('Обновлено: ' + updatedAt) : '';
+
+    computeAllTabMonthKeyLatest();
+
     activeTab = "_all";
     sortF = "vehicleNumber";
     sortDesc = true;
