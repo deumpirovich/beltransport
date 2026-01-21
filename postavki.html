@@ -3,483 +3,325 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Реестр поставок общественного транспорта г. Минска</title>
+  <title>Реестр транспорта Минска</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      --primary-blue: #1a237e;
-      --search-blue: #2962ff;
-      --accent-blue: #3949ab;
-      --light-blue: #e8eaf6;
-      --light-gray: #f5f5f5;
-      --medium-gray: #e0e0e0;
-      --white: #ffffff;
-      --danger-red: #f44336;
-      --text-dark: #212121;
-      --text-light: #757575;
-      --border-radius: 8px;
-      --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      --primary-blue: #2846a5;
+      --accent-blue: #456bd8;
+      --light-blue: #f1f5fe;
+      --light-gray: #f7f8fa;
+      --medium-gray: #dbe0ef;
+      --white: #fff;
+      --shadow: 0 0.5px 3px rgba(70,90,120,0.09);
+      --border-radius: 5px;
+      --danger: #eb4343;
+      --text-dark: #222;
+      --text-light: #688;
+      --compact-font: 13.4px;
     }
-    body { background-color: var(--light-gray); color: var(--text-dark); line-height: 1.6; padding: 20px; min-height: 100vh; font-size: 15px; }
-    header { background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue)); color: white; padding: 20px; border-radius: var(--border-radius); margin-bottom: 20px; box-shadow: var(--shadow); text-align: center; }
-    h1 { font-size: 1.6em; font-weight: 600; display:flex; gap:10px; align-items:center; justify-content:center; }
-    .container { max-width: 1800px; margin: 0 auto; }
-    .search-filter-container { margin-bottom: 20px; }
-    .search-filter-box { background: var(--white); border-radius: var(--border-radius); padding: 15px; box-shadow: var(--shadow); border: 1px solid var(--medium-gray); }
-    .search-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom: 15px; gap: 10px; flex-wrap: wrap; }
-    .search-title { font-size: 1.1em; font-weight: 600; color: var(--primary-blue); display:flex; align-items:center; gap:8px; flex-wrap: wrap; }
-    .active-month-indicator { background: var(--search-blue); color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.9em; display: inline-flex; align-items: center; gap: 6px; margin-left: 10px; }
-    .updated-at { margin-top: 8px; font-size: 0.85em; color: var(--text-light); display: flex; align-items: center; gap: 6px; width: 100%; }
-    .error-banner { margin-top: 10px; padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(244, 67, 54, 0.35); background: rgba(244, 67, 54, 0.08); color: #b71c1c; font-size: 0.9em; display: none;}
-    .search-hint { font-size: 0.92em; color: var(--text-light); margin: 8px 0 0 0; display:flex; align-items:center; gap:6px;}
-    .search-input-container { position: relative; margin-bottom: 13px; }
-    .search-input { width: 100%; padding: 12px 45px 12px 15px; border: 2px solid var(--medium-gray); border-radius: var(--border-radius); font-size: 15px; transition: all 0.2s; background: var(--white); }
-    .search-input:focus { outline: none; border-color: var(--search-blue); box-shadow: 0 0 0 3px rgba(41, 98, 255, 0.1);}
-    .search-icon { position:absolute; right:15px; top:50%; transform:translateY(-50%); color: var(--text-light); font-size: 1.1em; }
-    .filter-chips { display:flex; flex-wrap:wrap; gap: 8px; margin-bottom: 15px; }
-    .filter-chip { padding: 8px 15px; background: var(--light-blue); border: 1px solid var(--medium-gray); border-radius: 20px; cursor: pointer; transition: all 0.15s; display:flex; align-items:center; gap:6px; font-size: 0.9em; font-weight: 500; user-select: none; }
-    .filter-chip:hover { background: #dfe3f8; transform: translateY(-2px);}
-    .filter-chip.active { background: var(--accent-blue); color: white; border-color: var(--accent-blue);}
-    .filter-chip-count { background: rgba(255,255,255,0.2); padding:1px 6px; border-radius:10px; font-size:0.8em;}
-    .clear-search-btn { background: var(--light-gray); border: 1px solid var(--medium-gray); color: var(--text-dark); padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 0.9em; display:flex; align-items:center; gap:5px; transition: all 0.15s; }
-    .clear-search-btn:hover { background: var(--medium-gray); }
-    .card { background: var(--white); border-radius: var(--border-radius); padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--medium-gray); margin-bottom: 20px; }
-    .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom: 15px; padding-bottom: 12px; border-bottom: 2px solid var(--light-blue); }
-    .card-title { font-size: 1.1em; font-weight: 600; color: var(--primary-blue); display:flex; align-items:center; gap:8px; }
-    .table-container { overflow-x: auto; border-radius: var(--border-radius); border: 1px solid var(--medium-gray); background: var(--white); margin-top: 15px;}
-    table { width: 100%; border-collapse: collapse; min-width: 800px; }
-    thead { background: var(--light-blue); position: sticky; top: 0; z-index: 10; }
-    th { padding: 12px 8px; text-align: left; font-weight: 600; color: var(--primary-blue); border-bottom: 2px solid var(--accent-blue); font-size: 0.95em; text-transform: uppercase; white-space: nowrap; user-select: none;}
-    td { padding: 10px 8px; color: var(--text-dark); vertical-align: middle; font-size: 0.95em; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
-    .type-icon { display:inline-flex; align-items:center; justify-content:center; width: 28px; height: 28px; border-radius: 4px; margin-right: 6px; font-size: 0.9em; font-weight: bold;}
-    .bus-icon {background: #ffebee; color: #d32f2f;}
-    .trolleybus-icon {background: #fff3e0; color: #f57c00;}
-    .tram-icon {background: #f3e5f5; color: #7b1fa2;}
-    .electrobus-icon {background: #e8f5e9; color: #388e3c;}
-    .tuah-icon {background: #e3f2fd; color: #1976d2;}
+    body { background: var(--light-gray); color: var(--text-dark); font-family: 'Segoe UI', Arial, sans-serif; font-size: var(--compact-font); margin:0; padding:9px 2px;}
+    header { background: linear-gradient(90deg, var(--primary-blue), var(--accent-blue)); color: #fff; border-radius:var(--border-radius); padding: 9px 0 7px 0; margin-bottom: 11px; box-shadow: var(--shadow);}
+    h1 { font-size:1.09em; margin:0; display:flex; gap:5px; align-items:center; justify-content:center;}
+    .container { max-width: 1280px; margin: 0 auto; }
+    .search-filter-box { background:var(--white); border-radius:var(--border-radius); padding:7px 8px; box-shadow: var(--shadow); border: 1px solid var(--medium-gray);}
+    .search-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;}
+    .search-title { font-size: 1em; font-weight:500; color: var(--primary-blue);}
+    .active-month-indicator { background: var(--accent-blue); color:#fff; font-size:.93em; padding:3px 10px; border-radius:13px; display:inline-flex; align-items:center; gap:5px; margin-left:7px;}
+    .updated-at { margin:3px 0 3px 0; font-size:.89em; color:var(--text-light); display: flex; align-items:center; gap:7px;}
+    .search-input-container { position:relative; margin-bottom:5px;}
+    .search-input { width:100%; font-size:var(--compact-font); padding:6px 32px 6px 9px; border:1px solid var(--medium-gray); border-radius:var(--border-radius);}
+    .search-input:focus { border-color: var(--accent-blue); outline:none; background: #eaf2ff;}
+    .search-icon { position:absolute; right:9px; top:50%; transform:translateY(-50%); color: var(--text-light);}
+    .search-hint { font-size:0.94em; color:var(--text-light); margin:2px 0 4px 0; }
+    .filter-chips { display:flex; flex-wrap:wrap; gap: 5px; margin-bottom:4px;}
+    .filter-chip { padding: 3px 8px; background: var(--light-blue); border: 1px solid var(--medium-gray); border-radius: 12px; cursor:pointer; font-size:.95em;}
+    .filter-chip.active { background: var(--accent-blue); color:#fff;}
+    .clear-search-btn { background: var(--light-gray); border: 1px solid var(--medium-gray); color: var(--text-dark); font-size:.93em; padding:4px 9px; border-radius:6px; cursor:pointer;}
+    .clear-search-btn:hover { background: var(--medium-gray);}
+    .card { background:var(--white); border-radius:var(--border-radius); padding:7px 7px 3px 7px; box-shadow:var(--shadow); border: 1px solid var(--medium-gray);}
+    .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:3px; padding-bottom:2px; border-bottom:1px solid var(--medium-gray);}
+    .card-title { font-size:.97em; font-weight:600; color:var(--primary-blue);}
+    .table-container { overflow-x:auto; border-radius:var(--border-radius); border:1px solid var(--medium-gray); background:var(--white);}
+    table { border-collapse:collapse; width:100%; min-width:700px; font-size:var(--compact-font);}
+    thead { background: var(--light-blue);}
+    th,td { padding: 2px 7px;}
+    th { text-align:left; font-weight:500; color:var(--primary-blue); border-bottom: 2px solid var(--accent-blue); font-size:.93em; cursor: pointer;}
+    .sort-indicator { margin-left:3px; font-size:.95em; opacity:.7;}
+    th.sorted-asc .sort-indicator::after { content:"↑"; }
+    th.sorted-desc .sort-indicator::after { content:"↓"; }
+    tbody tr { border-bottom: 1px solid var(--medium-gray);}
+    tbody tr:hover { background: #f6f9ff;}
+    .type-icon { display:inline-flex; align-items:center; justify-content:center; width:19px; height:19px; border-radius:3px; margin-right:2px; font-size:.82em; font-weight:bold;}
+    .bus-icon      { background:#fff2f2; color:#b82131;}
+    .trolleybus-icon { background:#fff7ea; color:#c57100;}
+    .tram-icon      { background:#f7f1ff; color:#822fa7;}
+    .electrobus-icon { background:#eefff2; color:#17863c;}
+    .tuah-icon     { background:#e5f0ff; color:#2264c3;}
     .vehicle-number { font-weight: 700; color: var(--primary-blue);}
-    .empty-state {text-align: center; padding: 40px 20px; color: var(--text-light);}
-    .empty-state i {font-size: 2.5em; color: var(--medium-gray); margin-bottom: 10px;}
-    .no-data { color: var(--text-light) !important; font-style: italic !important; }
-    footer { text-align:center; padding: 20px 0 10px; margin-top: 30px; color: var(--text-light); font-size: 0.9em; border-top: 1px solid var(--medium-gray);}
-    @media (max-width: 768px) {body { padding: 10px;} .filter-chips { justify-content: center;} h1 { font-size: 1.4em;} th, td { padding: 8px 6px;} }
+    .no-data { color: var(--text-light) !important; font-style: italic !important;}
+    .empty-state {text-align: center; padding:24px 6px 12px 6px; color: var(--text-light);}
+    .empty-state i {font-size: 1.7em;}
+    .error-banner { background: #ffeaea; border: 1px solid var(--danger); border-radius: var(--border-radius); padding: 6px 12px; margin-top: 8px; color: #b71c1c; font-size: 0.99em;}
+    footer { text-align:center; padding:10px 0 5px 0; margin-top:9px; color:var(--text-light); font-size:0.92em;}
   </style>
 </head>
 <body>
-<header>
-  <h1><i class="fas fa-bus"></i> Реестр поставок общественного транспорта г. Минска</h1>
-</header>
-
+<header><h1><i class="fas fa-bus"></i> Реестр транспорта Минска</h1></header>
 <div class="container">
-  <div class="search-filter-container">
-    <div class="search-filter-box">
-      <div class="search-header">
-        <div>
-          <div class="search-title">
-            <i class="fas fa-search"></i> Поиск и фильтрация
-            <div class="active-month-indicator">
-              <i class="fas fa-calendar"></i> <span id="activeMonthText"></span>
-            </div>
-          </div>
-          <div id="updatedAtInfo" class="updated-at" style="display:none;">
-            <i class="fas fa-clock"></i> <span id="updatedAtText"></span>
-          </div>
-          <div id="errorBanner" class="error-banner"></div>
-        </div>
-        <div id="searchResultsInfo" style="display:none; font-size:0.9em;">
-          Найдено: <span class="results-count" style="font-weight:600;color:var(--primary-blue);">0</span>
-        </div>
+  <div class="search-filter-box">
+    <div class="search-header">
+      <div class="search-title">
+        <i class="fas fa-search"></i> Поиск/фильтр
+        <span class="active-month-indicator" id="activeMonthBox"><i class="fas fa-calendar"></i> <span id="activeMonthText"></span></span>
       </div>
-      <div class="search-input-container">
-        <input type="text" id="searchInput" class="search-input"
-               placeholder="Поиск по модели, году, дате, парку, номеру, цвету...">
-        <div class="search-icon"><i class="fas fa-search"></i></div>
-      </div>
-      <div class="search-hint">
-        <i class="fas fa-info-circle"></i>
-        Можно указывать несколько фильтров через запятую. <br>
-        Пример: <span style="color:#3949ab">МАЗ-203, 2025</span>
-        <span style="color:#6e6e6e">— все МАЗ-203 за 2025 год</span>
-      </div>
-      <div class="filter-chips" id="typeFilterChips"></div>
-      <div style="display:flex;justify-content:flex-end;">
-        <button class="clear-search-btn" id="clearBtn">
-          <i class="fas fa-times"></i> Очистить поиск
-        </button>
-      </div>
+      <div id="updatedAtInfo" class="updated-at" style="display:none;"><i class="fas fa-clock"></i> <span id="updatedAtText"></span></div>
+      <div id="errorBanner" class="error-banner" style="display:none;"></div>
     </div>
+    <div class="search-input-container"><input type="text" id="searchInput" class="search-input" placeholder="фильтруй: маз, 2025..."><div class="search-icon"><i class="fas fa-search"></i></div></div>
+    <div class="search-hint"><i class="fas fa-info-circle"></i>Фильтр через запятую &mdash; ищет по всем словам, сортировка по номеру<br><span style="color:#456bd8">например: маз, 2025</span></div>
+    <div class="filter-chips" id="typeFilterChips"></div>
+    <div style="display:flex;justify-content:flex-end;"><button class="clear-search-btn" id="clearBtn"><i class="fas fa-times"></i> Сброс</button></div>
   </div>
-  <div class="card">
+  <div class="card" style="margin-top:10px;">
     <div class="card-header">
       <div class="card-title"><i class="fas fa-table"></i> Таблица транспорта</div>
-      <div style="color: var(--text-light); font-size: 0.9em;">
+      <div style="color:var(--text-light); font-size:.93em;">
         <span id="filteredCount">0</span> из <span id="totalCount2">0</span> записей
       </div>
     </div>
-
     <div class="table-container">
       <table id="vehiclesTable">
         <thead>
         <tr>
-          <th style="width: 50px;">Тип</th>
-          <th>Модель</th>
-          <th style="width: 70px;">Год</th>
-          <th style="width: 90px;">Дата</th>
-          <th style="width: 70px;">Парк</th>
-          <th style="width: 100px;">Номер</th>
-          <th style="width: 110px;">Заводской №</th>
-          <th style="width: 90px;">Гаражный №</th>
-          <th style="width: 80px;">Цвет</th>
+          <th>Тип</th>
+          <th data-field="model">Модель<span class="sort-indicator"></span></th>
+          <th data-field="year">Год<span class="sort-indicator"></span></th>
+          <th data-field="deliveryDate">Дата<span class="sort-indicator"></span></th>
+          <th data-field="park">Парк<span class="sort-indicator"></span></th>
+          <th data-field="vehicleNumber">Номер<span class="sort-indicator"></span></th>
+          <th data-field="factoryNumber">Заводской №<span class="sort-indicator"></span></th>
+          <th data-field="garageNumber">Гаражный №<span class="sort-indicator"></span></th>
+          <th data-field="color">Цвет<span class="sort-indicator"></span></th>
         </tr>
         </thead>
         <tbody id="vehiclesTableBody"></tbody>
       </table>
     </div>
-
-    <div id="emptyState" class="empty-state" style="display:none;">
-      <i class="fas fa-database"></i>
-      <h3 style="color: var(--text-light); margin-bottom: 10px;">Нет данных по выбранным фильтрам</h3>
-      <p>Измените параметры поиска или выберите другой тип транспорта</p>
-    </div>
+    <div id="emptyState" class="empty-state" style="display:none;"><i class="fas fa-database"></i><br>Нет данных по этим фильтрам</div>
   </div>
 </div>
 <footer>
-  <div>
-    <i class="far fa-copyright"></i> <span id="currentYear"></span>
-    <span style="margin:0 8px;">|</span>
-    <span style="font-size:0.85em;">Источник: <code id="sourceUrlLabel"></code></span>
-  </div>
+  <span id="currentYear"></span> | Источник: <code id="sourceUrlLabel"></code>
 </footer>
-
 <script>
-  // Абсолютный URL для гарантии при встраивании
-  const DATA_URL = 'https://deumpirovich.github.io/beltransport/postavki.json';
-
-  let vehicles = [];
-  let filteredVehicles = [];
-  let selectedTypes = [];
-  let currentSearchQuery = '';
-  let currentDefaultDate = '';
-
-  document.addEventListener('DOMContentLoaded', async () => {
-    document.getElementById('currentYear').textContent = new Date().getFullYear();
-    document.getElementById('activeMonthText').textContent = getCurrentMonthStr();
-    document.getElementById('sourceUrlLabel').textContent = DATA_URL;
-
-    document.getElementById('searchInput').addEventListener('input', handleSearchInput);
-    document.getElementById('clearBtn').addEventListener('click', clearSearch);
-
-    await loadDataOrFail();
-    setDefaultDateFilter();
-    renderTypeFilterChips();
-    applyFilters();
-  });
-
-  function getCurrentMonthStr() {
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = d.getMonth() + 1;
-    return `${String(m).padStart(2,'0')}.${y}`;
-  }
-
-  function showError(message) {
-    const el = document.getElementById('errorBanner');
-    el.style.display = 'block';
-    el.innerHTML = message;
-  }
-
-  function hideError() {
-    const el = document.getElementById('errorBanner');
-    el.style.display = 'none';
-    el.innerHTML = '';
-  }
-
-  async function loadDataOrFail() {
-    try {
-      hideError();
-      const res = await fetch(DATA_URL, { cache: 'no-store' });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-
-      const data = await res.json();
-
-      // Новый формат: объект { updatedAt, vehicles: [...] }
-      if (data && typeof data === 'object' && !Array.isArray(data)) {
-        if (!Array.isArray(data.vehicles)) throw new Error('Ожидается поле vehicles (массив)');
-        vehicles = data.vehicles;
-
-        if (data.updatedAt) {
-          document.getElementById('updatedAtText').textContent = `Обновлено: ${data.updatedAt}`;
-          document.getElementById('updatedAtInfo').style.display = 'flex';
-        } else {
-          document.getElementById('updatedAtInfo').style.display = 'none';
-        }
-        return;
-      }
-
-      // Старый формат: массив
-      if (Array.isArray(data)) {
-        vehicles = data;
-        document.getElementById('updatedAtInfo').style.display = 'none';
-        return;
-      }
-
-      throw new Error('Некорректный формат JSON');
-    } catch (e) {
-      console.error(e);
-      vehicles = [];
-      document.getElementById('updatedAtInfo').style.display = 'none';
-      showError(
-        `<strong>Не удалось загрузить базу данных.</strong><br>` +
-        `URL JSON: <code>${escapeHTML(DATA_URL)}</code><br>` +
-        `Ошибка: <code>${escapeHTML(e.message || String(e))}</code><br>` +
-        `Если страница внутри Google Sites — вероятно, сайт блокирует запрос из iframe.`
-      );
-    }
-  }
-
-  function setDefaultDateFilter() {
-    const currentDateStr = getCurrentMonthStr();
-    const d = new Date();
-    let pm = d.getMonth();
-    let py = d.getFullYear();
-    if (pm === 0) { pm = 12; py = py - 1; }
-    const prevDateStr = `${String(pm).padStart(2,'0')}.${py}`;
-    if (vehicles.some(v => v.deliveryDate === currentDateStr)) { currentDefaultDate = currentDateStr; return; }
-    if (vehicles.some(v => v.deliveryDate === prevDateStr)) { currentDefaultDate = prevDateStr; return; }
-    currentDefaultDate = '';
-  }
-
-  function handleSearchInput() {
-    currentSearchQuery = document.getElementById('searchInput').value.trim();
-    applyFilters();
-
-    const info = document.getElementById('searchResultsInfo');
-    if (currentSearchQuery && filteredVehicles.length > 0) {
-      info.querySelector('.results-count').textContent = filteredVehicles.length;
-      info.style.display = 'block';
-    } else {
-      info.style.display = 'none';
-    }
-  }
-
-  function clearSearch() {
-    document.getElementById('searchInput').value = '';
-    currentSearchQuery = '';
-    selectedTypes = [];
-    updateTypeFilterChips();
-    applyFilters();
-    document.getElementById('searchResultsInfo').style.display = 'none';
-  }
-
-  function renderTypeFilterChips() {
-    const container = document.getElementById('typeFilterChips');
-    const typeDisplayNames = {
-      'автобус': 'Автобус',
-      'троллейбус': 'Троллейбус',
-      'трамвай': 'Трамвай',
-      'электробус': 'Электробус',
-      'туах': 'УАХ'
-    };
-
-    const types = [...new Set(vehicles.map(v => v.type).filter(Boolean))].sort();
-    let html = '';
-
-    html += `
-      <div class="filter-chip ${selectedTypes.length === 0 ? 'active' : ''}" data-type="all">
-        <i class="fas fa-list"></i> Все
-        <span class="filter-chip-count">${vehicles.length}</span>
-      </div>
-    `;
-
-    types.forEach(type => {
-      const count = vehicles.filter(v => v.type === type).length;
-      const isActive = selectedTypes.includes(type);
-      html += `
-        <div class="filter-chip ${isActive ? 'active' : ''}" data-type="${escapeAttr(type)}">
-          ${getTypeIconHTML(type, 'small')} ${escapeHTML(typeDisplayNames[type] || type)}
-          <span class="filter-chip-count">${count}</span>
-        </div>
-      `;
-    });
-
-    container.innerHTML = html;
-    container.querySelectorAll('.filter-chip').forEach(chip => {
-      chip.addEventListener('click', () => toggleTypeFilter(chip.dataset.type));
-    });
-  }
-
-  function updateTypeFilterChips() {
-    document.querySelectorAll('.filter-chip').forEach(chip => {
-      const type = chip.dataset.type;
-      if (type === 'all') chip.classList.toggle('active', selectedTypes.length === 0);
-      else chip.classList.toggle('active', selectedTypes.includes(type));
-    });
-  }
-
-  function toggleTypeFilter(type) {
-    if (type === 'all') selectedTypes = [];
-    else {
-      const i = selectedTypes.indexOf(type);
-      if (i === -1) selectedTypes.push(type);
-      else selectedTypes.splice(i, 1);
-    }
-    updateTypeFilterChips();
-    applyFilters();
-  }
-
-  function applyFilters() {
-    // Разбиваем поисковый запрос НА НЕСКОЛЬКО фильтров через запятую
-    let filters = (currentSearchQuery || "")
-      .split(',')
-      .map(s => s.trim().toLowerCase())
-      .filter(Boolean);
-
-    if (filters.length === 0 && selectedTypes.length === 0) {
-      filteredVehicles = vehicles.filter(v => currentDefaultDate ? v.deliveryDate === currentDefaultDate : true);
-    } else {
-      filteredVehicles = vehicles.filter(v => {
-        if (selectedTypes.length > 0 && !selectedTypes.includes(v.type)) return false;
-        // Тут "И" между поисковыми словами
-        if (filters.length) {
-          let searchable = [
-            v.model, v.year, v.deliveryDate, v.park,
-            (v.licensePlate || v.registrationNumber),
-            v.factoryNumber, v.garageNumber, v.color
-          ].filter(Boolean).map(x => String(x).toLowerCase());
-
-          for (let filter of filters) {
-            // Каждое слово фильтра должно встречаться где-то в строковых полях
-            if (!searchable.some(s => s.includes(filter))) return false;
-          }
-        }
-        return true;
-      });
-    }
-
-    // Сортировка — всегда по номеру по убыванию (по твоей схеме)
-    filteredVehicles = filteredVehicles.slice().sort(compareVehicleNumbersDesc);
-    renderTableView();
-  }
-
-  // ************ ФУНКЦИЯ КАСТОМНОЙ СОРТИРОВКИ ********************
-  // 1. Номер с третьим символом буква (например, 'ААЕ...') — всегда выше,
-  //    чем любой номер, где третий символ — цифра ('АА4...').
-  // 2. Внутри группы — сортировка лексикографическая (строка)
-  // 3. Если оба пустые — такие записи в самом низу
-
-  function getSortableNumberString(v) {
-    let num = v.licensePlate || v.registrationNumber || '';
-    num = (typeof num === "string") ? num.trim().toUpperCase() : '';
-    // Фикс: если -7 без пробела и точны 7 символов до дефиса, оставляем как есть
-    // Остальные пустые номера считаем меньше всех
-    return num;
-  }
-
-  function compareVehicleNumbersDesc(a, b) {
-    let an = getSortableNumberString(a);
-    let bn = getSortableNumberString(b);
-
-    // Пустые вниз
-    if (!an && !bn) return 0;
-    if (!an) return 1;
-    if (!bn) return -1;
-
-    // 1. Проверяем 3-й символ
-    let aLetter = (an.length >= 3 && isNaN(+an[2])) ? 1 : 0;
-    let bLetter = (bn.length >= 3 && isNaN(+bn[2])) ? 1 : 0;
-
-    // Сначала те, где третий символ буква (AАE и тп), выше
-    if (aLetter !== bLetter) {
-      return bLetter - aLetter; // bLetter==1 выше
-    }
-
-    // 2. Внутри группы — сортировка по строке по убыванию (Z..A,9..0)
-    if (an > bn) return -1;
-    if (an < bn) return 1;
-    return 0;
-  }
-
-  function renderTableView() {
-    const tbody = document.getElementById('vehiclesTableBody');
-    const emptyState = document.getElementById('emptyState');
-
-    document.getElementById('filteredCount').textContent = filteredVehicles.length;
-    document.getElementById('totalCount2').textContent = vehicles.length;
-
-    if (filteredVehicles.length === 0) {
-      tbody.innerHTML = '';
-      emptyState.style.display = 'block';
+// ====== НАСТРОЙКИ ======================================
+const DATA_URL = 'https://deumpirovich.github.io/beltransport/postavki.json';
+// ====== ОСНОВНЫЕ =======================================
+let vehicles = [], filteredVehicles = [], selectedTypes = [];
+let currentSearchQuery = '', currentDefaultDate = '';
+let sortConfig = { field: "vehicleNumber", order: "desc" };
+// ====== ИНИЦИАЛИЗАЦИЯ ======
+document.addEventListener('DOMContentLoaded', async () => {
+  document.getElementById('currentYear').textContent = new Date().getFullYear();
+  document.getElementById('activeMonthText').textContent = getCurrentMonthStr();
+  document.getElementById('sourceUrlLabel').textContent = DATA_URL;
+  document.getElementById('searchInput').addEventListener('input', handleSearchInput);
+  document.getElementById('clearBtn').addEventListener('click', clearSearch);
+  document.querySelectorAll('#vehiclesTable th[data-field]')
+    .forEach(th => th.addEventListener('click', () => sortTable(th.dataset.field)));
+  await loadDataOrFail();
+  setDefaultDateFilter();
+  renderTypeFilterChips();
+  applyFilters();
+});
+function getCurrentMonthStr() {
+  const d = new Date(), y = d.getFullYear(), m = d.getMonth() + 1;
+  return `${String(m).padStart(2, '0')}.${y}`;
+}
+function showError(message) {
+  const el = document.getElementById('errorBanner'); el.style.display = 'block'; el.innerHTML = message;
+}
+function hideError() {
+  const el = document.getElementById('errorBanner'); el.style.display = 'none'; el.innerHTML = '';
+}
+async function loadDataOrFail() {
+  try {
+    hideError();
+    const res = await fetch(DATA_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+      if (!Array.isArray(data.vehicles)) throw new Error('Ожидается поле vehicles (массив)');
+      vehicles = data.vehicles;
+      if (data.updatedAt) {
+        document.getElementById('updatedAtText').textContent = `Обновлено: ${data.updatedAt}`;
+        document.getElementById('updatedAtInfo').style.display = '';
+      } else document.getElementById('updatedAtInfo').style.display = 'none';
       return;
     }
-    emptyState.style.display = 'none';
-
-    const grouped = {};
-    for (const v of filteredVehicles) {
-      const t = v.type || 'неизвестно';
-      (grouped[t] ||= []).push(v);
-    }
-
-    const typeDisplayNames = {
-      'автобус': 'Автобус',
-      'троллейбус': 'Троллейбус',
-      'трамвай': 'Трамвай',
-      'электробус': 'Электробус',
-      'туах': 'УАХ'
-    };
-
-    let html = '';
-    Object.keys(grouped).sort().forEach(type => {
-      html += `
-        <tr class="group-header">
-          <td colspan="9">
-            ${getTypeIconHTML(type)} ${escapeHTML(typeDisplayNames[type] || type)}
-            <span style="float:right;font-weight:normal;color:var(--text-light);">${grouped[type].length} ед.</span>
-          </td>
-        </tr>
-      `;
-      grouped[type].forEach(v => {
-        const number = v.licensePlate || v.registrationNumber || '';
-        html += `
-          <tr>
-            <td>${getTypeIconHTML(v.type)}</td>
-            <td>${formatCellValue(v.model)}</td>
-            <td>${formatCellValue(v.year)}</td>
-            <td>${formatCellValue(v.deliveryDate)}</td>
-            <td>${formatCellValue(v.park)}</td>
-            <td class="vehicle-number">${formatCellValue(number)}</td>
-            <td>${formatCellValue(v.factoryNumber)}</td>
-            <td>${formatCellValue(v.garageNumber)}</td>
-            <td>${formatCellValue(v.color)}</td>
-          </tr>
-        `;
-      });
+    if (Array.isArray(data)) { vehicles = data; document.getElementById('updatedAtInfo').style.display = 'none'; return; }
+    throw new Error('Некорректный формат JSON');
+  } catch (e) {
+    vehicles = [];
+    document.getElementById('updatedAtInfo').style.display = 'none';
+    showError('<b>Не удалось загрузить базу</b> — ' + escapeHTML(e.message));
+  }
+}
+function setDefaultDateFilter() {
+  const curr = getCurrentMonthStr(), d = new Date();
+  let pm = d.getMonth(), py = d.getFullYear();
+  if (pm === 0) { pm = 12; py -= 1; }
+  const prev = `${String(pm).padStart(2, '0')}.${py}`;
+  if (vehicles.some(v => v.deliveryDate === curr)) { currentDefaultDate = curr; return; }
+  if (vehicles.some(v => v.deliveryDate === prev)) { currentDefaultDate = prev; return; }
+  currentDefaultDate = '';
+}
+function handleSearchInput() {
+  currentSearchQuery = document.getElementById('searchInput').value.trim();
+  applyFilters();
+}
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  currentSearchQuery = '';
+  selectedTypes = [];
+  updateTypeFilterChips();
+  applyFilters();
+}
+function renderTypeFilterChips() {
+  const container = document.getElementById('typeFilterChips');
+  const typeDisplayNames = { 'автобус': 'Автобус','троллейбус': 'Троллейбус','трамвай': 'Трамвай','электробус': 'Электробус','туах': 'УАХ'};
+  const types = [...new Set(vehicles.map(v => v.type).filter(Boolean))].sort();
+  let html =
+    `<div class="filter-chip ${selectedTypes.length === 0 ? 'active' : ''}" data-type="all"><i class="fas fa-list"></i> Все <span class="filter-chip-count">${vehicles.length}</span></div>`;
+  types.forEach(type => {
+    const count = vehicles.filter(v => v.type === type).length,
+      isActive = selectedTypes.includes(type);
+    html += `<div class="filter-chip ${isActive ? 'active' : ''}" data-type="${escapeAttr(type)}">${getTypeIconHTML(type, 'small')} ${escapeHTML(typeDisplayNames[type] || type)}<span class="filter-chip-count">${count}</span></div>`;
+  });
+  container.innerHTML = html;
+  container.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => toggleTypeFilter(chip.dataset.type));
+  });
+}
+function updateTypeFilterChips() {
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    const type = chip.dataset.type;
+    if (type === 'all') chip.classList.toggle('active', selectedTypes.length === 0);
+    else chip.classList.toggle('active', selectedTypes.includes(type));
+  });
+}
+function toggleTypeFilter(type) {
+  if (type === 'all') selectedTypes = [];
+  else {
+    const i = selectedTypes.indexOf(type);
+    if (i === -1) selectedTypes.push(type); else selectedTypes.splice(i, 1);
+  }
+  updateTypeFilterChips();
+  applyFilters();
+}
+function applyFilters() {
+  let filters = (currentSearchQuery || "").split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  if (filters.length === 0 && selectedTypes.length === 0) {
+    filteredVehicles = vehicles.filter(v => currentDefaultDate ? v.deliveryDate === currentDefaultDate : true);
+  } else {
+    filteredVehicles = vehicles.filter(v => {
+      if (selectedTypes.length > 0 && !selectedTypes.includes(v.type)) return false;
+      if (filters.length) {
+        let searchable = [
+          v.model, v.year, v.deliveryDate, v.park,
+          (v.licensePlate || v.registrationNumber),
+          v.factoryNumber, v.garageNumber, v.color
+        ].filter(Boolean).map(x => String(x).toLowerCase());
+        for (let filter of filters) {
+          if (!searchable.some(s => s.includes(filter))) return false;
+        }
+      }
+      return true;
     });
-
-    tbody.innerHTML = html;
   }
-
-  function getTypeIconHTML(type, size = 'normal') {
-    const sizeStyle = size === 'small' ? ' style="width:20px;height:20px;font-size:0.8em;"' : '';
-    switch (type) {
-      case 'автобус': return `<span class="type-icon bus-icon"${sizeStyle}>А</span>`;
-      case 'троллейбус': return `<span class="type-icon trolleybus-icon"${sizeStyle}>Т</span>`;
-      case 'трамвай': return `<span class="type-icon tram-icon"${sizeStyle}>Тр</span>`;
-      case 'электробус': return `<span class="type-icon electrobus-icon"${sizeStyle}>E</span>`;
-      case 'туах': return `<span class="type-icon tuah-icon"${sizeStyle}>УАХ</span>`;
-      default: return `<span class="type-icon"${sizeStyle}>?</span>`;
-    }
+  applySorting();
+  renderTableView();
+}
+function sortTable(field) {
+  if (sortConfig.field === field) sortConfig.order = (sortConfig.order === 'asc') ? 'desc' : 'asc';
+  else sortConfig.field = field, sortConfig.order = (field === 'vehicleNumber' ? 'desc' : 'asc');
+  applySorting(); renderTableView(); updateSortIndicators();
+}
+function updateSortIndicators() {
+  document.querySelectorAll('#vehiclesTable th[data-field]').forEach(th => {
+    th.classList.remove('sorted-asc', 'sorted-desc');
+    if (th.dataset.field === sortConfig.field)
+      th.classList.add(sortConfig.order === 'asc' ? 'sorted-asc' : 'sorted-desc');
+  });
+}
+function applySorting() {
+  filteredVehicles = filteredVehicles.slice().sort((a, b) => {
+    if (sortConfig.field === 'vehicleNumber') return compareVehicleNumbersDesc(a, b) * (sortConfig.order === 'asc' ? -1 : 1);
+    let A = (a[sortConfig.field] || '').toLowerCase(), B = (b[sortConfig.field] || '').toLowerCase();
+    if (A < B) return sortConfig.order === 'asc' ? -1 : 1;
+    if (A > B) return sortConfig.order === 'asc' ? 1 : -1;
+    return compareVehicleNumbersDesc(a, b);
+  });
+}
+function getSortableNumberString(v) {
+  let num = v.licensePlate || v.registrationNumber || '';
+  num = (typeof num === "string") ? num.trim().toUpperCase() : '';
+  return num;
+}
+function compareVehicleNumbersDesc(a, b) {
+  let an = getSortableNumberString(a), bn = getSortableNumberString(b);
+  if (!an && !bn) return 0; if (!an) return 1; if (!bn) return -1;
+  let aLetter = (an.length >= 3 && isNaN(+an[2])) ? 1 : 0, bLetter = (bn.length >= 3 && isNaN(+bn[2])) ? 1 : 0;
+  if (aLetter !== bLetter) return bLetter - aLetter;
+  if (an > bn) return -1; if (an < bn) return 1; return 0;
+}
+function renderTableView() {
+  const tbody = document.getElementById('vehiclesTableBody');
+  const emptyState = document.getElementById('emptyState');
+  document.getElementById('filteredCount').textContent = filteredVehicles.length;
+  document.getElementById('totalCount2').textContent = vehicles.length;
+  if (filteredVehicles.length === 0) { tbody.innerHTML = ''; emptyState.style.display = 'block'; return; }
+  emptyState.style.display = 'none';
+  let html = '';
+  filteredVehicles.forEach(v => {
+    const num = v.licensePlate || v.registrationNumber || '';
+    html += `<tr>
+      <td>${getTypeIconHTML(v.type)}</td>
+      <td>${formatCellValue(v.model)}</td>
+      <td>${formatCellValue(v.year)}</td>
+      <td>${formatCellValue(v.deliveryDate)}</td>
+      <td>${formatCellValue(v.park)}</td>
+      <td class="vehicle-number">${formatCellValue(num)}</td>
+      <td>${formatCellValue(v.factoryNumber)}</td>
+      <td>${formatCellValue(v.garageNumber)}</td>
+      <td>${formatCellValue(v.color)}</td>
+    </tr>`;
+  });
+  tbody.innerHTML = html;
+  updateSortIndicators();
+}
+function getTypeIconHTML(type, size='normal') {
+  const sizeStyle = size === 'small' ? ' style="width:16px;height:16px;font-size:0.8em;"' : '';
+  switch (type) {
+    case 'автобус': return `<span class="type-icon bus-icon"${sizeStyle}>А</span>`;
+    case 'троллейбус': return `<span class="type-icon trolleybus-icon"${sizeStyle}>Т</span>`;
+    case 'трамвай': return `<span class="type-icon tram-icon"${sizeStyle}>Тр</span>`;
+    case 'электробус': return `<span class="type-icon electrobus-icon"${sizeStyle}>E</span>`;
+    case 'туах': return `<span class="type-icon tuah-icon"${sizeStyle}>УАХ</span>`;
+    default: return `<span class="type-icon"${sizeStyle}>?</span>`;
   }
-
-  function formatCellValue(value) {
-    if (!value || String(value).trim() === '') return '<span class="no-data">нет данных</span>';
-    return escapeHTML(String(value));
-  }
-  function escapeHTML(s) {
-    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  }
-  function escapeAttr(s) {
-    return String(s).replace(/"/g, '&quot;');
-  }
+}
+function formatCellValue(value) {
+  if (!value || String(value).trim() === '') return '<span class="no-data">нет данных</span>';
+  return escapeHTML(String(value));
+}
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(s) {
+  return String(s).replace(/"/g, '&quot;');
+}
 </script>
 </body>
 </html>
