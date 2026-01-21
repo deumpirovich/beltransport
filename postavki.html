@@ -1,4 +1,9 @@
-<!-- postavki.html (полный код: NEW первый, Все последний, mobile-friendly table scroll) -->
+<!-- postavki.html (полный код)
+  Desktop: таблица + sticky верх + sticky шапка таблицы.
+  Mobile (<=720px): вместо таблицы — карточки (без горизонтального скролла).
+  Табы: NEW (первый) = текущий месяц, если есть, иначе последний месяц с поставками.
+        Все (последний) = все данные без фильтра месяца.
+-->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -29,19 +34,11 @@
     .tab.active{background:#2543a5; color:#fff; border-color:#2543a5;}
     .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
 
-    /* === mobile: горизонтальный скролл для таблицы === */
-    .tableWrap{
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      border-radius: 8px;
-    }
+    /* table (desktop) */
+    .tableWrap{display:block;}
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size:13px; background:#fff; border-radius:8px; overflow:hidden;}
 
-    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size:13px; min-width: 980px; background:#fff; }
-
-    /* center all cells */
     th, td { padding: 3px 5px; text-align: center; }
-
-    /* sticky table header under stickyTop */
     :root{ --stickyTopOffset: 120px; }
     thead th{
       position: sticky;
@@ -60,14 +57,51 @@
     .empty {padding:18px 0; text-align:center; color:#9aa6c3; font-style:italic;}
     .err {margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px; white-space:pre-wrap;}
 
-    /* mobile tuning */
-    @media (max-width: 560px){
+    /* cards (mobile) */
+    .cardsWrap{display:none; margin-top: 8px;}
+    .card{
+      background:#fff;
+      border:1px solid #e3e8f5;
+      border-radius:10px;
+      padding:10px 10px 9px 10px;
+      box-shadow:0 1px 5px rgba(70,80,160,.06);
+      margin-bottom:10px;
+    }
+    .cardTop{
+      display:flex; justify-content:space-between; gap:10px; align-items:flex-start; flex-wrap:wrap;
+      margin-bottom:6px;
+    }
+    .cardTitle{
+      font-weight:700; color:#2543a5; line-height:1.2;
+    }
+    .cardBadge{
+      font-size:12px; padding:2px 8px; border-radius:999px;
+      background:#eef3ff; border:1px solid #cfd7ea; color:#2543a5;
+      white-space:nowrap;
+    }
+    .cardGrid{
+      display:grid;
+      grid-template-columns: 110px 1fr;
+      gap:6px 10px;
+      align-items:start;
+      font-size:13px;
+    }
+    .k{color:#5b6b98; font-size:12px;}
+    .v{color:#23263a; word-break:break-word;}
+    .v.num{font-weight:700; color:#2543a5;}
+    .cardRowSpan{grid-column: 1 / -1; border-top:1px dashed #e3e8f5; padding-top:6px; margin-top:2px;}
+
+    @media (max-width: 720px){
       .cont{margin: 10px auto;}
       input[type="text"]{width: 100%;}
       .counts{margin-left:0;}
-      .tab{padding:3px 8px; font-size:12px;}
-      th, td{padding:3px 4px;}
-      table{font-size:12px;}
+
+      /* switch: cards instead of table */
+      .tableWrap{display:none;}
+      .cardsWrap{display:block;}
+
+      /* чтобы sticky верх не "съедал" пространство */
+      :root{ --stickyTopOffset: 0px; }
     }
   </style>
 </head>
@@ -91,7 +125,7 @@
     <div class="tabs" id="tabs"></div>
   </div>
 
-  <!-- ВАЖНО: table внутри tableWrap, чтобы на мобилке работал горизонтальный скролл -->
+  <!-- Desktop table -->
   <div class="tableWrap">
     <table>
       <thead>
@@ -110,6 +144,9 @@
       <tbody id="data"></tbody>
     </table>
   </div>
+
+  <!-- Mobile cards -->
+  <div class="cardsWrap" id="cards"></div>
 
   <div class="empty" id="empty" style="display:none;">Нет данных по фильтру</div>
   <div class="err" id="err" style="display:none;"></div>
@@ -251,7 +288,7 @@ function generalSort(a, b){
   return numSortAlg(a, b);
 }
 
-/** render */
+/** render helpers */
 function escapeHTML(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -259,7 +296,15 @@ function cell(x){
   const s = (x||'').toString().trim();
   return s ? escapeHTML(s) : '<span class="no">—</span>';
 }
+function valText(x){
+  const s = (x||'').toString().trim();
+  return s ? s : '—';
+}
+function isMobile(){
+  return window.matchMedia && window.matchMedia('(max-width: 720px)').matches;
+}
 
+/** render (table + cards) */
 function render(){
   const q = document.getElementById('q').value.trim();
   const filters = q ? q.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean) : [];
@@ -287,15 +332,18 @@ function render(){
   document.getElementById('countAll').textContent = DATA.length;
 
   const tbody = document.getElementById('data');
+  const cards = document.getElementById('cards');
   const empty = document.getElementById('empty');
 
   if(!VIEW.length){
     tbody.innerHTML = '';
+    cards.innerHTML = '';
     empty.style.display = '';
     return;
   }
   empty.style.display = 'none';
 
+  /* desktop table */
   tbody.innerHTML = VIEW.map(v=>`<tr>
     <td>${escapeHTML(typeLabel(v.type))}</td>
     <td>${cell(v.model)}</td>
@@ -307,20 +355,54 @@ function render(){
     <td>${cell(v.garageNumber)}</td>
     <td>${cell(v.color)}</td>
   </tr>`).join('');
+
+  /* mobile cards */
+  cards.innerHTML = VIEW.map(v=>{
+    const titleLeft = `${typeLabel(v.type)} ${valText(v.vehicleNumber)}`.trim();
+    const badge = valText(v.deliveryDate);
+
+    return `<div class="card">
+      <div class="cardTop">
+        <div class="cardTitle">${escapeHTML(titleLeft)}</div>
+        <div class="cardBadge">${escapeHTML(badge)}</div>
+      </div>
+
+      <div class="cardGrid">
+        <div class="k">Модель</div><div class="v">${escapeHTML(valText(v.model))}</div>
+        <div class="k">Год</div><div class="v">${escapeHTML(valText(v.year))}</div>
+        <div class="k">Парк</div><div class="v">${escapeHTML(valText(v.park))}</div>
+
+        <div class="k">Заводской №</div><div class="v">${escapeHTML(valText(v.factoryNumber))}</div>
+        <div class="k">Гаражный №</div><div class="v">${escapeHTML(valText(v.garageNumber))}</div>
+
+        <div class="cardRowSpan"></div>
+
+        <div class="k">Цвет</div><div class="v">${escapeHTML(valText(v.color))}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-/** sticky header offset auto */
+/** sticky header offset auto (desktop only) */
 function updateStickyHeaderOffset(){
+  if(isMobile()){
+    document.documentElement.style.setProperty('--stickyTopOffset', '0px');
+    return;
+  }
   const top = document.getElementById('stickyTop');
   if(!top) return;
   const h = Math.ceil(top.getBoundingClientRect().height);
   document.documentElement.style.setProperty('--stickyTopOffset', h + 'px');
 }
-window.addEventListener('resize', updateStickyHeaderOffset);
+window.addEventListener('resize', ()=>{
+  updateStickyHeaderOffset();
+  render(); // чтобы при повороте экрана карточки/таблица синхронизировались
+});
 
-/** click sort */
+/** click sort (desktop header) */
 document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick = ()=>{
+    // на мобилке шапки таблицы нет, но обработчик не мешает
     document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
     th.classList.add('active');
     const f = th.getAttribute('data-f');
