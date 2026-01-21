@@ -18,7 +18,6 @@
       --text-light: #757575;
       --border-radius: 8px;
       --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      --success-green: #4caf50;
       --search-blue: #2962ff;
     }
 
@@ -35,14 +34,7 @@
       text-align: center;
     }
 
-    h1 {
-      font-size: 1.6em;
-      font-weight: 600;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-    }
+    h1 { font-size: 1.6em; font-weight: 600; display:flex; align-items:center; justify-content:center; gap:10px; }
 
     .container { max-width: 1800px; margin: 0 auto; }
 
@@ -84,7 +76,7 @@
 
     .search-header {
       display:flex;
-      align-items:center;
+      align-items:flex-start;
       justify-content:space-between;
       margin-bottom: 15px;
       gap: 10px;
@@ -101,16 +93,26 @@
       flex-wrap: wrap;
     }
 
-    .active-year-indicator {
-      background: var(--success-green);
+    .active-month-indicator {
+      background: var(--search-blue);
       color: white;
       padding: 6px 12px;
       border-radius: 20px;
       font-size: 0.9em;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
       margin-left: 10px;
+    }
+
+    .updated-at {
+      margin-top: 8px;
+      font-size: 0.85em;
+      color: var(--text-light);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
     }
 
     .search-input-container { position: relative; margin-bottom: 15px; }
@@ -256,10 +258,18 @@
   <div class="search-filter-container">
     <div class="search-filter-box">
       <div class="search-header">
-        <div class="search-title">
-          <i class="fas fa-search"></i> Поиск и фильтрация
-          <div id="activeYearBadge" class="active-year-indicator"></div>
+        <div>
+          <div class="search-title">
+            <i class="fas fa-search"></i> Поиск и фильтрация
+            <div id="activeMonthBadge" class="active-month-indicator">
+              <i class="fas fa-calendar"></i> <span id="activeMonthText"></span>
+            </div>
+          </div>
+          <div id="updatedAtInfo" class="updated-at" style="display:none;">
+            <i class="fas fa-clock"></i> <span id="updatedAtText"></span>
+          </div>
         </div>
+
         <div id="searchResultsInfo" style="display:none; font-size:0.9em;">
           Найдено: <span class="results-count" style="font-weight:600;color:var(--primary-blue);">0</span>
         </div>
@@ -338,6 +348,7 @@
 
   document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('currentYear').textContent = new Date().getFullYear();
+    document.getElementById('activeMonthText').textContent = getCurrentMonthStr();
 
     document.getElementById('searchInput').addEventListener('input', handleSearchInput);
     document.getElementById('clearBtn').addEventListener('click', clearSearch);
@@ -350,53 +361,62 @@
     applyFilters();
   });
 
+  function getCurrentMonthStr() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = d.getMonth() + 1;
+    return `${String(m).padStart(2,'0')}.${y}`;
+  }
+
   async function loadDataOrFail() {
     try {
       const res = await fetch(DATA_URL, { cache: 'no-store' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
+
       const data = await res.json();
-      if (!Array.isArray(data)) throw new Error('JSON должен быть массивом');
-      vehicles = data;
+
+      // Новый формат: объект { updatedAt, vehicles: [...] }
+      if (data && typeof data === 'object' && !Array.isArray(data)) {
+        if (!Array.isArray(data.vehicles)) throw new Error('Ожидается поле vehicles (массив)');
+        vehicles = data.vehicles;
+
+        if (data.updatedAt) {
+          document.getElementById('updatedAtText').textContent = `Обновлено: ${data.updatedAt}`;
+          document.getElementById('updatedAtInfo').style.display = 'flex';
+        } else {
+          document.getElementById('updatedAtInfo').style.display = 'none';
+        }
+        return;
+      }
+
+      // Старый формат: просто массив [...]
+      if (Array.isArray(data)) {
+        vehicles = data;
+        document.getElementById('updatedAtInfo').style.display = 'none';
+        return;
+      }
+
+      throw new Error('Некорректный формат JSON');
     } catch (e) {
       console.error(e);
-      alert(
-        'Не удалось загрузить postavki.json.\n\n' +
-        'Важно: если ты открыл postavki.html двойным кликом (file:///...), fetch может быть запрещён.\n' +
-        'Проверяй уже на GitHub Pages или запускай локальный сервер.'
-      );
+      alert('Не удалось загрузить postavki.json. Проверь доступность файла и формат JSON.');
       vehicles = [];
+      document.getElementById('updatedAtInfo').style.display = 'none';
     }
   }
 
   function setDefaultDateFilter() {
+    const currentDateStr = getCurrentMonthStr();
+
     const d = new Date();
-    const y = d.getFullYear();
-    const m = d.getMonth() + 1;
-    const cur = `${String(m).padStart(2,'0')}.${y}`;
+    let pm = d.getMonth(); // 0..11 -> предыдущий месяц как число 1..12
+    let py = d.getFullYear();
+    if (pm === 0) { pm = 12; py = py - 1; }
+    const prevDateStr = `${String(pm).padStart(2,'0')}.${py}`;
 
-    let pm = m - 1, py = y;
-    if (pm === 0) { pm = 12; py = y - 1; }
-    const prev = `${String(pm).padStart(2,'0')}.${py}`;
-
-    if (vehicles.some(v => v.deliveryDate === cur)) {
-      currentDefaultDate = cur; updateActiveYearBadge(cur); return;
-    }
-    if (vehicles.some(v => v.deliveryDate === prev)) {
-      currentDefaultDate = prev; updateActiveYearBadge(prev); return;
-    }
+    if (vehicles.some(v => v.deliveryDate === currentDateStr)) { currentDefaultDate = currentDateStr; return; }
+    if (vehicles.some(v => v.deliveryDate === prevDateStr)) { currentDefaultDate = prevDateStr; return; }
     currentDefaultDate = '';
-    updateActiveYearBadge('Все даты');
-  }
-
-  function updateActiveYearBadge(date) {
-    const badge = document.getElementById('activeYearBadge');
-    if (date === 'Все даты' || !date) {
-      badge.textContent = 'Все даты';
-      badge.style.backgroundColor = '#757575';
-    } else {
-      badge.textContent = `Показана ${date} дата`;
-      badge.style.backgroundColor = '#4caf50';
-    }
   }
 
   function handleSearchInput() {
