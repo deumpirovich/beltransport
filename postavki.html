@@ -1,10 +1,4 @@
-<!-- postavki.html (полный код)
-  Изменения табов:
-  - Первый таб: NEW — показывает поставки за текущий месяц (MM.YYYY) если они есть,
-    иначе за последний месяц, в котором были поставки.
-  - Последний таб: Все — показывает ВСЕ загруженные поставки (без фильтра по месяцу).
-  - Остальные табы типов работают как раньше и показывают только выбранный тип.
--->
+<!-- postavki.html (полный код: NEW первый, Все последний, mobile-friendly table scroll) -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -26,16 +20,23 @@
       border-bottom: 1px solid #e3e8f5;
     }
 
-    .msg {color:#b25127;margin:5px 0;}
+    .msg {color:#b25127;margin:5px 0; line-height:1.25;}
     .topbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
     .search {margin:6px 0 7px 0; display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
     input[type="text"] {padding:4px 9px; font-size:13px; border-radius:5px; border:1px solid #bbc; width:260px;}
     .tabs{display:flex; gap:6px; flex-wrap:wrap; margin:6px 0 4px 0;}
-    .tab{padding:3px 10px; border-radius:10px; border:1px solid #cfd7ea; background:#eef3ff; cursor:pointer; user-select:none; font-size:12px;}
+    .tab{padding:3px 10px; border-radius:10px; border:1px solid #cfd7ea; background:#eef3ff; cursor:pointer; user-select:none; font-size:12px; white-space:nowrap;}
     .tab.active{background:#2543a5; color:#fff; border-color:#2543a5;}
     .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
 
-    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size:13px;}
+    /* === mobile: горизонтальный скролл для таблицы === */
+    .tableWrap{
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 8px;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size:13px; min-width: 980px; background:#fff; }
 
     /* center all cells */
     th, td { padding: 3px 5px; text-align: center; }
@@ -59,8 +60,14 @@
     .empty {padding:18px 0; text-align:center; color:#9aa6c3; font-style:italic;}
     .err {margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px; white-space:pre-wrap;}
 
+    /* mobile tuning */
     @media (max-width: 560px){
+      .cont{margin: 10px auto;}
       input[type="text"]{width: 100%;}
+      .counts{margin-left:0;}
+      .tab{padding:3px 8px; font-size:12px;}
+      th, td{padding:3px 4px;}
+      table{font-size:12px;}
     }
   </style>
 </head>
@@ -84,22 +91,25 @@
     <div class="tabs" id="tabs"></div>
   </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th data-f="type">Тип</th>
-        <th data-f="model">Модель</th>
-        <th data-f="year">Год</th>
-        <th data-f="deliveryDate">Дата</th>
-        <th data-f="park">Парк</th>
-        <th data-f="vehicleNumber" class="active">Номер</th>
-        <th data-f="factoryNumber">Заводской №</th>
-        <th data-f="garageNumber">Гаражный №</th>
-        <th data-f="color">Цвет</th>
-      </tr>
-    </thead>
-    <tbody id="data"></tbody>
-  </table>
+  <!-- ВАЖНО: table внутри tableWrap, чтобы на мобилке работал горизонтальный скролл -->
+  <div class="tableWrap">
+    <table>
+      <thead>
+        <tr>
+          <th data-f="type">Тип</th>
+          <th data-f="model">Модель</th>
+          <th data-f="year">Год</th>
+          <th data-f="deliveryDate">Дата</th>
+          <th data-f="park">Парк</th>
+          <th data-f="vehicleNumber" class="active">Номер</th>
+          <th data-f="factoryNumber">Заводской №</th>
+          <th data-f="garageNumber">Гаражный №</th>
+          <th data-f="color">Цвет</th>
+        </tr>
+      </thead>
+      <tbody id="data"></tbody>
+    </table>
+  </div>
 
   <div class="empty" id="empty" style="display:none;">Нет данных по фильтру</div>
   <div class="err" id="err" style="display:none;"></div>
@@ -113,15 +123,8 @@ let VIEW = [];
 let sortF = "vehicleNumber";
 let sortDesc = true;
 
-// tabs:
-// _new => актуальный месяц (или последний месяц с поставками)
-// _all => все данные без фильтра месяца
-// остальные => типы
 let activeTab = "_new";
-
-// месяц, который показываем в NEW
-let newMonthKey = '';     // "MM.YYYY"
-// есть ли вообще поставки в текущем месяце
+let newMonthKey = '';
 let hasCurrentMonth = false;
 
 function pad2(n){ return String(n).padStart(2,'0'); }
@@ -134,7 +137,6 @@ function currentMonthKey(){
   const d = new Date();
   return `${pad2(d.getMonth()+1)}.${d.getFullYear()}`;
 }
-
 function computeNewMonthKey(){
   const months = new Set();
   DATA.forEach(v=>{
@@ -155,7 +157,6 @@ function computeNewMonthKey(){
   if(hasCurrentMonth){
     newMonthKey = cur;
   } else {
-    // берём последний месяц, где есть поставки
     newMonthKey = [...months].sort((a,b)=>{
       const [am,ay]=a.split('.'); const [bm,by]=b.split('.');
       return Number(by+bm) - Number(ay+am);
@@ -181,7 +182,6 @@ function typeLabel(t){
   return t ? (t[0].toUpperCase()+t.slice(1)) : '—';
 }
 
-/** tabs order: NEW first, types, ALL last */
 const TAB_ORDER = [
   {key:'_new', label:'NEW'},
   {key:'автобус', label:'Автобус'},
@@ -231,7 +231,7 @@ function renderTabs(){
   });
 }
 
-/** ===== sort ===== */
+/** sort */
 function numSortAlg(a, b){
   let an = (a.vehicleNumber||'').toUpperCase(), bn = (b.vehicleNumber||'').toUpperCase();
   if (!an && !bn) return 0; if (!an) return 1; if (!bn) return -1;
@@ -251,7 +251,7 @@ function generalSort(a, b){
   return numSortAlg(a, b);
 }
 
-/** ===== render ===== */
+/** render */
 function escapeHTML(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -266,24 +266,15 @@ function render(){
 
   VIEW = DATA
     .filter(v=>{
-      // NEW: фильтруем по вычисленному месяцу
       if(activeTab === '_new'){
         if(!newMonthKey) return false;
         const mk = monthKeyFromDeliveryDate(v.deliveryDate);
         if(mk !== newMonthKey) return false;
       }
-
-      // ALL: не фильтруем ни по месяцу, ни по типу
-      if(activeTab === '_all'){
-        // nothing
-      }
-
-      // types:
       if(activeTab !== '_new' && activeTab !== '_all'){
         if(normType(v.type) !== activeTab) return false;
       }
 
-      // search
       if(filters.length){
         const vals = Object.values(v).map(x => (x||'').toString().toLowerCase());
         return filters.every(f => vals.some(val => val.includes(f)));
@@ -318,7 +309,7 @@ function render(){
   </tr>`).join('');
 }
 
-/** ===== sticky header offset auto ===== */
+/** sticky header offset auto */
 function updateStickyHeaderOffset(){
   const top = document.getElementById('stickyTop');
   if(!top) return;
@@ -327,7 +318,7 @@ function updateStickyHeaderOffset(){
 }
 window.addEventListener('resize', updateStickyHeaderOffset);
 
-/** ===== header click sort ===== */
+/** click sort */
 document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick = ()=>{
     document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
@@ -343,7 +334,7 @@ document.querySelectorAll('th[data-f]').forEach(th=>{
 });
 document.getElementById('q').oninput = render;
 
-/** ===== error ui ===== */
+/** errors */
 function showErr(msg){
   const e = document.getElementById('err');
   e.style.display = '';
@@ -355,7 +346,7 @@ function hideErr(){
   e.textContent = '';
 }
 
-/** ===== json load ===== */
+/** json */
 function pickArray(j){
   if(Array.isArray(j)) return j;
   if(j && Array.isArray(j.vehicles)) return j.vehicles;
@@ -392,7 +383,6 @@ async function loadJson(){
 
     computeNewMonthKey();
 
-    // по умолчанию открываем NEW
     activeTab = "_new";
     sortF = "vehicleNumber";
     sortDesc = true;
