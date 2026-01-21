@@ -1,183 +1,156 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Реестр транспорта Минска</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <title>Транспорт Минска — просмотр</title>
   <style>
-    body { font-family: 'Segoe UI',Arial,sans-serif; font-size:13px; margin:0; background:#f5f5f5; color:#202433;}
-    .cont{max-width:1150px;margin:15px auto 0 auto;}
-    .panel{background:#fff;border-radius:7px;padding:10px 14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(60,80,120,.08);border:1px solid #dde;}
-    .search-b{display:flex;align-items:center;justify-content:space-between;}
-    .hint{font-size:12px;color:#849;}
-    .mbar{background:#3b6deb;color:#fff;border-radius:16px;padding:3px 12px 3px 11px;display:inline-flex;align-items:center;margin-left:12px;font-size:12px;}
-    .up-at{color:#7690b4;font-size:12px; margin:2px 0 0 0;}
-    .filters{margin:6px 0 0 0;display:flex;gap:5px;flex-wrap:wrap;}
-    .filter-c{padding:2px 11px;background:#eaf2ff;border-radius:9px;border:1px solid #e5e5fb;cursor:pointer;font-size:12px;}
-    .filter-c.active{background:#456bd8;color:#fff;}
-    .sn{display:inline-block;min-width:69px}
-    .s-ct{padding:5px 2px;}
-    .s-ct input{width:99%;padding:5px 9px;border:1px solid #ccd;border-radius:5px;font-size:13px;}
-    .tbl{width:100%;border-collapse:collapse;margin-top:4px;font-size:13px;}
-    .tbl th,.tbl td{padding:3px 5px;}
-    .tbl th{background:#f4f7fb;color:#2543a5;font-weight:600;font-size:12px;text-align:left;cursor:pointer;user-select:none}
-    .tbl th.sorted-asc{background:#e6f2ff;}
-    .tbl th.sorted-desc{background:#dbe9fc;}
-    .tbl tr{border-bottom:1px solid #eef;}
-    .tbl tr:hover{background:#f6fafd}
-    .empty{padding:19px 0;color:#b5b4b8;text-align:center}
-    .group{background:#f0f4fa;font-weight:600;}
-    .num{font-weight:700;color:#2543a5;}
-    .no{color:#bbb;font-style:italic}
-    @media(max-width:700px){body{font-size:12px}.cont{padding:0 1px;}}
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f7fa; color: #23263a; margin: 0; padding: 0;}
+    .cont { max-width: 1100px; margin: 15px auto; }
+    .search {margin-bottom: 7px;}
+    input[type="text"] {padding:4px 9px; font-size:13px; border-radius:5px; border:1px solid #bbc;}
+    table { width: 100%; border-collapse: collapse; margin-top: 2px; font-size:13px;}
+    th, td { padding: 3px 5px;}
+    th { background: #ecf1fa; color: #2543a5; font-weight: 600; cursor: pointer; user-select: none; border-bottom:1.5px solid #abc;}
+    th.active { background: #d2e3ff; }
+    tr { border-bottom: 1px solid #eee;}
+    tr:hover { background: #f0f5ff;}
+    .num { font-weight: bold; color: #2543a5; }
+    .no { color:#bbb; font-style:italic; }
+    .msg {color:#b25127;margin:5px 0;}
   </style>
 </head>
 <body>
 <div class="cont">
-  <div class="panel">
-    <div class="search-b">
-      <div>
-        <span style="font-size:15px;font-weight:600"><i class="fas fa-bus"></i> Реестр транспорта</span>
-        <span class="mbar"><i class="fas fa-calendar"></i> <span id="activeMonth"></span></span>
-      </div>
-      <div class="up-at" id="updatedAt"></div>
-    </div>
-    <div class="s-ct"><input id="sinput" type="text" placeholder="Поиск: маз, 2025..." autocomplete="off"></div>
-    <div class="hint">Фильтр через запятую (“и”): <b>маз, 2025</b> ... | Клик по заголовку: сортировка</div>
-    <div class="filters" id="tchips"></div>
+  <div class="msg">Поиск через запятую (“и”): <b>маз, 2025</b> — ищет по всем словам.</div>
+  <div class="search">
+    <input id="q" type="text" placeholder="Поиск...">
   </div>
-  <div class="panel">
-    <table class="tbl" id="maintbl">
-      <thead>
-        <tr>
-          <th style="width:42px">Тип</th>
-          <th data-f="model">Модель</th>
-          <th data-f="year">Год</th>
-          <th data-f="deliveryDate">Дата</th>
-          <th data-f="park">Парк</th>
-          <th data-f="vehicleNumber">Номер</th>
-          <th data-f="factoryNumber">Заводской №</th>
-          <th data-f="garageNumber">Гаражный №</th>
-          <th data-f="color">Цвет</th>
-        </tr>
-      </thead><tbody id="mtb"></tbody>
-    </table>
-    <div class="empty" style="display:none" id="emptydv"></div>
-  </div>
+  <table>
+    <thead>
+      <tr>
+        <th data-f="type">Тип</th>
+        <th data-f="model">Модель</th>
+        <th data-f="year">Год</th>
+        <th data-f="deliveryDate">Дата</th>
+        <th data-f="park">Парк</th>
+        <th data-f="vehicleNumber" class="active">Номер</th>
+        <th data-f="factoryNumber">Заводской №</th>
+        <th data-f="garageNumber">Гаражный №</th>
+        <th data-f="color">Цвет</th>
+      </tr>
+    </thead>
+    <tbody id="data">
+      <!-- Вставляй сюда свои строки таблицы (можно из editor'а)! Вот пример: -->
+      <tr>
+        <td>Автобус</td>
+        <td>МАЗ-203</td>
+        <td>2024</td>
+        <td>03.2024</td>
+        <td>АП2</td>
+        <td class="num">ААЕ4317-7</td>
+        <td>09023</td>
+        <td>1132</td>
+        <td>синий</td>
+      </tr>
+      <tr>
+        <td>Троллейбус</td>
+        <td>АКСМ-32100D</td>
+        <td>2024</td>
+        <td>02.2024</td>
+        <td>ТП1</td>
+        <td class="num">АА21541-7</td>
+        <td>0027</td>
+        <td></td>
+        <td>белый</td>
+      </tr>
+      <tr>
+        <td>Автобус</td>
+        <td>МАЗ-206</td>
+        <td>2025</td>
+        <td>04.2025</td>
+        <td>АП4</td>
+        <td class="num">ААЕ4318-7</td>
+        <td>09050</td>
+        <td>1133</td>
+        <td>жёлтый</td>
+      </tr>
+      <!-- и т.д. -->
+    </tbody>
+  </table>
 </div>
-<!-- ========== ВОТ ТУТ ВСТАВЛЯЙ СВОЙ JSON! ============== -->
-<script id="staticData" type="application/json">
-{
-  "updatedAt": "12.06.2024 22:47",
-  "vehicles": [
-    {"type":"автобус","model":"МАЗ-203","year":"2025","deliveryDate":"03.2025","park":"АП2","licensePlate":"ААЕ4317-7","factoryNumber":"09523","garageNumber":"1132","color":"синий"},
-    {"type":"троллейбус","model":"АКСМ-32100D","year":"2024","deliveryDate":"02.2024","park":"ТП1","licensePlate":"АА21541-7","factoryNumber":"0027","garageNumber":"","color":"белый"},
-    {"type":"автобус","model":"МАЗ-203","year":"2025","deliveryDate":"05.2025","park":"АП5","licensePlate":"АА45678-7","factoryNumber":"09788","garageNumber":"1089","color":"красный"},
-    {"type":"автобус","model":"МАЗ-206","year":"2024","deliveryDate":"01.2024","park":"АП4","licensePlate":"ААЕ4318-7","factoryNumber":"09499","garageNumber":"1133","color":"жёлтый"}
-    // ...добавляй свои объекты сюда...
-  ]
-}
-</script>
 <script>
-// ============ ДАННЫЕ ===============
-const raw = document.getElementById('staticData');
-let VRAW = JSON.parse(raw.textContent||raw.innerText);
-let vehicles = Array.isArray(VRAW) ? VRAW : VRAW.vehicles || [],
-    updatedAt = VRAW.updatedAt || '';
-// =========== UI STATE ==============
-let fTypes = [], sQuery = '', sTypes = [], sortF = "vehicleNumber", sortDir = "desc";
-// =========== INIT ==============
-document.getElementById('activeMonth').textContent = (()=>{ const d=new Date(),y=d.getFullYear(),m=d.getMonth()+1;return`${("0"+m).slice(-2)}.${y}`;})();
-document.getElementById('updatedAt').textContent = updatedAt ? ("Обновлено: "+updatedAt) : '';
-document.getElementById('sinput').addEventListener('input',()=>{sQuery=document.getElementById('sinput').value;draw();});
-function getTypeName(v){
-  const t=v.toLowerCase();
-  if(t==="автобус")return"Автобус";
-  if(t==="троллейбус")return"Троллейбус";
-  if(t==="трамвай")return"Трамвай";
-  if(t==="электробус")return"Электробус";
-  if(t==="туах")return"УАХ";
-  return v||"—";
-}
-const ICONS={автобус:'bus',троллейбус:'bus',трамвай:'train-tram',электробус:'bolt',туах:'car'};
-function iconHT(t){return `<i class="fas fa-${ICONS[t]||'bus'}" style="margin-right:1px;color:#566bb8"></i>`;}
-function showTypes(){
-  let ts=[...new Set(vehicles.map(v=>v.type||"—"))].sort();
-  let h='';
-  h+=`<span class="filter-c${sTypes.length===0?' active':''}" data-type="_all">Все</span>`;
-  ts.forEach(type=>{
-    h+=`<span class="filter-c${sTypes.includes(type)?' active':''}" data-type="${type}">${iconHT(type)}${getTypeName(type)}</span>`;
-  });
-  document.getElementById('tchips').innerHTML=h;
-  document.querySelectorAll('.filter-c').forEach(e=>{
-    e.onclick=()=>{
-      if(e.dataset.type=="_all"){sTypes=[];}else{
-        if(sTypes.includes(e.dataset.type))sTypes=sTypes.filter(t=>t!==e.dataset.type);
-        else sTypes.push(e.dataset.type);
-      }
-      showTypes();draw();
-    }
-  });
-}
-showTypes();
-// ========== SORT =============
-document.querySelectorAll('#maintbl th[data-f]').forEach(th=>{
-  th.onclick=()=>{
-    const f=th.dataset.f;
-    if(sortF===f)sortDir=sortDir==="asc"?"desc":"asc";
-    else {sortF=f;sortDir=f==="vehicleNumber"?"desc":"asc";}
-    draw();
+// --- Работает прямо внутри Google Sites! --
+const ths = document.querySelectorAll('th[data-f]');
+let DATA = [];
+let sortF = "vehicleNumber", sortDesc = true;
+
+function parseTable(){
+  DATA = [];
+  let rows = document.querySelectorAll('#data tr');
+  for(let row of rows){
+    let tds = row.querySelectorAll('td');
+    DATA.push({
+      type: tds[0]?.innerText || '',
+      model: tds[1]?.innerText || '',
+      year: tds[2]?.innerText || '',
+      deliveryDate: tds[3]?.innerText || '',
+      park: tds[4]?.innerText || '',
+      vehicleNumber: tds[5]?.innerText || '',
+      factoryNumber: tds[6]?.innerText || '',
+      garageNumber: tds[7]?.innerText || '',
+      color: tds[8]?.innerText || ''
+    });
   }
-});
-function numSortAlg(a,b){
-  let an=String(a.licensePlate||a.registrationNumber||'').toUpperCase(),bn=String(b.licensePlate||b.registrationNumber||'').toUpperCase();
-  if(!an&&!bn)return 0; if(!an)return 1; if(!bn)return -1;
-  let aB=(an.length>=3&&!/\d/.test(an[2]))?1:0,bB=(bn.length>=3&&!/\d/.test(bn[2]))?1:0;
-  if(aB!==bB)return bB-aB; // третья буква выше
-  return an>bn?-1:an<bn?1:0;
 }
-function generalSort(a,b){
-  if(sortF==="vehicleNumber"){ let r = numSortAlg(a,b); return sortDir==="asc"?-r:r; }
+parseTable();
+
+function numSortAlg(a, b){
+  let an = (a.vehicleNumber||'').toUpperCase(), bn = (b.vehicleNumber||'').toUpperCase();
+  if (!an && !bn) return 0; if (!an) return 1; if (!bn) return -1;
+  let aB = (an.length>=3 && !/\d/.test(an[2])) ? 1 : 0, bB = (bn.length>=3 && !/\d/.test(bn[2])) ? 1 : 0;
+  if (aB !== bB) return bB - aB; // буква на 3 позиции — выше
+  return an > bn ? -1 : an < bn ? 1 : 0;
+}
+function generalSort(a, b){
+  if(sortF === "vehicleNumber") { let r = numSortAlg(a, b); return sortDesc ? r : -r; }
   let av=(a[sortF]||'').toLowerCase(), bv=(b[sortF]||'').toLowerCase();
-  if(av<bv)return sortDir==="asc"?-1:1;
-  if(av>bv)return sortDir==="asc"?1:-1;
-  return numSortAlg(a,b);
+  if(av < bv) return sortDesc ? 1 : -1;
+  if(av > bv) return sortDesc ? -1 : 1;
+  return numSortAlg(a, b);
 }
-// ========== DRAW =============
-function draw(){
-  let q = sQuery.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
-  let fvs = vehicles.filter(v=>{
-    if(sTypes.length && !sTypes.includes(v.type||"—")) return false;
-    let fields = [v.model,v.year,v.deliveryDate,v.park,v.licensePlate||v.registrationNumber,v.factoryNumber,v.garageNumber,v.color].map(x=>(x||'').toLowerCase());
-    return q.every(word=>fields.some(f=>f.includes(word)));
+function render(){
+  let q = document.getElementById('q').value.trim();
+  let filters = q ? q.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean) : [];
+  let view = DATA.filter(v => {
+    return filters.every(f => Object.values(v).some(x => (x||'').toLowerCase().includes(f)));
   }).sort(generalSort);
-  let b = '';
-  if(!fvs.length){ document.getElementById('emptydv').style.display=''; document.getElementById('emptydv').textContent="Нет данных по фильтру"; document.getElementById('mtb').innerHTML=''; return; }
-  document.getElementById('emptydv').style.display='none';
-  fvs.forEach(v=>{
-    let num=v.licensePlate||v.registrationNumber||'';
-    b+=`<tr>
-      <td>${iconHT(v.type||'')}<span style="font-size:.95em">${getTypeName(v.type||'')}</span></td>
+  let html = "";
+  view.forEach(v=>{
+    html += `<tr>
+      <td>${v.type||'<span class="no">—</span>'}</td>
       <td>${v.model||'<span class="no">—</span>'}</td>
       <td>${v.year||'<span class="no">—</span>'}</td>
       <td>${v.deliveryDate||'<span class="no">—</span>'}</td>
       <td>${v.park||'<span class="no">—</span>'}</td>
-      <td class="num">${num||'<span class="no">—</span>'}</td>
+      <td class="num">${v.vehicleNumber||'<span class="no">—</span>'}</td>
       <td>${v.factoryNumber||'<span class="no">—</span>'}</td>
       <td>${v.garageNumber||'<span class="no">—</span>'}</td>
       <td>${v.color||'<span class="no">—</span>'}</td>
     </tr>`;
   });
-  document.getElementById('mtb').innerHTML=b;
-  document.querySelectorAll('#maintbl th[data-f]').forEach(th=>{
-    th.classList.remove('sorted-asc','sorted-desc');
-    if(th.dataset.f===sortF){ th.classList.add('sorted-'+sortDir); }
-  });
-  document.getElementById('filteredCount')&&(document.getElementById('filteredCount').textContent=fvs.length);
-  document.getElementById('totalCount2')&&(document.getElementById('totalCount2').textContent=vehicles.length);
+  document.getElementById('data').innerHTML = html;
 }
-draw();
+document.getElementById('q').oninput = render;
+ths.forEach(th=>{
+  th.onclick = ()=>{
+    ths.forEach(t=>t.classList.remove('active'));
+    th.classList.add('active');
+    let f = th.getAttribute('data-f');
+    if(sortF === f) sortDesc = !sortDesc; else { sortF = f; sortDesc = f==="vehicleNumber"?true:false; }
+    render();
+  }
+});
+render();
 </script>
 </body>
 </html>
