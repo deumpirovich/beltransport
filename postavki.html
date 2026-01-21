@@ -1,4 +1,10 @@
-<!-- postavki.html (полный код: центрирование, sticky поиск+табы, sticky шапка таблицы) -->
+<!-- postavki.html (полный код)
+  Изменения табов:
+  - Первый таб: NEW — показывает поставки за текущий месяц (MM.YYYY) если они есть,
+    иначе за последний месяц, в котором были поставки.
+  - Последний таб: Все — показывает ВСЕ загруженные поставки (без фильтра по месяцу).
+  - Остальные табы типов работают как раньше и показывают только выбранный тип.
+-->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -9,7 +15,7 @@
     body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f7fa; color: #23263a; margin: 0; padding: 0;}
     .cont { max-width: 1100px; margin: 15px auto; padding: 0 10px; }
 
-    /* ====== закрепляем верх (поиск + табы) ====== */
+    /* sticky top (поиск + табы) */
     .stickyTop{
       position: sticky;
       top: 0;
@@ -31,15 +37,11 @@
 
     table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size:13px;}
 
-    /* ====== центрируем ВСЕ данные ====== */
+    /* center all cells */
     th, td { padding: 3px 5px; text-align: center; }
 
-    /* ====== закрепляем шапку таблицы ======
-       ВАЖНО: top должен быть равен высоте .stickyTop.
-       Я сделал переменную --stickyTopOffset, чтобы можно было подправить в одном месте. */
-    :root{
-      --stickyTopOffset: 122px; /* если вдруг не идеально — скажи, подгоним под твою высоту */
-    }
+    /* sticky table header under stickyTop */
+    :root{ --stickyTopOffset: 120px; }
     thead th{
       position: sticky;
       top: var(--stickyTopOffset);
@@ -59,14 +61,12 @@
 
     @media (max-width: 560px){
       input[type="text"]{width: 100%;}
-      :root{ --stickyTopOffset: 150px; } /* на мобилках верх обычно выше из-за переносов */
     }
   </style>
 </head>
 <body>
 <div class="cont">
 
-  <!-- ЗАКРЕПЛЕННЫЙ БЛОК: сообщение + поиск + tabs -->
   <div class="stickyTop" id="stickyTop">
     <div class="topbar">
       <div class="msg">
@@ -112,45 +112,60 @@ let DATA = [];
 let VIEW = [];
 let sortF = "vehicleNumber";
 let sortDesc = true;
-let activeTab = "_all";
-let allTabMonthKey = ''; // последний месяц с данными (для таба "Все")
 
-/** === автоматически подгоняем top для sticky шапки === */
-function updateStickyHeaderOffset(){
-  const top = document.getElementById('stickyTop');
-  if(!top) return;
-  const h = Math.ceil(top.getBoundingClientRect().height);
-  document.documentElement.style.setProperty('--stickyTopOffset', h + 'px');
-}
-window.addEventListener('resize', updateStickyHeaderOffset);
+// tabs:
+// _new => актуальный месяц (или последний месяц с поставками)
+// _all => все данные без фильтра месяца
+// остальные => типы
+let activeTab = "_new";
 
-/** ===== month helpers ===== */
+// месяц, который показываем в NEW
+let newMonthKey = '';     // "MM.YYYY"
+// есть ли вообще поставки в текущем месяце
+let hasCurrentMonth = false;
+
 function pad2(n){ return String(n).padStart(2,'0'); }
 function monthKeyFromDeliveryDate(s){
   const m = String(s||'').trim().match(/^(\d{1,2})\.(\d{4})$/);
   if(!m) return '';
   return `${pad2(m[1])}.${m[2]}`;
 }
-function computeAllTabMonthKeyLatest(){
-  const set = new Set();
+function currentMonthKey(){
+  const d = new Date();
+  return `${pad2(d.getMonth()+1)}.${d.getFullYear()}`;
+}
+
+function computeNewMonthKey(){
+  const months = new Set();
   DATA.forEach(v=>{
     const mk = monthKeyFromDeliveryDate(v.deliveryDate);
-    if(mk) set.add(mk);
+    if(mk) months.add(mk);
   });
-  if(!set.size){
-    allTabMonthKey = '';
+
+  if(!months.size){
+    newMonthKey = '';
+    hasCurrentMonth = false;
     document.getElementById('monthHint').textContent = '';
     return;
   }
-  const best = [...set].sort((a,b)=>{
-    const [am,ay]=a.split('.'); const [bm,by]=b.split('.');
-    return Number(by+bm) - Number(ay+am);
-  })[0];
-  allTabMonthKey = best;
-  document.getElementById('monthHint').textContent = ` | “Все”: ${allTabMonthKey}`;
+
+  const cur = currentMonthKey();
+  hasCurrentMonth = months.has(cur);
+
+  if(hasCurrentMonth){
+    newMonthKey = cur;
+  } else {
+    // берём последний месяц, где есть поставки
+    newMonthKey = [...months].sort((a,b)=>{
+      const [am,ay]=a.split('.'); const [bm,by]=b.split('.');
+      return Number(by+bm) - Number(ay+am);
+    })[0];
+  }
+
+  document.getElementById('monthHint').textContent =
+    newMonthKey ? ` | NEW: ${newMonthKey}${hasCurrentMonth ? '' : ' (последний месяц с поставками)'}` : '';
 }
 
-/** ===== types ===== */
 function normType(t){
   t = (t||'').toString().trim().toLowerCase();
   if(t === 'уах') t = 'туах';
@@ -166,13 +181,15 @@ function typeLabel(t){
   return t ? (t[0].toUpperCase()+t.slice(1)) : '—';
 }
 
+/** tabs order: NEW first, types, ALL last */
 const TAB_ORDER = [
-  {key:'_all', label:'Все'},
+  {key:'_new', label:'NEW'},
   {key:'автобус', label:'Автобус'},
   {key:'троллейбус', label:'Троллейбус'},
   {key:'трамвай', label:'Трамвай'},
   {key:'электробус', label:'Электробус'},
-  {key:'туах', label:'ТУАХ'}
+  {key:'туах', label:'ТУАХ'},
+  {key:'_all', label:'Все'}
 ];
 
 function calcTypeCounts(){
@@ -184,12 +201,22 @@ function calcTypeCounts(){
   });
   return m;
 }
+function countForNew(){
+  if(!newMonthKey) return 0;
+  return DATA.filter(v => monthKeyFromDeliveryDate(v.deliveryDate) === newMonthKey).length;
+}
 
 function renderTabs(){
   const wrap = document.getElementById('tabs');
-  const counts = calcTypeCounts();
+  const typeCounts = calcTypeCounts();
+  const newCount = countForNew();
+
   wrap.innerHTML = TAB_ORDER.map(t => {
-    const c = (t.key === '_all') ? DATA.length : (counts[t.key]||0);
+    let c = 0;
+    if(t.key === '_new') c = newCount;
+    else if(t.key === '_all') c = DATA.length;
+    else c = (typeCounts[t.key] || 0);
+
     return `<div class="tab ${activeTab===t.key?'active':''}" data-tab="${t.key}">
       ${t.label} <span style="opacity:.75;">${c}</span>
     </div>`;
@@ -208,11 +235,9 @@ function renderTabs(){
 function numSortAlg(a, b){
   let an = (a.vehicleNumber||'').toUpperCase(), bn = (b.vehicleNumber||'').toUpperCase();
   if (!an && !bn) return 0; if (!an) return 1; if (!bn) return -1;
-
   let aB = (an.length>=3 && !/\d/.test(an[2])) ? 1 : 0;
   let bB = (bn.length>=3 && !/\d/.test(bn[2])) ? 1 : 0;
   if (aB !== bB) return bB - aB;
-
   return an > bn ? -1 : an < bn ? 1 : 0; // desc
 }
 function generalSort(a, b){
@@ -241,13 +266,24 @@ function render(){
 
   VIEW = DATA
     .filter(v=>{
-      if(activeTab !== '_all' && normType(v.type) !== activeTab) return false;
-
-      if(activeTab === '_all' && allTabMonthKey){
+      // NEW: фильтруем по вычисленному месяцу
+      if(activeTab === '_new'){
+        if(!newMonthKey) return false;
         const mk = monthKeyFromDeliveryDate(v.deliveryDate);
-        if(mk !== allTabMonthKey) return false;
+        if(mk !== newMonthKey) return false;
       }
 
+      // ALL: не фильтруем ни по месяцу, ни по типу
+      if(activeTab === '_all'){
+        // nothing
+      }
+
+      // types:
+      if(activeTab !== '_new' && activeTab !== '_all'){
+        if(normType(v.type) !== activeTab) return false;
+      }
+
+      // search
       if(filters.length){
         const vals = Object.values(v).map(x => (x||'').toString().toLowerCase());
         return filters.every(f => vals.some(val => val.includes(f)));
@@ -281,6 +317,15 @@ function render(){
     <td>${cell(v.color)}</td>
   </tr>`).join('');
 }
+
+/** ===== sticky header offset auto ===== */
+function updateStickyHeaderOffset(){
+  const top = document.getElementById('stickyTop');
+  if(!top) return;
+  const h = Math.ceil(top.getBoundingClientRect().height);
+  document.documentElement.style.setProperty('--stickyTopOffset', h + 'px');
+}
+window.addEventListener('resize', updateStickyHeaderOffset);
 
 /** ===== header click sort ===== */
 document.querySelectorAll('th[data-f]').forEach(th=>{
@@ -343,18 +388,17 @@ async function loadJson(){
     const updatedAt = (j && !Array.isArray(j) && j.updatedAt) ? j.updatedAt : '';
 
     DATA = arr.map(mapRow);
-
     document.getElementById('updatedAt').textContent = updatedAt ? ('Обновлено: ' + updatedAt) : '';
 
-    computeAllTabMonthKeyLatest();
-    activeTab = "_all";
+    computeNewMonthKey();
+
+    // по умолчанию открываем NEW
+    activeTab = "_new";
     sortF = "vehicleNumber";
     sortDesc = true;
 
     renderTabs();
     render();
-
-    // после того как табы/updatedAt отрисовались — пересчитываем высоту stickyTop
     requestAnimationFrame(updateStickyHeaderOffset);
   } catch(err){
     DATA = [];
