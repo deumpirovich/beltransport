@@ -19,6 +19,7 @@
       --border-radius: 8px;
       --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       --search-blue: #2962ff;
+      --danger-red: #f44336;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI','Calibri','Arial',sans-serif; }
@@ -113,6 +114,23 @@
       align-items: center;
       gap: 6px;
       width: 100%;
+    }
+
+    .error-banner {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(244, 67, 54, 0.35);
+      background: rgba(244, 67, 54, 0.08);
+      color: #b71c1c;
+      font-size: 0.9em;
+      display: none;
+    }
+
+    .error-banner code {
+      background: rgba(0,0,0,0.06);
+      padding: 2px 6px;
+      border-radius: 6px;
     }
 
     .search-input-container { position: relative; margin-bottom: 15px; }
@@ -261,13 +279,16 @@
         <div>
           <div class="search-title">
             <i class="fas fa-search"></i> Поиск и фильтрация
-            <div id="activeMonthBadge" class="active-month-indicator">
+            <div class="active-month-indicator">
               <i class="fas fa-calendar"></i> <span id="activeMonthText"></span>
             </div>
           </div>
+
           <div id="updatedAtInfo" class="updated-at" style="display:none;">
             <i class="fas fa-clock"></i> <span id="updatedAtText"></span>
           </div>
+
+          <div id="errorBanner" class="error-banner"></div>
         </div>
 
         <div id="searchResultsInfo" style="display:none; font-size:0.9em;">
@@ -333,11 +354,12 @@
 
 <footer>
   <div><i class="far fa-copyright"></i> <span id="currentYear"></span></div>
-  <div style="margin-top:10px;font-size:0.85em;">Источник: <code>./postavki.json</code></div>
+  <div style="margin-top:10px;font-size:0.85em;">Источник: <code id="sourceUrlLabel"></code></div>
 </footer>
 
 <script>
-  const DATA_URL = './postavki.json';
+  // ВАЖНО: абсолютный URL — чтобы работало и напрямую, и внутри Google Sites (iframe)
+  const DATA_URL = 'https://deumpirovich.github.io/beltransport/postavki.json';
 
   let vehicles = [];
   let filteredVehicles = [];
@@ -349,6 +371,7 @@
   document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('currentYear').textContent = new Date().getFullYear();
     document.getElementById('activeMonthText').textContent = getCurrentMonthStr();
+    document.getElementById('sourceUrlLabel').textContent = DATA_URL;
 
     document.getElementById('searchInput').addEventListener('input', handleSearchInput);
     document.getElementById('clearBtn').addEventListener('click', clearSearch);
@@ -361,6 +384,18 @@
     applyFilters();
   });
 
+  function showError(message) {
+    const el = document.getElementById('errorBanner');
+    el.style.display = 'block';
+    el.innerHTML = message;
+  }
+
+  function hideError() {
+    const el = document.getElementById('errorBanner');
+    el.style.display = 'none';
+    el.innerHTML = '';
+  }
+
   function getCurrentMonthStr() {
     const d = new Date();
     const y = d.getFullYear();
@@ -370,6 +405,8 @@
 
   async function loadDataOrFail() {
     try {
+      hideError();
+
       const res = await fetch(DATA_URL, { cache: 'no-store' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
 
@@ -389,7 +426,7 @@
         return;
       }
 
-      // Старый формат: просто массив [...]
+      // Старый формат: массив [...]
       if (Array.isArray(data)) {
         vehicles = data;
         document.getElementById('updatedAtInfo').style.display = 'none';
@@ -399,9 +436,16 @@
       throw new Error('Некорректный формат JSON');
     } catch (e) {
       console.error(e);
-      alert('Не удалось загрузить postavki.json. Проверь доступность файла и формат JSON.');
+
       vehicles = [];
       document.getElementById('updatedAtInfo').style.display = 'none';
+
+      showError(
+        `<strong>Не удалось загрузить базу данных.</strong><br>` +
+        `URL JSON: <code>${escapeHTML(DATA_URL)}</code><br>` +
+        `Ошибка: <code>${escapeHTML(e.message || String(e))}</code><br>` +
+        `Если страница открыта внутри Google Sites, такое бывает при блокировке запросов из iframe.`
+      );
     }
   }
 
@@ -409,7 +453,7 @@
     const currentDateStr = getCurrentMonthStr();
 
     const d = new Date();
-    let pm = d.getMonth(); // 0..11 -> предыдущий месяц как число 1..12
+    let pm = d.getMonth();
     let py = d.getFullYear();
     if (pm === 0) { pm = 12; py = py - 1; }
     const prevDateStr = `${String(pm).padStart(2,'0')}.${py}`;
