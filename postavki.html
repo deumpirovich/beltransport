@@ -1,4 +1,4 @@
-<!-- postavki.html -->
+<!-- postavki.html (полный код) -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -7,7 +7,20 @@
   <title>Транспорт Минска — поставки</title>
   <style>
     body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f7fa; color: #23263a; margin: 0; padding: 0;}
-    .cont { max-width: 1100px; margin: 15px auto; }
+
+    .cont { max-width: 1100px; margin: 15px auto; padding: 0 10px; }
+
+    /* ====== закрепляем верх (поиск + табы) ====== */
+    .stickyTop{
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: #f5f7fa;
+      padding-top: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e3e8f5;
+    }
+
     .msg {color:#b25127;margin:5px 0;}
     .topbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
     .search {margin:6px 0 7px 0; display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
@@ -16,8 +29,10 @@
     .tab{padding:3px 10px; border-radius:10px; border:1px solid #cfd7ea; background:#eef3ff; cursor:pointer; user-select:none; font-size:12px;}
     .tab.active{background:#2543a5; color:#fff; border-color:#2543a5;}
     .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
-    table { width: 100%; border-collapse: collapse; margin-top: 2px; font-size:13px;}
-    th, td { padding: 3px 5px;}
+
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size:13px;}
+    /* ====== центрируем ВСЕ данные ====== */
+    th, td { padding: 3px 5px; text-align: center; }
     th { background: #ecf1fa; color: #2543a5; font-weight: 600; cursor: pointer; user-select: none; border-bottom:1.5px solid #abc;}
     th.active { background: #d2e3ff; }
     tr { border-bottom: 1px solid #eee;}
@@ -26,24 +41,33 @@
     .no { color:#bbb; font-style:italic; }
     .empty {padding:18px 0; text-align:center; color:#9aa6c3; font-style:italic;}
     .err {margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px; white-space:pre-wrap;}
+
+    /* чтобы закрепленная зона выглядела аккуратно на маленьких экранах */
+    @media (max-width: 560px){
+      input[type="text"]{width: 100%;}
+    }
   </style>
 </head>
 <body>
 <div class="cont">
-  <div class="topbar">
-    <div class="msg">
-      Поиск через запятую (“и”): <b>маз, 2025</b> — ищет по всем словам.
-      <span id="monthHint" style="color:#5b6b98;"></span>
+
+  <!-- ЗАКРЕПЛЕННЫЙ БЛОК: сообщение + поиск + tabs -->
+  <div class="stickyTop">
+    <div class="topbar">
+      <div class="msg">
+        Поиск через запятую (“и”): <b>маз, 2025</b>
+        <span id="monthHint" style="color:#5b6b98;"></span>
+      </div>
+      <div class="counts"><span id="countShown">0</span> / <span id="countAll">0</span></div>
     </div>
-    <div class="counts"><span id="countShown">0</span> / <span id="countAll">0</span></div>
-  </div>
 
-  <div class="search">
-    <input id="q" type="text" placeholder="Поиск...">
-    <div style="color:#5b6b98;font-size:12px;" id="updatedAt"></div>
-  </div>
+    <div class="search">
+      <input id="q" type="text" placeholder="Поиск...">
+      <div style="color:#5b6b98;font-size:12px;" id="updatedAt"></div>
+    </div>
 
-  <div class="tabs" id="tabs"></div>
+    <div class="tabs" id="tabs"></div>
+  </div>
 
   <table>
     <thead>
@@ -67,18 +91,16 @@
 </div>
 
 <script>
-/** ========= НАСТРОЙКА ========= */
 const JSON_URL = './postavki.json';
 
-/** ========= STATE ========= */
 let DATA = [];
 let VIEW = [];
 let sortF = "vehicleNumber";
 let sortDesc = true;
 let activeTab = "_all";
-let allTabMonthKey = ''; // MM.YYYY (последний месяц с данными)
+let allTabMonthKey = ''; // последний месяц с данными (для таба "Все")
 
-/** ========= MONTH HELPERS ========= */
+/** ===== month helpers ===== */
 function pad2(n){ return String(n).padStart(2,'0'); }
 function monthKeyFromDeliveryDate(s){
   const m = String(s||'').trim().match(/^(\d{1,2})\.(\d{4})$/);
@@ -98,30 +120,13 @@ function computeAllTabMonthKeyLatest(){
   }
   const best = [...set].sort((a,b)=>{
     const [am,ay]=a.split('.'); const [bm,by]=b.split('.');
-    const av = Number(ay+am), bv = Number(by+bm);
-    return bv-av;
+    return Number(by+bm) - Number(ay+am);
   })[0];
-
   allTabMonthKey = best;
   document.getElementById('monthHint').textContent = ` | “Все”: ${allTabMonthKey}`;
 }
 
-/** ========= CYR->LAT normalizer ========= */
-/**
- * Похожие символы: АВЕКМНОРСТУХ -> ABEKMHOPCTYX
- * + lower-case
- */
-const CYR_TO_LAT = {
-  'А':'A','В':'B','Е':'E','К':'K','М':'M','Н':'H','О':'O','Р':'P','С':'C','Т':'T','У':'Y','Х':'X',
-  'а':'a','в':'b','е':'e','к':'k','м':'m','н':'h','о':'o','р':'p','с':'c','т':'t','у':'y','х':'x'
-};
-function fixCyrToLat(s){
-  s = (s==null) ? '' : String(s);
-  if(!/[А-Яа-яЁё]/.test(s)) return s;
-  return s.replace(/[АВЕКМНОРСТУХавекмнорстух]/g, ch => CYR_TO_LAT[ch] || ch);
-}
-
-/** ========= TYPES ========= */
+/** ===== types ===== */
 function normType(t){
   t = (t||'').toString().trim().toLowerCase();
   if(t === 'уах') t = 'туах';
@@ -175,9 +180,8 @@ function renderTabs(){
   });
 }
 
-/** ========= SORT ========= */
+/** ===== sort ===== */
 function numSortAlg(a, b){
-  // на всякий: сортируем уже нормализованный номер
   let an = (a.vehicleNumber||'').toUpperCase(), bn = (b.vehicleNumber||'').toUpperCase();
   if (!an && !bn) return 0; if (!an) return 1; if (!bn) return -1;
 
@@ -187,7 +191,6 @@ function numSortAlg(a, b){
 
   return an > bn ? -1 : an < bn ? 1 : 0; // desc
 }
-
 function generalSort(a, b){
   if(sortF === "vehicleNumber") {
     let r = numSortAlg(a, b);
@@ -199,7 +202,7 @@ function generalSort(a, b){
   return numSortAlg(a, b);
 }
 
-/** ========= FILTER + RENDER ========= */
+/** ===== render ===== */
 function escapeHTML(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -255,25 +258,23 @@ function render(){
   </tr>`).join('');
 }
 
-/** ========= HEADER CLICK SORT ========= */
+/** ===== header click sort ===== */
 document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick = ()=>{
     document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
     th.classList.add('active');
     const f = th.getAttribute('data-f');
-
     if(sortF === f) sortDesc = !sortDesc;
     else {
       sortF = f;
-      sortDesc = (f === "vehicleNumber") ? true : false; // номер desc, остальные asc
+      sortDesc = (f === "vehicleNumber") ? true : false;
     }
     render();
   };
 });
-
 document.getElementById('q').oninput = render;
 
-/** ========= ERROR UI ========= */
+/** ===== error ui ===== */
 function showErr(msg){
   const e = document.getElementById('err');
   e.style.display = '';
@@ -285,7 +286,7 @@ function hideErr(){
   e.textContent = '';
 }
 
-/** ========= JSON PARSE + LOAD ========= */
+/** ===== json load ===== */
 function pickArray(j){
   if(Array.isArray(j)) return j;
   if(j && Array.isArray(j.vehicles)) return j.vehicles;
@@ -293,23 +294,15 @@ function pickArray(j){
   if(j && Array.isArray(j.items)) return j.items;
   return [];
 }
-
 function mapRow(r){
-  const factoryFixed = fixCyrToLat(r.factoryNumber || '');
-
-  // Нормализуем госномер (он же vehicleNumber у нас в таблице)
-  // Берём как обычно: licensePlate/registrationNumber/vehicleNumber
-  const rawPlate = (r.licensePlate || r.registrationNumber || r.vehicleNumber || '');
-  const plateFixed = fixCyrToLat(rawPlate);
-
   return {
     type: r.type || '',
     model: r.model || '',
     year: r.year || '',
     deliveryDate: r.deliveryDate || '',
     park: r.park || '',
-    vehicleNumber: plateFixed,
-    factoryNumber: factoryFixed,
+    vehicleNumber: (r.licensePlate || r.registrationNumber || r.vehicleNumber || ''),
+    factoryNumber: r.factoryNumber || '',
     garageNumber: r.garageNumber || '',
     color: r.color || ''
   };
@@ -330,7 +323,6 @@ async function loadJson(){
     document.getElementById('updatedAt').textContent = updatedAt ? ('Обновлено: ' + updatedAt) : '';
 
     computeAllTabMonthKeyLatest();
-
     activeTab = "_all";
     sortF = "vehicleNumber";
     sortDesc = true;
