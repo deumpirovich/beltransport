@@ -1,13 +1,21 @@
+<!-- postavki.html -->
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Транспорт Минска — просмотр</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Транспорт Минска — поставки</title>
   <style>
     body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f7fa; color: #23263a; margin: 0; padding: 0;}
     .cont { max-width: 1100px; margin: 15px auto; }
-    .search {margin-bottom: 7px;}
-    input[type="text"] {padding:4px 9px; font-size:13px; border-radius:5px; border:1px solid #bbc;}
+    .msg {color:#b25127;margin:5px 0;}
+    .topbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+    .search {margin:6px 0 7px 0; display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+    input[type="text"] {padding:4px 9px; font-size:13px; border-radius:5px; border:1px solid #bbc; width:260px;}
+    .tabs{display:flex; gap:6px; flex-wrap:wrap; margin:6px 0 4px 0;}
+    .tab{padding:3px 10px; border-radius:10px; border:1px solid #cfd7ea; background:#eef3ff; cursor:pointer; user-select:none; font-size:12px;}
+    .tab.active{background:#2543a5; color:#fff; border-color:#2543a5;}
+    .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
     table { width: 100%; border-collapse: collapse; margin-top: 2px; font-size:13px;}
     th, td { padding: 3px 5px;}
     th { background: #ecf1fa; color: #2543a5; font-weight: 600; cursor: pointer; user-select: none; border-bottom:1.5px solid #abc;}
@@ -16,16 +24,24 @@
     tr:hover { background: #f0f5ff;}
     .num { font-weight: bold; color: #2543a5; }
     .no { color:#bbb; font-style:italic; }
-    .msg {color:#b25127;margin:5px 0;}
+    .empty {padding:18px 0; text-align:center; color:#9aa6c3; font-style:italic;}
+    .err {margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px;}
   </style>
 </head>
 <body>
 <div class="cont">
-  <div class="msg">Поиск через запятую (“и”): <b>маз, 2025</b> — ищет по всем словам.</div>
+  <div class="topbar">
+    <div class="msg">Поиск через запятую (“и”): <b>маз, 2025</b> — ищет по всем словам.</div>
+    <div class="counts"><span id="countShown">0</span> / <span id="countAll">0</span></div>
+  </div>
+
   <div class="search">
     <input id="q" type="text" placeholder="Поиск...">
-    <input type="file" id="jsonFile" style="margin-left:15px;">
+    <div style="color:#5b6b98;font-size:12px;" id="updatedAt"></div>
   </div>
+
+  <div class="tabs" id="tabs"></div>
+
   <table>
     <thead>
       <tr>
@@ -42,74 +58,221 @@
     </thead>
     <tbody id="data"></tbody>
   </table>
-</div>
-<script>
-let DATA = [];
-let sortF = "vehicleNumber", sortDesc = true;
 
+  <div class="empty" id="empty" style="display:none;">Нет данных по фильтру</div>
+  <div class="err" id="err" style="display:none;"></div>
+</div>
+
+<script>
+/** ========= НАСТРОЙКА ========= */
+const JSON_URL = './postavki.json';
+
+/** ========= STATE ========= */
+let DATA = [];
+let VIEW = [];
+let sortF = "vehicleNumber";
+let sortDesc = true;
+let activeTab = "_all"; // _all | автобус | троллейбус | трамвай | электробус | туах
+
+/** ========= TYPES ========= */
+function normType(t){
+  t = (t||'').toString().trim().toLowerCase();
+  if(t === 'уах') t = 'туах';
+  return t;
+}
+function typeLabel(t){
+  t = normType(t);
+  if(t === 'автобус') return 'Автобус';
+  if(t === 'троллейбус') return 'Троллейбус';
+  if(t === 'трамвай') return 'Трамвай';
+  if(t === 'электробус') return 'Электробус';
+  if(t === 'туах') return 'ТУАХ';
+  return t ? (t[0].toUpperCase()+t.slice(1)) : '—';
+}
+
+const TAB_ORDER = [
+  {key:'_all', label:'Все'},
+  {key:'автобус', label:'Автобус'},
+  {key:'троллейбус', label:'Троллейбус'},
+  {key:'трамвай', label:'Трамвай'},
+  {key:'электробус', label:'Электробус'},
+  {key:'туах', label:'ТУАХ'}
+];
+
+function calcTypeCounts(){
+  const m = {};
+  DATA.forEach(v=>{
+    const t = normType(v.type);
+    if(!t) return;
+    m[t] = (m[t]||0)+1;
+  });
+  return m;
+}
+
+function renderTabs(){
+  const wrap = document.getElementById('tabs');
+  const counts = calcTypeCounts();
+  wrap.innerHTML = TAB_ORDER.map(t => {
+    const c = (t.key === '_all') ? DATA.length : (counts[t.key]||0);
+    return `<div class="tab ${activeTab===t.key?'active':''}" data-tab="${t.key}">
+      ${t.label} <span style="opacity:.75;">${c}</span>
+    </div>`;
+  }).join('');
+
+  wrap.querySelectorAll('.tab').forEach(el=>{
+    el.onclick = ()=>{
+      activeTab = el.getAttribute('data-tab');
+      renderTabs();
+      render();
+    };
+  });
+}
+
+/** ========= SORT ========= */
 function numSortAlg(a, b){
   let an = (a.vehicleNumber||'').toUpperCase(), bn = (b.vehicleNumber||'').toUpperCase();
   if (!an && !bn) return 0; if (!an) return 1; if (!bn) return -1;
-  let aB = (an.length>=3 && !/\d/.test(an[2])) ? 1 : 0, bB = (bn.length>=3 && !/\d/.test(bn[2])) ? 1 : 0;
-  if (aB !== bB) return bB - aB; // буква на 3 позиции — выше
+
+  // буква на 3 позиции — выше
+  let aB = (an.length>=3 && !/\d/.test(an[2])) ? 1 : 0;
+  let bB = (bn.length>=3 && !/\d/.test(bn[2])) ? 1 : 0;
+  if (aB !== bB) return bB - aB;
+
+  // убывание
   return an > bn ? -1 : an < bn ? 1 : 0;
 }
+
 function generalSort(a, b){
-  if(sortF === "vehicleNumber") { let r = numSortAlg(a, b); return sortDesc ? r : -r; }
+  if(sortF === "vehicleNumber") {
+    let r = numSortAlg(a, b);
+    return sortDesc ? r : -r;
+  }
   let av=(a[sortF]||'').toLowerCase(), bv=(b[sortF]||'').toLowerCase();
   if(av < bv) return sortDesc ? 1 : -1;
   if(av > bv) return sortDesc ? -1 : 1;
   return numSortAlg(a, b);
 }
-function render(){
-  let q = document.getElementById('q').value.trim();
-  let filters = q ? q.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean) : [];
-  let view = DATA.filter(v => {
-    return filters.every(f => Object.values(v).some(x => (x||'').toLowerCase().includes(f)));
-  }).sort(generalSort);
-  let html = "";
-  view.forEach(v=>{
-    html += `<tr>
-      <td>${v.type||'<span class="no">—</span>'}</td>
-      <td>${v.model||'<span class="no">—</span>'}</td>
-      <td>${v.year||'<span class="no">—</span>'}</td>
-      <td>${v.deliveryDate||'<span class="no">—</span>'}</td>
-      <td>${v.park||'<span class="no">—</span>'}</td>
-      <td class="num">${v.vehicleNumber||'<span class="no">—</span>'}</td>
-      <td>${v.factoryNumber||'<span class="no">—</span>'}</td>
-      <td>${v.garageNumber||'<span class="no">—</span>'}</td>
-      <td>${v.color||'<span class="no">—</span>'}</td>
-    </tr>`;
-  });
-  document.getElementById('data').innerHTML = html;
+
+/** ========= FILTER + RENDER ========= */
+function escapeHTML(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-document.getElementById('q').oninput = render;
+function cell(x){
+  const s = (x||'').toString().trim();
+  return s ? escapeHTML(s) : '<span class="no">—</span>';
+}
+
+function render(){
+  const q = document.getElementById('q').value.trim();
+  const filters = q ? q.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean) : [];
+
+  VIEW = DATA
+    .filter(v=>{
+      if(activeTab !== '_all' && normType(v.type) !== activeTab) return false;
+      if(filters.length){
+        const vals = Object.values(v).map(x => (x||'').toString().toLowerCase());
+        return filters.every(f => vals.some(val => val.includes(f)));
+      }
+      return true;
+    })
+    .sort(generalSort);
+
+  document.getElementById('countShown').textContent = VIEW.length;
+  document.getElementById('countAll').textContent = DATA.length;
+
+  const tbody = document.getElementById('data');
+  const empty = document.getElementById('empty');
+
+  if(!VIEW.length){
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = VIEW.map(v=>`<tr>
+    <td>${escapeHTML(typeLabel(v.type))}</td>
+    <td>${cell(v.model)}</td>
+    <td>${cell(v.year)}</td>
+    <td>${cell(v.deliveryDate)}</td>
+    <td>${cell(v.park)}</td>
+    <td class="num">${cell(v.vehicleNumber)}</td>
+    <td>${cell(v.factoryNumber)}</td>
+    <td>${cell(v.garageNumber)}</td>
+    <td>${cell(v.color)}</td>
+  </tr>`).join('');
+}
+
+/** ========= HEADER CLICK SORT ========= */
 document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick = ()=>{
     document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
     th.classList.add('active');
-    let f = th.getAttribute('data-f');
-    if(sortF === f) sortDesc = !sortDesc; else { sortF = f; sortDesc = f==="vehicleNumber"?true:false; }
+    const f = th.getAttribute('data-f');
+
+    if(sortF === f) sortDesc = !sortDesc;
+    else {
+      sortF = f;
+      // дефолт направления: номер desc, остальные asc
+      sortDesc = (f === "vehicleNumber") ? true : false;
+    }
     render();
-  }
-});
-document.getElementById('jsonFile').onchange = function(){
-  let file = this.files[0];
-  let reader = new FileReader();
-  reader.onload = function(e){
-    try {
-      let json = JSON.parse(e.target.result);
-      let arr = Array.isArray(json) ? json : (json.vehicles||[]);
-      DATA = arr.map(r=>({
-        type: r.type||'', model: r.model||'', year: r.year||'', deliveryDate: r.deliveryDate||'', park: r.park||'',
-        vehicleNumber: r.licensePlate||r.registrationNumber||'', factoryNumber: r.factoryNumber||'',
-        garageNumber: r.garageNumber||'', color: r.color||''
-      }));
-      render();
-    } catch(e){alert('Ошибка при чтении файла: '+e);}
   };
-  reader.readAsText(file);
+});
+
+document.getElementById('q').oninput = render;
+
+function showErr(msg){
+  const e = document.getElementById('err');
+  e.style.display = '';
+  e.textContent = msg;
 }
+function hideErr(){
+  const e = document.getElementById('err');
+  e.style.display = 'none';
+  e.textContent = '';
+}
+
+/** ========= LOAD JSON ========= */
+async function loadJson(){
+  try{
+    hideErr();
+    const r = await fetch(JSON_URL, {cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j = await r.json();
+
+    const arr = Array.isArray(j) ? j : (j.vehicles || []);
+    const updatedAt = (!Array.isArray(j) && j.updatedAt) ? j.updatedAt : '';
+
+    DATA = arr.map(r => ({
+      type: r.type || '',
+      model: r.model || '',
+      year: r.year || '',
+      deliveryDate: r.deliveryDate || '',
+      park: r.park || '',
+      vehicleNumber: (r.licensePlate || r.registrationNumber || ''),
+      factoryNumber: r.factoryNumber || '',
+      garageNumber: r.garageNumber || '',
+      color: r.color || ''
+    }));
+
+    document.getElementById('updatedAt').textContent = updatedAt ? ('Обновлено: '+updatedAt) : '';
+    activeTab = "_all";
+    sortF = "vehicleNumber";
+    sortDesc = true;
+
+    renderTabs();
+    render();
+  } catch(err){
+    DATA = [];
+    renderTabs();
+    render();
+    showErr('Не загрузился ' + JSON_URL + ' — ' + err.message);
+  }
+}
+
+renderTabs();
+loadJson();
 </script>
 </body>
 </html>
