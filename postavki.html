@@ -1,327 +1,183 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Реестр транспорта Минска</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
-      --primary-blue: #2846a5;
-      --accent-blue: #456bd8;
-      --light-blue: #f1f5fe;
-      --light-gray: #f7f8fa;
-      --medium-gray: #dbe0ef;
-      --white: #fff;
-      --shadow: 0 0.5px 3px rgba(70,90,120,0.09);
-      --border-radius: 5px;
-      --danger: #eb4343;
-      --text-dark: #222;
-      --text-light: #688;
-      --compact-font: 13.4px;
-    }
-    body { background: var(--light-gray); color: var(--text-dark); font-family: 'Segoe UI', Arial, sans-serif; font-size: var(--compact-font); margin:0; padding:9px 2px;}
-    header { background: linear-gradient(90deg, var(--primary-blue), var(--accent-blue)); color: #fff; border-radius:var(--border-radius); padding: 9px 0 7px 0; margin-bottom: 11px; box-shadow: var(--shadow);}
-    h1 { font-size:1.09em; margin:0; display:flex; gap:5px; align-items:center; justify-content:center;}
-    .container { max-width: 1280px; margin: 0 auto; }
-    .search-filter-box { background:var(--white); border-radius:var(--border-radius); padding:7px 8px; box-shadow: var(--shadow); border: 1px solid var(--medium-gray);}
-    .search-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;}
-    .search-title { font-size: 1em; font-weight:500; color: var(--primary-blue);}
-    .active-month-indicator { background: var(--accent-blue); color:#fff; font-size:.93em; padding:3px 10px; border-radius:13px; display:inline-flex; align-items:center; gap:5px; margin-left:7px;}
-    .updated-at { margin:3px 0 3px 0; font-size:.89em; color:var(--text-light); display: flex; align-items:center; gap:7px;}
-    .search-input-container { position:relative; margin-bottom:5px;}
-    .search-input { width:100%; font-size:var(--compact-font); padding:6px 32px 6px 9px; border:1px solid var(--medium-gray); border-radius:var(--border-radius);}
-    .search-input:focus { border-color: var(--accent-blue); outline:none; background: #eaf2ff;}
-    .search-icon { position:absolute; right:9px; top:50%; transform:translateY(-50%); color: var(--text-light);}
-    .search-hint { font-size:0.94em; color:var(--text-light); margin:2px 0 4px 0; }
-    .filter-chips { display:flex; flex-wrap:wrap; gap: 5px; margin-bottom:4px;}
-    .filter-chip { padding: 3px 8px; background: var(--light-blue); border: 1px solid var(--medium-gray); border-radius: 12px; cursor:pointer; font-size:.95em;}
-    .filter-chip.active { background: var(--accent-blue); color:#fff;}
-    .clear-search-btn { background: var(--light-gray); border: 1px solid var(--medium-gray); color: var(--text-dark); font-size:.93em; padding:4px 9px; border-radius:6px; cursor:pointer;}
-    .clear-search-btn:hover { background: var(--medium-gray);}
-    .card { background:var(--white); border-radius:var(--border-radius); padding:7px 7px 3px 7px; box-shadow:var(--shadow); border: 1px solid var(--medium-gray);}
-    .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:3px; padding-bottom:2px; border-bottom:1px solid var(--medium-gray);}
-    .card-title { font-size:.97em; font-weight:600; color:var(--primary-blue);}
-    .table-container { overflow-x:auto; border-radius:var(--border-radius); border:1px solid var(--medium-gray); background:var(--white);}
-    table { border-collapse:collapse; width:100%; min-width:700px; font-size:var(--compact-font);}
-    thead { background: var(--light-blue);}
-    th,td { padding: 2px 7px;}
-    th { text-align:left; font-weight:500; color:var(--primary-blue); border-bottom: 2px solid var(--accent-blue); font-size:.93em; cursor: pointer;}
-    .sort-indicator { margin-left:3px; font-size:.95em; opacity:.7;}
-    th.sorted-asc .sort-indicator::after { content:"↑"; }
-    th.sorted-desc .sort-indicator::after { content:"↓"; }
-    tbody tr { border-bottom: 1px solid var(--medium-gray);}
-    tbody tr:hover { background: #f6f9ff;}
-    .type-icon { display:inline-flex; align-items:center; justify-content:center; width:19px; height:19px; border-radius:3px; margin-right:2px; font-size:.82em; font-weight:bold;}
-    .bus-icon      { background:#fff2f2; color:#b82131;}
-    .trolleybus-icon { background:#fff7ea; color:#c57100;}
-    .tram-icon      { background:#f7f1ff; color:#822fa7;}
-    .electrobus-icon { background:#eefff2; color:#17863c;}
-    .tuah-icon     { background:#e5f0ff; color:#2264c3;}
-    .vehicle-number { font-weight: 700; color: var(--primary-blue);}
-    .no-data { color: var(--text-light) !important; font-style: italic !important;}
-    .empty-state {text-align: center; padding:24px 6px 12px 6px; color: var(--text-light);}
-    .empty-state i {font-size: 1.7em;}
-    .error-banner { background: #ffeaea; border: 1px solid var(--danger); border-radius: var(--border-radius); padding: 6px 12px; margin-top: 8px; color: #b71c1c; font-size: 0.99em;}
-    footer { text-align:center; padding:10px 0 5px 0; margin-top:9px; color:var(--text-light); font-size:0.92em;}
+    body { font-family: 'Segoe UI',Arial,sans-serif; font-size:13px; margin:0; background:#f5f5f5; color:#202433;}
+    .cont{max-width:1150px;margin:15px auto 0 auto;}
+    .panel{background:#fff;border-radius:7px;padding:10px 14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(60,80,120,.08);border:1px solid #dde;}
+    .search-b{display:flex;align-items:center;justify-content:space-between;}
+    .hint{font-size:12px;color:#849;}
+    .mbar{background:#3b6deb;color:#fff;border-radius:16px;padding:3px 12px 3px 11px;display:inline-flex;align-items:center;margin-left:12px;font-size:12px;}
+    .up-at{color:#7690b4;font-size:12px; margin:2px 0 0 0;}
+    .filters{margin:6px 0 0 0;display:flex;gap:5px;flex-wrap:wrap;}
+    .filter-c{padding:2px 11px;background:#eaf2ff;border-radius:9px;border:1px solid #e5e5fb;cursor:pointer;font-size:12px;}
+    .filter-c.active{background:#456bd8;color:#fff;}
+    .sn{display:inline-block;min-width:69px}
+    .s-ct{padding:5px 2px;}
+    .s-ct input{width:99%;padding:5px 9px;border:1px solid #ccd;border-radius:5px;font-size:13px;}
+    .tbl{width:100%;border-collapse:collapse;margin-top:4px;font-size:13px;}
+    .tbl th,.tbl td{padding:3px 5px;}
+    .tbl th{background:#f4f7fb;color:#2543a5;font-weight:600;font-size:12px;text-align:left;cursor:pointer;user-select:none}
+    .tbl th.sorted-asc{background:#e6f2ff;}
+    .tbl th.sorted-desc{background:#dbe9fc;}
+    .tbl tr{border-bottom:1px solid #eef;}
+    .tbl tr:hover{background:#f6fafd}
+    .empty{padding:19px 0;color:#b5b4b8;text-align:center}
+    .group{background:#f0f4fa;font-weight:600;}
+    .num{font-weight:700;color:#2543a5;}
+    .no{color:#bbb;font-style:italic}
+    @media(max-width:700px){body{font-size:12px}.cont{padding:0 1px;}}
   </style>
 </head>
 <body>
-<header><h1><i class="fas fa-bus"></i> Реестр транспорта Минска</h1></header>
-<div class="container">
-  <div class="search-filter-box">
-    <div class="search-header">
-      <div class="search-title">
-        <i class="fas fa-search"></i> Поиск/фильтр
-        <span class="active-month-indicator" id="activeMonthBox"><i class="fas fa-calendar"></i> <span id="activeMonthText"></span></span>
+<div class="cont">
+  <div class="panel">
+    <div class="search-b">
+      <div>
+        <span style="font-size:15px;font-weight:600"><i class="fas fa-bus"></i> Реестр транспорта</span>
+        <span class="mbar"><i class="fas fa-calendar"></i> <span id="activeMonth"></span></span>
       </div>
-      <div id="updatedAtInfo" class="updated-at" style="display:none;"><i class="fas fa-clock"></i> <span id="updatedAtText"></span></div>
-      <div id="errorBanner" class="error-banner" style="display:none;"></div>
+      <div class="up-at" id="updatedAt"></div>
     </div>
-    <div class="search-input-container"><input type="text" id="searchInput" class="search-input" placeholder="фильтруй: маз, 2025..."><div class="search-icon"><i class="fas fa-search"></i></div></div>
-    <div class="search-hint"><i class="fas fa-info-circle"></i>Фильтр через запятую &mdash; ищет по всем словам, сортировка по номеру<br><span style="color:#456bd8">например: маз, 2025</span></div>
-    <div class="filter-chips" id="typeFilterChips"></div>
-    <div style="display:flex;justify-content:flex-end;"><button class="clear-search-btn" id="clearBtn"><i class="fas fa-times"></i> Сброс</button></div>
+    <div class="s-ct"><input id="sinput" type="text" placeholder="Поиск: маз, 2025..." autocomplete="off"></div>
+    <div class="hint">Фильтр через запятую (“и”): <b>маз, 2025</b> ... | Клик по заголовку: сортировка</div>
+    <div class="filters" id="tchips"></div>
   </div>
-  <div class="card" style="margin-top:10px;">
-    <div class="card-header">
-      <div class="card-title"><i class="fas fa-table"></i> Таблица транспорта</div>
-      <div style="color:var(--text-light); font-size:.93em;">
-        <span id="filteredCount">0</span> из <span id="totalCount2">0</span> записей
-      </div>
-    </div>
-    <div class="table-container">
-      <table id="vehiclesTable">
-        <thead>
+  <div class="panel">
+    <table class="tbl" id="maintbl">
+      <thead>
         <tr>
-          <th>Тип</th>
-          <th data-field="model">Модель<span class="sort-indicator"></span></th>
-          <th data-field="year">Год<span class="sort-indicator"></span></th>
-          <th data-field="deliveryDate">Дата<span class="sort-indicator"></span></th>
-          <th data-field="park">Парк<span class="sort-indicator"></span></th>
-          <th data-field="vehicleNumber">Номер<span class="sort-indicator"></span></th>
-          <th data-field="factoryNumber">Заводской №<span class="sort-indicator"></span></th>
-          <th data-field="garageNumber">Гаражный №<span class="sort-indicator"></span></th>
-          <th data-field="color">Цвет<span class="sort-indicator"></span></th>
+          <th style="width:42px">Тип</th>
+          <th data-f="model">Модель</th>
+          <th data-f="year">Год</th>
+          <th data-f="deliveryDate">Дата</th>
+          <th data-f="park">Парк</th>
+          <th data-f="vehicleNumber">Номер</th>
+          <th data-f="factoryNumber">Заводской №</th>
+          <th data-f="garageNumber">Гаражный №</th>
+          <th data-f="color">Цвет</th>
         </tr>
-        </thead>
-        <tbody id="vehiclesTableBody"></tbody>
-      </table>
-    </div>
-    <div id="emptyState" class="empty-state" style="display:none;"><i class="fas fa-database"></i><br>Нет данных по этим фильтрам</div>
+      </thead><tbody id="mtb"></tbody>
+    </table>
+    <div class="empty" style="display:none" id="emptydv"></div>
   </div>
 </div>
-<footer>
-  <span id="currentYear"></span> | Источник: <code id="sourceUrlLabel"></code>
-</footer>
+<!-- ========== ВОТ ТУТ ВСТАВЛЯЙ СВОЙ JSON! ============== -->
+<script id="staticData" type="application/json">
+{
+  "updatedAt": "12.06.2024 22:47",
+  "vehicles": [
+    {"type":"автобус","model":"МАЗ-203","year":"2025","deliveryDate":"03.2025","park":"АП2","licensePlate":"ААЕ4317-7","factoryNumber":"09523","garageNumber":"1132","color":"синий"},
+    {"type":"троллейбус","model":"АКСМ-32100D","year":"2024","deliveryDate":"02.2024","park":"ТП1","licensePlate":"АА21541-7","factoryNumber":"0027","garageNumber":"","color":"белый"},
+    {"type":"автобус","model":"МАЗ-203","year":"2025","deliveryDate":"05.2025","park":"АП5","licensePlate":"АА45678-7","factoryNumber":"09788","garageNumber":"1089","color":"красный"},
+    {"type":"автобус","model":"МАЗ-206","year":"2024","deliveryDate":"01.2024","park":"АП4","licensePlate":"ААЕ4318-7","factoryNumber":"09499","garageNumber":"1133","color":"жёлтый"}
+    // ...добавляй свои объекты сюда...
+  ]
+}
+</script>
 <script>
-// ====== НАСТРОЙКИ ======================================
-const DATA_URL = 'https://deumpirovich.github.io/beltransport/postavki.json';
-// ====== ОСНОВНЫЕ =======================================
-let vehicles = [], filteredVehicles = [], selectedTypes = [];
-let currentSearchQuery = '', currentDefaultDate = '';
-let sortConfig = { field: "vehicleNumber", order: "desc" };
-// ====== ИНИЦИАЛИЗАЦИЯ ======
-document.addEventListener('DOMContentLoaded', async () => {
-  document.getElementById('currentYear').textContent = new Date().getFullYear();
-  document.getElementById('activeMonthText').textContent = getCurrentMonthStr();
-  document.getElementById('sourceUrlLabel').textContent = DATA_URL;
-  document.getElementById('searchInput').addEventListener('input', handleSearchInput);
-  document.getElementById('clearBtn').addEventListener('click', clearSearch);
-  document.querySelectorAll('#vehiclesTable th[data-field]')
-    .forEach(th => th.addEventListener('click', () => sortTable(th.dataset.field)));
-  await loadDataOrFail();
-  setDefaultDateFilter();
-  renderTypeFilterChips();
-  applyFilters();
-});
-function getCurrentMonthStr() {
-  const d = new Date(), y = d.getFullYear(), m = d.getMonth() + 1;
-  return `${String(m).padStart(2, '0')}.${y}`;
+// ============ ДАННЫЕ ===============
+const raw = document.getElementById('staticData');
+let VRAW = JSON.parse(raw.textContent||raw.innerText);
+let vehicles = Array.isArray(VRAW) ? VRAW : VRAW.vehicles || [],
+    updatedAt = VRAW.updatedAt || '';
+// =========== UI STATE ==============
+let fTypes = [], sQuery = '', sTypes = [], sortF = "vehicleNumber", sortDir = "desc";
+// =========== INIT ==============
+document.getElementById('activeMonth').textContent = (()=>{ const d=new Date(),y=d.getFullYear(),m=d.getMonth()+1;return`${("0"+m).slice(-2)}.${y}`;})();
+document.getElementById('updatedAt').textContent = updatedAt ? ("Обновлено: "+updatedAt) : '';
+document.getElementById('sinput').addEventListener('input',()=>{sQuery=document.getElementById('sinput').value;draw();});
+function getTypeName(v){
+  const t=v.toLowerCase();
+  if(t==="автобус")return"Автобус";
+  if(t==="троллейбус")return"Троллейбус";
+  if(t==="трамвай")return"Трамвай";
+  if(t==="электробус")return"Электробус";
+  if(t==="туах")return"УАХ";
+  return v||"—";
 }
-function showError(message) {
-  const el = document.getElementById('errorBanner'); el.style.display = 'block'; el.innerHTML = message;
-}
-function hideError() {
-  const el = document.getElementById('errorBanner'); el.style.display = 'none'; el.innerHTML = '';
-}
-async function loadDataOrFail() {
-  try {
-    hideError();
-    const res = await fetch(DATA_URL, { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    if (data && typeof data === 'object' && !Array.isArray(data)) {
-      if (!Array.isArray(data.vehicles)) throw new Error('Ожидается поле vehicles (массив)');
-      vehicles = data.vehicles;
-      if (data.updatedAt) {
-        document.getElementById('updatedAtText').textContent = `Обновлено: ${data.updatedAt}`;
-        document.getElementById('updatedAtInfo').style.display = '';
-      } else document.getElementById('updatedAtInfo').style.display = 'none';
-      return;
-    }
-    if (Array.isArray(data)) { vehicles = data; document.getElementById('updatedAtInfo').style.display = 'none'; return; }
-    throw new Error('Некорректный формат JSON');
-  } catch (e) {
-    vehicles = [];
-    document.getElementById('updatedAtInfo').style.display = 'none';
-    showError('<b>Не удалось загрузить базу</b> — ' + escapeHTML(e.message));
-  }
-}
-function setDefaultDateFilter() {
-  const curr = getCurrentMonthStr(), d = new Date();
-  let pm = d.getMonth(), py = d.getFullYear();
-  if (pm === 0) { pm = 12; py -= 1; }
-  const prev = `${String(pm).padStart(2, '0')}.${py}`;
-  if (vehicles.some(v => v.deliveryDate === curr)) { currentDefaultDate = curr; return; }
-  if (vehicles.some(v => v.deliveryDate === prev)) { currentDefaultDate = prev; return; }
-  currentDefaultDate = '';
-}
-function handleSearchInput() {
-  currentSearchQuery = document.getElementById('searchInput').value.trim();
-  applyFilters();
-}
-function clearSearch() {
-  document.getElementById('searchInput').value = '';
-  currentSearchQuery = '';
-  selectedTypes = [];
-  updateTypeFilterChips();
-  applyFilters();
-}
-function renderTypeFilterChips() {
-  const container = document.getElementById('typeFilterChips');
-  const typeDisplayNames = { 'автобус': 'Автобус','троллейбус': 'Троллейбус','трамвай': 'Трамвай','электробус': 'Электробус','туах': 'УАХ'};
-  const types = [...new Set(vehicles.map(v => v.type).filter(Boolean))].sort();
-  let html =
-    `<div class="filter-chip ${selectedTypes.length === 0 ? 'active' : ''}" data-type="all"><i class="fas fa-list"></i> Все <span class="filter-chip-count">${vehicles.length}</span></div>`;
-  types.forEach(type => {
-    const count = vehicles.filter(v => v.type === type).length,
-      isActive = selectedTypes.includes(type);
-    html += `<div class="filter-chip ${isActive ? 'active' : ''}" data-type="${escapeAttr(type)}">${getTypeIconHTML(type, 'small')} ${escapeHTML(typeDisplayNames[type] || type)}<span class="filter-chip-count">${count}</span></div>`;
+const ICONS={автобус:'bus',троллейбус:'bus',трамвай:'train-tram',электробус:'bolt',туах:'car'};
+function iconHT(t){return `<i class="fas fa-${ICONS[t]||'bus'}" style="margin-right:1px;color:#566bb8"></i>`;}
+function showTypes(){
+  let ts=[...new Set(vehicles.map(v=>v.type||"—"))].sort();
+  let h='';
+  h+=`<span class="filter-c${sTypes.length===0?' active':''}" data-type="_all">Все</span>`;
+  ts.forEach(type=>{
+    h+=`<span class="filter-c${sTypes.includes(type)?' active':''}" data-type="${type}">${iconHT(type)}${getTypeName(type)}</span>`;
   });
-  container.innerHTML = html;
-  container.querySelectorAll('.filter-chip').forEach(chip => {
-    chip.addEventListener('click', () => toggleTypeFilter(chip.dataset.type));
-  });
-}
-function updateTypeFilterChips() {
-  document.querySelectorAll('.filter-chip').forEach(chip => {
-    const type = chip.dataset.type;
-    if (type === 'all') chip.classList.toggle('active', selectedTypes.length === 0);
-    else chip.classList.toggle('active', selectedTypes.includes(type));
-  });
-}
-function toggleTypeFilter(type) {
-  if (type === 'all') selectedTypes = [];
-  else {
-    const i = selectedTypes.indexOf(type);
-    if (i === -1) selectedTypes.push(type); else selectedTypes.splice(i, 1);
-  }
-  updateTypeFilterChips();
-  applyFilters();
-}
-function applyFilters() {
-  let filters = (currentSearchQuery || "").split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-  if (filters.length === 0 && selectedTypes.length === 0) {
-    filteredVehicles = vehicles.filter(v => currentDefaultDate ? v.deliveryDate === currentDefaultDate : true);
-  } else {
-    filteredVehicles = vehicles.filter(v => {
-      if (selectedTypes.length > 0 && !selectedTypes.includes(v.type)) return false;
-      if (filters.length) {
-        let searchable = [
-          v.model, v.year, v.deliveryDate, v.park,
-          (v.licensePlate || v.registrationNumber),
-          v.factoryNumber, v.garageNumber, v.color
-        ].filter(Boolean).map(x => String(x).toLowerCase());
-        for (let filter of filters) {
-          if (!searchable.some(s => s.includes(filter))) return false;
-        }
+  document.getElementById('tchips').innerHTML=h;
+  document.querySelectorAll('.filter-c').forEach(e=>{
+    e.onclick=()=>{
+      if(e.dataset.type=="_all"){sTypes=[];}else{
+        if(sTypes.includes(e.dataset.type))sTypes=sTypes.filter(t=>t!==e.dataset.type);
+        else sTypes.push(e.dataset.type);
       }
-      return true;
-    });
+      showTypes();draw();
+    }
+  });
+}
+showTypes();
+// ========== SORT =============
+document.querySelectorAll('#maintbl th[data-f]').forEach(th=>{
+  th.onclick=()=>{
+    const f=th.dataset.f;
+    if(sortF===f)sortDir=sortDir==="asc"?"desc":"asc";
+    else {sortF=f;sortDir=f==="vehicleNumber"?"desc":"asc";}
+    draw();
   }
-  applySorting();
-  renderTableView();
+});
+function numSortAlg(a,b){
+  let an=String(a.licensePlate||a.registrationNumber||'').toUpperCase(),bn=String(b.licensePlate||b.registrationNumber||'').toUpperCase();
+  if(!an&&!bn)return 0; if(!an)return 1; if(!bn)return -1;
+  let aB=(an.length>=3&&!/\d/.test(an[2]))?1:0,bB=(bn.length>=3&&!/\d/.test(bn[2]))?1:0;
+  if(aB!==bB)return bB-aB; // третья буква выше
+  return an>bn?-1:an<bn?1:0;
 }
-function sortTable(field) {
-  if (sortConfig.field === field) sortConfig.order = (sortConfig.order === 'asc') ? 'desc' : 'asc';
-  else sortConfig.field = field, sortConfig.order = (field === 'vehicleNumber' ? 'desc' : 'asc');
-  applySorting(); renderTableView(); updateSortIndicators();
+function generalSort(a,b){
+  if(sortF==="vehicleNumber"){ let r = numSortAlg(a,b); return sortDir==="asc"?-r:r; }
+  let av=(a[sortF]||'').toLowerCase(), bv=(b[sortF]||'').toLowerCase();
+  if(av<bv)return sortDir==="asc"?-1:1;
+  if(av>bv)return sortDir==="asc"?1:-1;
+  return numSortAlg(a,b);
 }
-function updateSortIndicators() {
-  document.querySelectorAll('#vehiclesTable th[data-field]').forEach(th => {
-    th.classList.remove('sorted-asc', 'sorted-desc');
-    if (th.dataset.field === sortConfig.field)
-      th.classList.add(sortConfig.order === 'asc' ? 'sorted-asc' : 'sorted-desc');
-  });
-}
-function applySorting() {
-  filteredVehicles = filteredVehicles.slice().sort((a, b) => {
-    if (sortConfig.field === 'vehicleNumber') return compareVehicleNumbersDesc(a, b) * (sortConfig.order === 'asc' ? -1 : 1);
-    let A = (a[sortConfig.field] || '').toLowerCase(), B = (b[sortConfig.field] || '').toLowerCase();
-    if (A < B) return sortConfig.order === 'asc' ? -1 : 1;
-    if (A > B) return sortConfig.order === 'asc' ? 1 : -1;
-    return compareVehicleNumbersDesc(a, b);
-  });
-}
-function getSortableNumberString(v) {
-  let num = v.licensePlate || v.registrationNumber || '';
-  num = (typeof num === "string") ? num.trim().toUpperCase() : '';
-  return num;
-}
-function compareVehicleNumbersDesc(a, b) {
-  let an = getSortableNumberString(a), bn = getSortableNumberString(b);
-  if (!an && !bn) return 0; if (!an) return 1; if (!bn) return -1;
-  let aLetter = (an.length >= 3 && isNaN(+an[2])) ? 1 : 0, bLetter = (bn.length >= 3 && isNaN(+bn[2])) ? 1 : 0;
-  if (aLetter !== bLetter) return bLetter - aLetter;
-  if (an > bn) return -1; if (an < bn) return 1; return 0;
-}
-function renderTableView() {
-  const tbody = document.getElementById('vehiclesTableBody');
-  const emptyState = document.getElementById('emptyState');
-  document.getElementById('filteredCount').textContent = filteredVehicles.length;
-  document.getElementById('totalCount2').textContent = vehicles.length;
-  if (filteredVehicles.length === 0) { tbody.innerHTML = ''; emptyState.style.display = 'block'; return; }
-  emptyState.style.display = 'none';
-  let html = '';
-  filteredVehicles.forEach(v => {
-    const num = v.licensePlate || v.registrationNumber || '';
-    html += `<tr>
-      <td>${getTypeIconHTML(v.type)}</td>
-      <td>${formatCellValue(v.model)}</td>
-      <td>${formatCellValue(v.year)}</td>
-      <td>${formatCellValue(v.deliveryDate)}</td>
-      <td>${formatCellValue(v.park)}</td>
-      <td class="vehicle-number">${formatCellValue(num)}</td>
-      <td>${formatCellValue(v.factoryNumber)}</td>
-      <td>${formatCellValue(v.garageNumber)}</td>
-      <td>${formatCellValue(v.color)}</td>
+// ========== DRAW =============
+function draw(){
+  let q = sQuery.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
+  let fvs = vehicles.filter(v=>{
+    if(sTypes.length && !sTypes.includes(v.type||"—")) return false;
+    let fields = [v.model,v.year,v.deliveryDate,v.park,v.licensePlate||v.registrationNumber,v.factoryNumber,v.garageNumber,v.color].map(x=>(x||'').toLowerCase());
+    return q.every(word=>fields.some(f=>f.includes(word)));
+  }).sort(generalSort);
+  let b = '';
+  if(!fvs.length){ document.getElementById('emptydv').style.display=''; document.getElementById('emptydv').textContent="Нет данных по фильтру"; document.getElementById('mtb').innerHTML=''; return; }
+  document.getElementById('emptydv').style.display='none';
+  fvs.forEach(v=>{
+    let num=v.licensePlate||v.registrationNumber||'';
+    b+=`<tr>
+      <td>${iconHT(v.type||'')}<span style="font-size:.95em">${getTypeName(v.type||'')}</span></td>
+      <td>${v.model||'<span class="no">—</span>'}</td>
+      <td>${v.year||'<span class="no">—</span>'}</td>
+      <td>${v.deliveryDate||'<span class="no">—</span>'}</td>
+      <td>${v.park||'<span class="no">—</span>'}</td>
+      <td class="num">${num||'<span class="no">—</span>'}</td>
+      <td>${v.factoryNumber||'<span class="no">—</span>'}</td>
+      <td>${v.garageNumber||'<span class="no">—</span>'}</td>
+      <td>${v.color||'<span class="no">—</span>'}</td>
     </tr>`;
   });
-  tbody.innerHTML = html;
-  updateSortIndicators();
+  document.getElementById('mtb').innerHTML=b;
+  document.querySelectorAll('#maintbl th[data-f]').forEach(th=>{
+    th.classList.remove('sorted-asc','sorted-desc');
+    if(th.dataset.f===sortF){ th.classList.add('sorted-'+sortDir); }
+  });
+  document.getElementById('filteredCount')&&(document.getElementById('filteredCount').textContent=fvs.length);
+  document.getElementById('totalCount2')&&(document.getElementById('totalCount2').textContent=vehicles.length);
 }
-function getTypeIconHTML(type, size='normal') {
-  const sizeStyle = size === 'small' ? ' style="width:16px;height:16px;font-size:0.8em;"' : '';
-  switch (type) {
-    case 'автобус': return `<span class="type-icon bus-icon"${sizeStyle}>А</span>`;
-    case 'троллейбус': return `<span class="type-icon trolleybus-icon"${sizeStyle}>Т</span>`;
-    case 'трамвай': return `<span class="type-icon tram-icon"${sizeStyle}>Тр</span>`;
-    case 'электробус': return `<span class="type-icon electrobus-icon"${sizeStyle}>E</span>`;
-    case 'туах': return `<span class="type-icon tuah-icon"${sizeStyle}>УАХ</span>`;
-    default: return `<span class="type-icon"${sizeStyle}>?</span>`;
-  }
-}
-function formatCellValue(value) {
-  if (!value || String(value).trim() === '') return '<span class="no-data">нет данных</span>';
-  return escapeHTML(String(value));
-}
-function escapeHTML(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function escapeAttr(s) {
-  return String(s).replace(/"/g, '&quot;');
-}
+draw();
 </script>
 </body>
 </html>
