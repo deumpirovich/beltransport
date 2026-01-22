@@ -1,10 +1,9 @@
 <!-- postavki.html (полный код)
-  - Табы: NEW (первый) = текущий месяц, если есть, иначе последний месяц с поставками.
-          Все (последний) = все загруженные поставки.
-  - Desktop: таблица + sticky верх (поиск/табы) + sticky шапка таблицы под верхом.
-  - Mobile (<=720px): вместо таблицы карточки (без горизонтального скролла и без sticky-шапки таблицы).
-  - Исправление "убежала шапка": --stickyTopOffset ВСЕГДА считается JS по высоте .stickyTop,
-    и sticky для thead включён только на desktop.
+  - NEW (первый) = текущий месяц, если есть, иначе последний месяц с поставками
+  - Все (последний) = все загруженные поставки
+  - Таблица на всех устройствах (в т.ч. мобилка), сортировка кликом по шапке
+  - Шапка таблицы ("Тип / Модель / ...") закреплена под фильтрами:
+    top считается JS-ом как высота .stickyTop
 -->
 <!DOCTYPE html>
 <html lang="ru">
@@ -13,21 +12,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Транспорт Минска — поставки</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      font-size: 13px;
-      background: #f5f7fa;
-      color: #23263a;
-      margin: 0;
-      padding: 0;
-    }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f7fa; color: #23263a; margin: 0; padding: 0;}
     .cont { max-width: 1100px; margin: 15px auto; padding: 0 10px; }
 
     /* sticky top (поиск + табы) */
     .stickyTop{
       position: sticky;
       top: 0;
-      z-index: 50;
+      z-index: 100;
       background: #f5f7fa;
       padding-top: 10px;
       padding-bottom: 8px;
@@ -37,110 +29,49 @@
     .msg {color:#b25127;margin:5px 0; line-height:1.25;}
     .topbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
     .search {margin:6px 0 7px 0; display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
-    input[type="text"] {
-      padding:4px 9px;
-      font-size:13px;
-      border-radius:5px;
-      border:1px solid #bbc;
-      width:260px;
-    }
+    input[type="text"] {padding:4px 9px; font-size:13px; border-radius:5px; border:1px solid #bbc; width:260px;}
     .tabs{display:flex; gap:6px; flex-wrap:wrap; margin:6px 0 4px 0;}
-    .tab{
-      padding:3px 10px;
-      border-radius:10px;
-      border:1px solid #cfd7ea;
-      background:#eef3ff;
-      cursor:pointer;
-      user-select:none;
-      font-size:12px;
-      white-space:nowrap;
-    }
+    .tab{padding:3px 10px; border-radius:10px; border:1px solid #cfd7ea; background:#eef3ff; cursor:pointer; user-select:none; font-size:12px; white-space:nowrap;}
     .tab.active{background:#2543a5; color:#fff; border-color:#2543a5;}
     .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
 
-    /* ===== Desktop table ===== */
-    .tableWrap{display:block;}
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 8px;
-      font-size:13px;
-      background:#fff;
-      border-radius:8px;
-      overflow:hidden;
-    }
-    th, td { padding: 3px 5px; text-align: center; }
-    th { color: #2543a5; font-weight: 600; cursor: pointer; user-select: none; }
+    /* table */
+    .tableWrap{margin-top:8px;}
+    table { width: 100%; border-collapse: collapse; background:#fff; border-radius:8px; overflow:hidden; font-size:13px; }
+
+    th, td { padding: 6px 6px; text-align: center; vertical-align: middle; }
+    th { color: #2543a5; font-weight: 600; cursor: pointer; user-select: none; background:#ecf1fa; }
     th.active { background: #d2e3ff; }
+
     tr { border-bottom: 1px solid #eee;}
     tr:hover { background: #f0f5ff;}
     .num { font-weight: bold; color: #2543a5; }
     .no { color:#bbb; font-style:italic; }
-
-    /* offset for sticky table header - value is always set by JS */
-    :root{ --stickyTopOffset: 0px; }
-
-    /* sticky header only on desktop where table is visible */
-    @media (min-width: 721px){
-      thead th{
-        position: sticky;
-        top: var(--stickyTopOffset);
-        z-index: 40;
-        background: #ecf1fa;
-        border-bottom:1.5px solid #abc;
-      }
-    }
-
-    /* ===== Mobile cards ===== */
-    .cardsWrap{display:none; margin-top: 8px;}
-    .card{
-      background:#fff;
-      border:1px solid #e3e8f5;
-      border-radius:10px;
-      padding:10px 10px 9px 10px;
-      box-shadow:0 1px 5px rgba(70,80,160,.06);
-      margin-bottom:10px;
-    }
-    .cardTop{
-      display:flex; justify-content:space-between; gap:10px; align-items:flex-start; flex-wrap:wrap;
-      margin-bottom:6px;
-    }
-    .cardTitle{
-      font-weight:700; color:#2543a5; line-height:1.2;
-    }
-    .cardBadge{
-      font-size:12px; padding:2px 8px; border-radius:999px;
-      background:#eef3ff; border:1px solid #cfd7ea; color:#2543a5;
-      white-space:nowrap;
-    }
-    .cardGrid{
-      display:grid;
-      grid-template-columns: 110px 1fr;
-      gap:6px 10px;
-      align-items:start;
-      font-size:13px;
-    }
-    .k{color:#5b6b98; font-size:12px;}
-    .v{color:#23263a; word-break:break-word;}
-    .v.num{font-weight:700; color:#2543a5;}
-    .cardRowSpan{grid-column: 1 / -1; border-top:1px dashed #e3e8f5; padding-top:6px; margin-top:2px;}
-
     .empty {padding:18px 0; text-align:center; color:#9aa6c3; font-style:italic;}
     .err {margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px; white-space:pre-wrap;}
 
+    /* sticky header: top задаётся через CSS-переменную, которую выставляет JS */
+    :root{ --stickyTopOffset: 0px; }
+    thead th{
+      position: sticky;
+      top: var(--stickyTopOffset);
+      z-index: 60;           /* ниже .stickyTop (100), но выше строк таблицы */
+      background: #ecf1fa;
+      border-bottom: 1.5px solid #abc;
+    }
+
     @media (max-width: 720px){
-      .cont{margin: 10px auto;}
+      .cont{margin:10px auto;}
       input[type="text"]{width: 100%;}
       .counts{margin-left:0;}
-
-      .tableWrap{display:none;}
-      .cardsWrap{display:block;}
+      th, td{padding:6px 5px;}
+      table{font-size:12px;}
+      .tab{padding:3px 8px;}
     }
   </style>
 </head>
 <body>
 <div class="cont">
-
   <div class="stickyTop" id="stickyTop">
     <div class="topbar">
       <div class="msg">
@@ -158,7 +89,6 @@
     <div class="tabs" id="tabs"></div>
   </div>
 
-  <!-- Desktop table -->
   <div class="tableWrap">
     <table>
       <thead>
@@ -177,9 +107,6 @@
       <tbody id="data"></tbody>
     </table>
   </div>
-
-  <!-- Mobile cards -->
-  <div class="cardsWrap" id="cards"></div>
 
   <div class="empty" id="empty" style="display:none;">Нет данных по фильтру</div>
   <div class="err" id="err" style="display:none;"></div>
@@ -252,6 +179,7 @@ function typeLabel(t){
   return t ? (t[0].toUpperCase()+t.slice(1)) : '—';
 }
 
+/** tabs order: NEW first, types, ALL last */
 const TAB_ORDER = [
   {key:'_new', label:'NEW'},
   {key:'автобус', label:'Автобус'},
@@ -301,14 +229,18 @@ function renderTabs(){
   });
 }
 
-/** sort */
+/** ===== sorting ===== */
 function numSortAlg(a, b){
   let an = (a.vehicleNumber||'').toUpperCase(), bn = (b.vehicleNumber||'').toUpperCase();
   if (!an && !bn) return 0; if (!an) return 1; if (!bn) return -1;
+
+  // старая "логика номеров" сохранена
   let aB = (an.length>=3 && !/\d/.test(an[2])) ? 1 : 0;
   let bB = (bn.length>=3 && !/\d/.test(bn[2])) ? 1 : 0;
   if (aB !== bB) return bB - aB;
-  return an > bn ? -1 : an < bn ? 1 : 0; // desc
+
+  // desc default
+  return an > bn ? -1 : an < bn ? 1 : 0;
 }
 function generalSort(a, b){
   if(sortF === "vehicleNumber") {
@@ -321,7 +253,7 @@ function generalSort(a, b){
   return numSortAlg(a, b);
 }
 
-/** render helpers */
+/** ===== render ===== */
 function escapeHTML(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -329,27 +261,26 @@ function cell(x){
   const s = (x||'').toString().trim();
   return s ? escapeHTML(s) : '<span class="no">—</span>';
 }
-function valText(x){
-  const s = (x||'').toString().trim();
-  return s ? s : '—';
-}
 
-/** render (table + cards) */
 function render(){
   const q = document.getElementById('q').value.trim();
   const filters = q ? q.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean) : [];
 
   VIEW = DATA
     .filter(v=>{
+      // NEW: фильтр по вычисленному месяцу
       if(activeTab === '_new'){
         if(!newMonthKey) return false;
         const mk = monthKeyFromDeliveryDate(v.deliveryDate);
         if(mk !== newMonthKey) return false;
       }
+
+      // types:
       if(activeTab !== '_new' && activeTab !== '_all'){
         if(normType(v.type) !== activeTab) return false;
       }
 
+      // search
       if(filters.length){
         const vals = Object.values(v).map(x => (x||'').toString().toLowerCase());
         return filters.every(f => vals.some(val => val.includes(f)));
@@ -362,12 +293,10 @@ function render(){
   document.getElementById('countAll').textContent = DATA.length;
 
   const tbody = document.getElementById('data');
-  const cards = document.getElementById('cards');
   const empty = document.getElementById('empty');
 
   if(!VIEW.length){
     tbody.innerHTML = '';
-    cards.innerHTML = '';
     empty.style.display = '';
     return;
   }
@@ -384,62 +313,49 @@ function render(){
     <td>${cell(v.garageNumber)}</td>
     <td>${cell(v.color)}</td>
   </tr>`).join('');
-
-  cards.innerHTML = VIEW.map(v=>{
-    const titleLeft = `${typeLabel(v.type)} ${valText(v.vehicleNumber)}`.trim();
-    const badge = valText(v.deliveryDate);
-
-    return `<div class="card">
-      <div class="cardTop">
-        <div class="cardTitle">${escapeHTML(titleLeft)}</div>
-        <div class="cardBadge">${escapeHTML(badge)}</div>
-      </div>
-
-      <div class="cardGrid">
-        <div class="k">Модель</div><div class="v">${escapeHTML(valText(v.model))}</div>
-        <div class="k">Год</div><div class="v">${escapeHTML(valText(v.year))}</div>
-        <div class="k">Парк</div><div class="v">${escapeHTML(valText(v.park))}</div>
-
-        <div class="k">Заводской №</div><div class="v">${escapeHTML(valText(v.factoryNumber))}</div>
-        <div class="k">Гаражный №</div><div class="v">${escapeHTML(valText(v.garageNumber))}</div>
-
-        <div class="cardRowSpan"></div>
-
-        <div class="k">Цвет</div><div class="v">${escapeHTML(valText(v.color))}</div>
-      </div>
-    </div>`;
-  }).join('');
 }
 
-/** sticky header offset auto (always compute from stickyTop height) */
+/** ===== sticky header offset =====
+    Всегда пересчитываем top для thead по реальной высоте stickyTop.
+    Это лечит "убежала шапка" при переносах табов, изменении updatedAt,
+    повороте экрана и плавающей адресной строке на мобилках.
+*/
 function updateStickyHeaderOffset(){
   const top = document.getElementById('stickyTop');
   if(!top) return;
   const h = Math.ceil(top.getBoundingClientRect().height);
   document.documentElement.style.setProperty('--stickyTopOffset', h + 'px');
 }
-window.addEventListener('resize', ()=>{
-  // при повороте/изменении высоты адресной строки на мобилке тоже полезно
-  requestAnimationFrame(updateStickyHeaderOffset);
-});
 
-/** click sort (desktop header) */
+// реагируем на изменение viewport на мобильных (адресная строка, поворот и т.п.)
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', ()=>requestAnimationFrame(updateStickyHeaderOffset));
+}
+window.addEventListener('resize', ()=>requestAnimationFrame(updateStickyHeaderOffset));
+
+/** ===== header click sort ===== */
 document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick = ()=>{
     document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
     th.classList.add('active');
+
     const f = th.getAttribute('data-f');
     if(sortF === f) sortDesc = !sortDesc;
     else {
       sortF = f;
       sortDesc = (f === "vehicleNumber") ? true : false;
     }
+
     render();
+    requestAnimationFrame(updateStickyHeaderOffset);
   };
 });
-document.getElementById('q').oninput = render;
+document.getElementById('q').oninput = ()=>{
+  render();
+  requestAnimationFrame(updateStickyHeaderOffset);
+};
 
-/** errors */
+/** ===== errors ===== */
 function showErr(msg){
   const e = document.getElementById('err');
   e.style.display = '';
@@ -451,7 +367,7 @@ function hideErr(){
   e.textContent = '';
 }
 
-/** json */
+/** ===== json load ===== */
 function pickArray(j){
   if(Array.isArray(j)) return j;
   if(j && Array.isArray(j.vehicles)) return j.vehicles;
@@ -488,6 +404,7 @@ async function loadJson(){
 
     computeNewMonthKey();
 
+    // по умолчанию: NEW
     activeTab = "_new";
     sortF = "vehicleNumber";
     sortDesc = true;
@@ -495,8 +412,10 @@ async function loadJson(){
     renderTabs();
     render();
 
-    // важно: после отрисовки табов/updatedAt высота stickyTop может измениться
+    // важно: после вставки табов/updatedAt меняется высота stickyTop
     requestAnimationFrame(updateStickyHeaderOffset);
+    // второй кадр — на случай, если браузер ещё переразложил строки
+    requestAnimationFrame(()=>requestAnimationFrame(updateStickyHeaderOffset));
   } catch(err){
     DATA = [];
     renderTabs();
