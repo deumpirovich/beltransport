@@ -1,9 +1,8 @@
-<!-- postavki.html (полный код)
-  - NEW (первый) = текущий месяц, если есть, иначе последний месяц с поставками
-  - Все (последний) = все загруженные поставки
-  - Таблица на всех устройствах (в т.ч. мобилка), сортировка кликом по шапке
-  - Шапка таблицы ("Тип / Модель / ...") закреплена под фильтрами:
-    top считается JS-ом как высота .stickyTop
+<!-- postavki.html (упрощённый и надёжный)
+  - Таблица на всех устройствах, сортировка кликом по шапке
+  - NEW первый, Все последний
+  - Шапка таблицы НЕ sticky (не перекрывает данные никогда)
+  - Sticky только у верхнего блока фильтров/табов
 -->
 <!DOCTYPE html>
 <html lang="ru">
@@ -15,7 +14,6 @@
     body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f7fa; color: #23263a; margin: 0; padding: 0;}
     .cont { max-width: 1100px; margin: 15px auto; padding: 0 10px; }
 
-    /* sticky top (поиск + табы) */
     .stickyTop{
       position: sticky;
       top: 0;
@@ -35,30 +33,24 @@
     .tab.active{background:#2543a5; color:#fff; border-color:#2543a5;}
     .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
 
-    /* table */
     .tableWrap{margin-top:8px;}
     table { width: 100%; border-collapse: collapse; background:#fff; border-radius:8px; overflow:hidden; font-size:13px; }
 
     th, td { padding: 6px 6px; text-align: center; vertical-align: middle; }
-    th { color: #2543a5; font-weight: 600; cursor: pointer; user-select: none; background:#ecf1fa; }
-    th.active { background: #d2e3ff; }
+    thead th{
+      position: static;          /* <-- ВАЖНО: без sticky */
+      background:#ecf1fa;
+      border-bottom: 1.5px solid #abc;
+    }
 
+    th { color: #2543a5; font-weight: 600; cursor: pointer; user-select: none; }
+    th.active { background: #d2e3ff; }
     tr { border-bottom: 1px solid #eee;}
     tr:hover { background: #f0f5ff;}
     .num { font-weight: bold; color: #2543a5; }
     .no { color:#bbb; font-style:italic; }
     .empty {padding:18px 0; text-align:center; color:#9aa6c3; font-style:italic;}
     .err {margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px; white-space:pre-wrap;}
-
-    /* sticky header: top задаётся через CSS-переменную, которую выставляет JS */
-    :root{ --stickyTopOffset: 0px; }
-    thead th{
-      position: sticky;
-      top: var(--stickyTopOffset);
-      z-index: 60;           /* ниже .stickyTop (100), но выше строк таблицы */
-      background: #ecf1fa;
-      border-bottom: 1.5px solid #abc;
-    }
 
     @media (max-width: 720px){
       .cont{margin:10px auto;}
@@ -179,7 +171,6 @@ function typeLabel(t){
   return t ? (t[0].toUpperCase()+t.slice(1)) : '—';
 }
 
-/** tabs order: NEW first, types, ALL last */
 const TAB_ORDER = [
   {key:'_new', label:'NEW'},
   {key:'автобус', label:'Автобус'},
@@ -229,18 +220,14 @@ function renderTabs(){
   });
 }
 
-/** ===== sorting ===== */
+/** sorting */
 function numSortAlg(a, b){
   let an = (a.vehicleNumber||'').toUpperCase(), bn = (b.vehicleNumber||'').toUpperCase();
   if (!an && !bn) return 0; if (!an) return 1; if (!bn) return -1;
-
-  // старая "логика номеров" сохранена
   let aB = (an.length>=3 && !/\d/.test(an[2])) ? 1 : 0;
   let bB = (bn.length>=3 && !/\d/.test(bn[2])) ? 1 : 0;
   if (aB !== bB) return bB - aB;
-
-  // desc default
-  return an > bn ? -1 : an < bn ? 1 : 0;
+  return an > bn ? -1 : an < bn ? 1 : 0; // desc
 }
 function generalSort(a, b){
   if(sortF === "vehicleNumber") {
@@ -253,7 +240,7 @@ function generalSort(a, b){
   return numSortAlg(a, b);
 }
 
-/** ===== render ===== */
+/** render */
 function escapeHTML(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -268,19 +255,16 @@ function render(){
 
   VIEW = DATA
     .filter(v=>{
-      // NEW: фильтр по вычисленному месяцу
       if(activeTab === '_new'){
         if(!newMonthKey) return false;
         const mk = monthKeyFromDeliveryDate(v.deliveryDate);
         if(mk !== newMonthKey) return false;
       }
 
-      // types:
       if(activeTab !== '_new' && activeTab !== '_all'){
         if(normType(v.type) !== activeTab) return false;
       }
 
-      // search
       if(filters.length){
         const vals = Object.values(v).map(x => (x||'').toString().toLowerCase());
         return filters.every(f => vals.some(val => val.includes(f)));
@@ -315,25 +299,7 @@ function render(){
   </tr>`).join('');
 }
 
-/** ===== sticky header offset =====
-    Всегда пересчитываем top для thead по реальной высоте stickyTop.
-    Это лечит "убежала шапка" при переносах табов, изменении updatedAt,
-    повороте экрана и плавающей адресной строке на мобилках.
-*/
-function updateStickyHeaderOffset(){
-  const top = document.getElementById('stickyTop');
-  if(!top) return;
-  const h = Math.ceil(top.getBoundingClientRect().height);
-  document.documentElement.style.setProperty('--stickyTopOffset', h + 'px');
-}
-
-// реагируем на изменение viewport на мобильных (адресная строка, поворот и т.п.)
-if(window.visualViewport){
-  window.visualViewport.addEventListener('resize', ()=>requestAnimationFrame(updateStickyHeaderOffset));
-}
-window.addEventListener('resize', ()=>requestAnimationFrame(updateStickyHeaderOffset));
-
-/** ===== header click sort ===== */
+/** header click sort */
 document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick = ()=>{
     document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
@@ -345,17 +311,12 @@ document.querySelectorAll('th[data-f]').forEach(th=>{
       sortF = f;
       sortDesc = (f === "vehicleNumber") ? true : false;
     }
-
     render();
-    requestAnimationFrame(updateStickyHeaderOffset);
   };
 });
-document.getElementById('q').oninput = ()=>{
-  render();
-  requestAnimationFrame(updateStickyHeaderOffset);
-};
+document.getElementById('q').oninput = render;
 
-/** ===== errors ===== */
+/** errors */
 function showErr(msg){
   const e = document.getElementById('err');
   e.style.display = '';
@@ -367,7 +328,7 @@ function hideErr(){
   e.textContent = '';
 }
 
-/** ===== json load ===== */
+/** json load */
 function pickArray(j){
   if(Array.isArray(j)) return j;
   if(j && Array.isArray(j.vehicles)) return j.vehicles;
@@ -404,24 +365,17 @@ async function loadJson(){
 
     computeNewMonthKey();
 
-    // по умолчанию: NEW
     activeTab = "_new";
     sortF = "vehicleNumber";
     sortDesc = true;
 
     renderTabs();
     render();
-
-    // важно: после вставки табов/updatedAt меняется высота stickyTop
-    requestAnimationFrame(updateStickyHeaderOffset);
-    // второй кадр — на случай, если браузер ещё переразложил строки
-    requestAnimationFrame(()=>requestAnimationFrame(updateStickyHeaderOffset));
   } catch(err){
     DATA = [];
     renderTabs();
     render();
     showErr('Не загрузился ' + JSON_URL + ' — ' + err.message);
-    requestAnimationFrame(updateStickyHeaderOffset);
   }
 }
 
