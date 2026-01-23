@@ -32,7 +32,7 @@
 
     th, td { padding: 6px 6px; text-align: center; vertical-align: middle; }
     thead th{
-      position: static;          /* ВАЖНО: шапка таблицы НЕ sticky */
+      position: static;
       background:#ecf1fa;
       border-bottom: 1.5px solid #abc;
     }
@@ -46,7 +46,6 @@
     .empty {padding:18px 0; text-align:center; color:#9aa6c3; font-style:italic;}
     .err {margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px; white-space:pre-wrap;}
 
-    /* Строка фильтров в thead */
     thead tr.filters th{
       background:#ecf1fa;
       border-bottom: 1.5px solid #abc;
@@ -244,42 +243,68 @@ function renderTabs(){
   });
 }
 
-/** sorting */
-function numSortAlg(a, b){
-  let an = (a.vehicleNumber||'').toUpperCase(), bn = (b.vehicleNumber||'').toUpperCase();
-  if (!an && !bn) return 0; if (!an) return 1; if (!bn) return -1;
-  let aB = (an.length>=3 && !/\d/.test(an[2])) ? 1 : 0;
-  let bB = (bn.length>=3 && !/\d/.test(bn[2])) ? 1 : 0;
-  if (aB !== bB) return bB - aB;
-  return an > bn ? -1 : an < bn ? 1 : 0; // desc
-}
+/* =========================
+   SORTING
+   ========================= */
 
 /*
-  ДОБАВЛЕНО: нормализация заводского номера ДЛЯ СОРТИРОВКИ.
-  Комментарий: если в factoryNumber встретились похожие кириллические буквы
-  (например "А123" кириллицей вместо "A123" латиницей) — считаем, что это одно и то же.
+  ДОБАВЛЕНО/ИСПРАВЛЕНО: нормализация номера ДЛЯ СОРТИРОВКИ.
+  Условие пользователя: кириллицу считаем латиницей и сортируем как латиницу.
+  Поэтому приводим номер к "латинскому" виду.
+
+  Важно для кейса: "АI" должно быть между "АЕ" и "АК":
+  - "А" (кириллица) -> "A" (латиница)
+  - "Е" (кириллица) -> "E"
+  - "К" (кириллица) -> "K"
+  - "И"/"І" (кириллица) -> "I"
 */
-function normFactoryForSort(s){
+function normVehicleNumberForSort(s){
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/[\s\-]/g, '');
 
-  // кириллица -> латиница (похожие символы)
   const map = {
-    'А':'A','В':'B','С':'C','Е':'E','Н':'H','К':'K','М':'M','О':'O','Р':'P','Т':'T','Х':'X','У':'Y'
+    'А':'A','В':'B','С':'C','Е':'E','Н':'H','К':'K','М':'M','О':'O','Р':'P','Т':'T','Х':'X','У':'Y',
+    'И':'I','І':'I'
   };
-  s = s.replace(/[АВСЕНКМОРТХУ]/g, ch => map[ch] || ch);
 
+  s = s.replace(/[АВСЕНКМОРТХУИІ]/g, ch => map[ch] || ch);
   return s;
 }
 
 /*
-  ИЗМЕНЕНО: generalSort теперь отдельно обрабатывает sortF === "factoryNumber":
-  сравнивает normFactoryForSort(a.factoryNumber) и normFactoryForSort(b.factoryNumber).
+  ИЗМЕНЕНО: сортировка по vehicleNumber теперь делается по нормализованной строке.
+  Функция возвращает результат для ASC (по возрастанию).
+  Переворот в DESC делается в generalSort().
 */
+function numSortAlg(a, b){
+  const an0 = (a.vehicleNumber || '');
+  const bn0 = (b.vehicleNumber || '');
+
+  if(!an0 && !bn0) return 0;
+  if(!an0) return 1;
+  if(!bn0) return -1;
+
+  const an = normVehicleNumberForSort(an0);
+  const bn = normVehicleNumberForSort(bn0);
+
+  if(an < bn) return -1;
+  if(an > bn) return 1;
+  return 0;
+}
+
+/* Нормализация заводского номера ДЛЯ СОРТИРОВКИ (кириллица как латиница) */
+function normFactoryForSort(s){
+  s = (s || '').toString().trim().toUpperCase();
+  s = s.replace(/[\s\-]/g, '');
+  const map = {'А':'A','В':'B','С':'C','Е':'E','Н':'H','К':'K','М':'M','О':'O','Р':'P','Т':'T','Х':'X','У':'Y'};
+  s = s.replace(/[АВСЕНКМОРТХУ]/g, ch => map[ch] || ch);
+  return s;
+}
+
 function generalSort(a, b){
   if(sortF === "vehicleNumber") {
-    let r = numSortAlg(a, b);
-    return sortDesc ? r : -r;
+    const r = numSortAlg(a, b);     // r = ASC
+    return sortDesc ? -r : r;       // направление учитываем тут
   }
 
   let av, bv;
@@ -293,10 +318,15 @@ function generalSort(a, b){
 
   if(av < bv) return sortDesc ? 1 : -1;
   if(av > bv) return sortDesc ? -1 : 1;
-  return numSortAlg(a, b);
+
+  // тайбрейкер: тоже через numSortAlg и с учётом направления
+  const r2 = numSortAlg(a, b);
+  return sortDesc ? -r2 : r2;
 }
 
-/** render */
+/* =========================
+   RENDER
+   ========================= */
 function escapeHTML(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -306,11 +336,9 @@ function cell(x){
 }
 
 /*
-  Нормализация номера для поиска:
-  - UPPERCASE (регистр не важен)
-  - убираем пробелы/дефисы
-  - латиница (похожие) -> кириллица
-  - I и І -> И  (чтобы AI / АI / AІ / АІ совпадали)
+  Нормализация номера ДЛЯ ПОИСКА:
+  оставляем логику "приводим похожую латиницу к кириллице" + I/І -> И,
+  чтобы человек мог вводить и так, и так.
 */
 function normVehicleNumberForSearch(s){
   s = (s || '').toString().trim().toUpperCase();
@@ -318,8 +346,7 @@ function normVehicleNumberForSearch(s){
 
   const map = {
     'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У',
-    'I':'И',
-    'І':'И'
+    'I':'И','І':'И'
   };
 
   s = s.replace(/[ABCEHKMOPTXYIІ]/g, ch => map[ch] || ch);
@@ -406,13 +433,13 @@ document.querySelectorAll('th[data-f]').forEach(th=>{
     if(sortF === f) sortDesc = !sortDesc;
     else {
       sortF = f;
-      sortDesc = (f === "vehicleNumber") ? true : false;
+      sortDesc = (f === "vehicleNumber") ? true : false; // как было: номер стартует DESC
     }
     render();
   };
 });
 
-/* Ввод в любой фильтр-колонку запускает render() */
+/* ввод в любой фильтр-колонку запускает render() */
 document.addEventListener('input', (e) => {
   if(e.target && e.target.classList && e.target.classList.contains('colFilter')){
     render();
