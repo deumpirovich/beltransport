@@ -482,7 +482,7 @@
       "park": "ТП2",
       "licensePlate": "ААЕ146-7",
       "factoryNumber": "S0000119",
-      "garageNumber": "39421",
+      "garageNumber": "",
       "color": "жёлтый"
     },
     {
@@ -493,7 +493,7 @@
       "park": "ТП2",
       "licensePlate": "ААЕ149-7",
       "factoryNumber": "S0000117",
-      "garageNumber": "39438",
+      "garageNumber": "",
       "color": "жёлтый"
     },
     {
@@ -526,7 +526,7 @@
       "park": "ТП1",
       "licensePlate": "ААЕ155-7",
       "factoryNumber": "S0000114",
-      "garageNumber": "",
+      "garageNumber": "39421",
       "color": "жёлтый"
     },
     {
@@ -537,7 +537,7 @@
       "park": "ТП1",
       "licensePlate": "ААЕ161-7",
       "factoryNumber": "S0000116",
-      "garageNumber": "",
+      "garageNumber": "39438",
       "color": "жёлтый"
     },
     {
