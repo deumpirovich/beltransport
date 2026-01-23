@@ -266,9 +266,21 @@ function canonSeriesChar(ch){
 
 function normVehicleNumberForSort(s){
   s = (s || '').toString().trim().toUpperCase();
-  s = s.replace(/[\s\-]/g, '');
+  // пробелы убираем, дефис сохраняем (для распознавания ******-7)
+  s = s.replace(/\s+/g, '');
   s = s.replace(/[A-ZА-ЯІ]/g, ch => canonSeriesChar(ch));
   return s;
+}
+
+/* ДОБАВЛЕНО/ПЕРЕИМЕНОВАНО: общий формат "******-7" (не называем больше "bus") */
+function isPlateDash7(s){
+  return /^[A-Z0-9]{6}-7$/.test(s);
+}
+
+/* группа: 1 если 3-й символ НЕ цифра (буква) => выше; 0 если цифра */
+function plateGroupThirdChar(normS){
+  const ch3 = normS[2] || '';
+  return /\d/.test(ch3) ? 0 : 1;
 }
 
 function compareVehicleStringsAsc(a, b){
@@ -295,9 +307,10 @@ function compareVehicleStringsAsc(a, b){
 }
 
 /*
-  ИЗМЕНЕНО: "правило третьей буквы" => БУКВЕННЫЕ ПЕРВЫМИ.
-  aB=1 если 3-й символ НЕ цифра.
-  Если группы разные — возвращаем bB - aB, чтобы (1) было раньше (0) в ASC.
+  ИЗМЕНЕНО: numSortAlg (ASC)
+  - правило 3-й буквы/цифры применяется для типов:
+      автобус, электробус
+    и только если ОБА номера формата ******-7
 */
 function numSortAlg(a, b){
   const anRaw = (a.vehicleNumber || '').toString().trim();
@@ -310,11 +323,21 @@ function numSortAlg(a, b){
   const an = normVehicleNumberForSort(anRaw);
   const bn = normVehicleNumberForSort(bnRaw);
 
-  const aB = (an.length >= 3 && !/\d/.test(an[2])) ? 1 : 0;
-  const bB = (bn.length >= 3 && !/\d/.test(bn[2])) ? 1 : 0;
+  const tA = normType(a.type);
+  const tB = normType(b.type);
 
-  // ВОТ ЭТА СТРОКА — ключевая правка: буквенные первыми
-  if(aB !== bB) return bB - aB;
+  const applyThirdRuleA = (tA === 'автобус' || tA === 'электробус');
+  const applyThirdRuleB = (tB === 'автобус' || tB === 'электробус');
+
+  const aDash7 = isPlateDash7(an);
+  const bDash7 = isPlateDash7(bn);
+
+  // Правило включаем, только если оба объекта подходящих типов и оба номера ******-7
+  if(applyThirdRuleA && applyThirdRuleB && aDash7 && bDash7){
+    const aG = plateGroupThirdChar(an); // 1 => буква (выше)
+    const bG = plateGroupThirdChar(bn);
+    if(aG !== bG) return bG - aG; // буквенные первыми в ASC
+  }
 
   const r = compareVehicleStringsAsc(an, bn);
   if(r !== 0) return r;
@@ -337,7 +360,7 @@ function normFactoryForSort(s){
 function generalSort(a, b){
   if(sortF === "vehicleNumber") {
     const r = numSortAlg(a, b);     // ASC
-    return sortDesc ? -r : r;       // переключение направления
+    return sortDesc ? -r : r;       // направление
   }
 
   let av, bv;
