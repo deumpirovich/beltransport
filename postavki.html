@@ -3,6 +3,9 @@
   - NEW первый, Все последний
   - Шапка таблицы НЕ sticky (не перекрывает данные никогда)
   - Sticky только у верхнего блока фильтров/табов
+  - Фильтры В КАЖДОМ СТОЛБЦЕ (под заголовком)
+  - Общий фильтр убран
+  - Для фильтра "Номер": учитывается кириллица/латиница (включая И/I)
 -->
 <!DOCTYPE html>
 <html lang="ru">
@@ -52,8 +55,29 @@
     .empty {padding:18px 0; text-align:center; color:#9aa6c3; font-style:italic;}
     .err {margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px; white-space:pre-wrap;}
 
+    /* ДОБАВЛЕНО: стили строки фильтров под заголовками */
+    thead tr.filters th{
+      background:#ecf1fa;
+      border-bottom: 1.5px solid #abc;
+      padding: 4px 6px 6px 6px;
+      cursor: default; /* чтобы не было ощущения клика сортировки */
+    }
+    .colFilter{
+      width: 100%;
+      box-sizing: border-box;
+      padding: 3px 6px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: 1px solid #bbc;
+      outline: none;
+      background: #fff;
+      text-align: left;
+    }
+    .colFilter:focus{ border-color:#2543a5; }
+
     @media (max-width: 720px){
       .cont{margin:10px auto;}
+      /* общий input[type=text] здесь уже не нужен для поиска, но оставляем правило как было */
       input[type="text"]{width: 100%;}
       .counts{margin-left:0;}
       th, td{padding:6px 5px;}
@@ -67,14 +91,14 @@
   <div class="stickyTop" id="stickyTop">
     <div class="topbar">
       <div class="msg">
-        Поиск через запятую (“и”): <b>маз, 2025</b>
+        Поиск по столбцам (под шапкой)
         <span id="monthHint" style="color:#5b6b98;"></span>
       </div>
       <div class="counts"><span id="countShown">0</span> / <span id="countAll">0</span></div>
     </div>
 
     <div class="search">
-      <input id="q" type="text" placeholder="Поиск...">
+      <!-- УБРАНО: общий поиск -->
       <div style="color:#5b6b98;font-size:12px;" id="updatedAt"></div>
     </div>
 
@@ -94,6 +118,19 @@
           <th data-f="factoryNumber">Заводской №</th>
           <th data-f="garageNumber">Гаражный №</th>
           <th data-f="color">Цвет</th>
+        </tr>
+
+        <!-- ДОБАВЛЕНО: фильтры под заголовками (по каждому столбцу) -->
+        <tr class="filters">
+          <th><input class="colFilter" data-col="type" placeholder="фильтр"></th>
+          <th><input class="colFilter" data-col="model" placeholder="фильтр"></th>
+          <th><input class="colFilter" data-col="year" placeholder="фильтр"></th>
+          <th><input class="colFilter" data-col="deliveryDate" placeholder="фильтр"></th>
+          <th><input class="colFilter" data-col="park" placeholder="фильтр"></th>
+          <th><input class="colFilter" data-col="vehicleNumber" placeholder="фильтр"></th>
+          <th><input class="colFilter" data-col="factoryNumber" placeholder="фильтр"></th>
+          <th><input class="colFilter" data-col="garageNumber" placeholder="фильтр"></th>
+          <th><input class="colFilter" data-col="color" placeholder="фильтр"></th>
         </tr>
       </thead>
       <tbody id="data"></tbody>
@@ -249,9 +286,27 @@ function cell(x){
   return s ? escapeHTML(s) : '<span class="no">—</span>';
 }
 
+/* ДОБАВЛЕНО: нормализация номера для поиска (кириллица/латиница, включая И/I) */
+function normVehicleNumberForSearch(s){
+  s = (s || '').toString().trim().toUpperCase();
+  s = s.replace(/[\s\-]/g, '');
+
+  const map = {
+    'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У',
+    'I':'И'
+  };
+  s = s.replace(/[ABCEHKMOPTXYI]/g, ch => map[ch] || ch);
+  return s;
+}
+
 function render(){
-  const q = document.getElementById('q').value.trim();
-  const filters = q ? q.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean) : [];
+  /* ДОБАВЛЕНО: фильтры по каждому столбцу */
+  const colFilters = {};
+  document.querySelectorAll('.colFilter').forEach(inp=>{
+    const col = inp.getAttribute('data-col');
+    const val = (inp.value || '').toString().trim();
+    if(val) colFilters[col] = val;
+  });
 
   VIEW = DATA
     .filter(v=>{
@@ -265,10 +320,26 @@ function render(){
         if(normType(v.type) !== activeTab) return false;
       }
 
-      if(filters.length){
-        const vals = Object.values(v).map(x => (x||'').toString().toLowerCase());
-        return filters.every(f => vals.some(val => val.includes(f)));
+      for(const [col, rawNeedle] of Object.entries(colFilters)){
+        let needle = rawNeedle.toString().toLowerCase();
+
+        if(col === 'type'){
+          const hay = typeLabel(v.type).toLowerCase();
+          if(!hay.includes(needle)) return false;
+          continue;
+        }
+
+        if(col === 'vehicleNumber'){
+          const hay = normVehicleNumberForSearch(v.vehicleNumber);
+          const n = normVehicleNumberForSearch(rawNeedle);
+          if(!hay.includes(n)) return false;
+          continue;
+        }
+
+        const hay = (v[col] || '').toString().toLowerCase();
+        if(!hay.includes(needle)) return false;
       }
+
       return true;
     })
     .sort(generalSort);
@@ -314,7 +385,13 @@ document.querySelectorAll('th[data-f]').forEach(th=>{
     render();
   };
 });
-document.getElementById('q').oninput = render;
+
+/* ДОБАВЛЕНО: ввод в любой фильтр-колонку запускает render() */
+document.addEventListener('input', (e) => {
+  if(e.target && e.target.classList && e.target.classList.contains('colFilter')){
+    render();
+  }
+});
 
 /** errors */
 function showErr(msg){
