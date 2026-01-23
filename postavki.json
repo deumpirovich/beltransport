@@ -1,5 +1,5 @@
 {
-  "updatedAt": "23.01.2026 13:54",
+  "updatedAt": "23.01.2026 16:37",
   "vehicles": [
     {
       "type": "Автобус",
@@ -734,7 +734,7 @@
       "deliveryDate": "02.2021",
       "park": "ТП1",
       "licensePlate": "ААЕ005-7",
-      "factoryNumber": "М0000045",
+      "factoryNumber": "M0000045",
       "garageNumber": "11089",
       "color": "жёлтый"
     },
@@ -745,7 +745,7 @@
       "deliveryDate": "02.2021",
       "park": "ТП1",
       "licensePlate": "ААЕ006-7",
-      "factoryNumber": "М0000046",
+      "factoryNumber": "M0000046",
       "garageNumber": "11097",
       "color": "жёлтый"
     },
@@ -756,7 +756,7 @@
       "deliveryDate": "05.2021",
       "park": "ТП1",
       "licensePlate": "ААЕ008-7",
-      "factoryNumber": "М0000005",
+      "factoryNumber": "M0000005",
       "garageNumber": "39233",
       "color": "жёлтый"
     },
@@ -767,7 +767,7 @@
       "deliveryDate": "05.2021",
       "park": "ТП1",
       "licensePlate": "ААЕ009-7",
-      "factoryNumber": "М0000008",
+      "factoryNumber": "M0000008",
       "garageNumber": "39240",
       "color": "жёлтый"
     },
@@ -778,7 +778,7 @@
       "deliveryDate": "05.2021",
       "park": "ТП1",
       "licensePlate": "ААЕ010-7",
-      "factoryNumber": "М0000003",
+      "factoryNumber": "M0000003",
       "garageNumber": "26426",
       "color": "жёлтый"
     },
@@ -789,7 +789,7 @@
       "deliveryDate": "05.2021",
       "park": "ТП1",
       "licensePlate": "ААЕ011-7",
-      "factoryNumber": "М0000009",
+      "factoryNumber": "M0000009",
       "garageNumber": "26433",
       "color": "жёлтый"
     },
