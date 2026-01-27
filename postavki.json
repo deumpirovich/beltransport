@@ -1,5 +1,5 @@
 {
-  "updatedAt": "24.01.2026 13:33",
+  "updatedAt": "27.01.2026 20:21",
   "vehicles": [
     {
       "type": "Автобус",
@@ -11790,7 +11790,7 @@
       "park": "ТП2",
       "licensePlate": "ААЕ146-7",
       "factoryNumber": "S0000119",
-      "garageNumber": "",
+      "garageNumber": "44003",
       "color": "жёлтый"
     },
     {
@@ -11801,7 +11801,7 @@
       "park": "ТП2",
       "licensePlate": "ААЕ149-7",
       "factoryNumber": "S0000117",
-      "garageNumber": "",
+      "garageNumber": "44001",
       "color": "жёлтый"
     },
     {
@@ -11823,7 +11823,7 @@
       "park": "ТП2",
       "licensePlate": "ААЕ153-7",
       "factoryNumber": "S0000118",
-      "garageNumber": "",
+      "garageNumber": "44002",
       "color": "жёлтый"
     },
     {
