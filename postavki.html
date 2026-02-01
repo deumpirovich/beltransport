@@ -41,17 +41,17 @@
     .tableWrap{margin-top:8px;}
     table { width: 100%; border-collapse: collapse; background:#fff; border-radius:8px; overflow:hidden; font-size:13px; }
 
-    /* ключ для управления ширинами колонок через <colgroup> */
+    /* ключ: управляем ширинами колонок через <colgroup> */
     table#tbl{ table-layout: fixed; }
 
     th, td { padding: 6px 6px; text-align: center; vertical-align: middle; }
     thead th{
-      position: static;          /* шапка НЕ sticky */
+      position: static;
       background:#ecf1fa;
       border-bottom: 1.5px solid #abc;
     }
 
-    /* Чтобы тексты не “ломали” сетку: */
+    /* ellipsis by default (для viewer) */
     td, th{
       overflow: hidden;
       text-overflow: ellipsis;
@@ -96,10 +96,9 @@
       height:100%;
       cursor: col-resize;
       user-select:none;
-      touch-action:none; /* важно для тача */
+      touch-action:none;
       z-index:5;
     }
-    /* визуальная линия при наведении */
     th:hover .resizer::after{
       content:'';
       position:absolute;
@@ -108,10 +107,9 @@
       width:2px;
       background: rgba(37,67,165,.35);
     }
-    /* чтобы при ресайзе не выделялся текст */
     .resizing, .resizing *{ cursor: col-resize !important; user-select:none !important; }
 
-    /* ===== Defaul column widths (percent) ===== */
+    /* ===== Default column widths ===== */
     col.c-type   { width: 9%;  }
     col.c-model  { width: 20%; } /* шире */
     col.c-year   { width: 6%;  } /* уже */
@@ -129,6 +127,64 @@
       table{font-size:12px;}
       .tab{padding:3px 8px;}
     }
+
+    /* ===== Row details modal (mobile-friendly) ===== */
+    #rowModal{ position: fixed; inset: 0; z-index: 1000; display:none; }
+    #rowModal .rm-backdrop{
+      position:absolute; inset:0;
+      background: rgba(0,0,0,.35);
+    }
+    #rowModal .rm-sheet{
+      position:absolute;
+      left: 0; right: 0; bottom: 0;
+      background:#fff;
+      border-radius: 14px 14px 0 0;
+      box-shadow: 0 -10px 25px rgba(0,0,0,.2);
+      max-height: 78vh;
+      overflow: auto;
+    }
+    #rowModal .rm-head{
+      position: sticky;
+      top: 0;
+      background:#fff;
+      padding: 10px 12px;
+      border-bottom: 1px solid #eef1f7;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    #rowModal .rm-title{ font-weight: 700; color:#2543a5; }
+    #rowModal .rm-close{
+      margin-left:auto;
+      border:1px solid #d6deef;
+      background:#f6f9ff;
+      border-radius: 10px;
+      width: 34px; height: 30px;
+      cursor:pointer;
+      font-size: 18px;
+      line-height: 26px;
+    }
+    #rowModal .rm-body{ padding: 10px 12px 16px 12px; }
+    .rm-row{
+      display:flex;
+      gap:10px;
+      padding: 8px 0;
+      border-bottom: 1px dashed #eef1f7;
+    }
+    .rm-k{ width: 110px; flex: 0 0 110px; color:#5b6b98; font-size:12px; }
+    .rm-v{ flex: 1 1 auto; color:#23263a; word-break: break-word; }
+
+    @media (min-width: 721px){
+      #rowModal .rm-sheet{
+        left: 50%;
+        transform: translateX(-50%);
+        width: 520px;
+        border-radius:14px;
+        top: 12vh;
+        bottom:auto;
+        max-height: 76vh;
+      }
+    }
   </style>
 </head>
 <body>
@@ -139,7 +195,6 @@
         <span id="monthHint" style="color:#5b6b98;"></span>
       </div>
       <div class="counts"><span id="countShown">0</span> / <span id="countAll">0</span></div>
-
       <button class="btn" id="btnResetCols" title="Сбросить сохранённые ширины столбцов">Сброс ширин</button>
     </div>
 
@@ -152,7 +207,6 @@
 
   <div class="tableWrap">
     <table id="tbl">
-      <!-- Управляем ширинами колонок здесь -->
       <colgroup>
         <col class="c-type" data-colkey="type">
         <col class="c-model" data-colkey="model">
@@ -190,6 +244,7 @@
           <th><input class="colFilter" data-col="color"></th>
         </tr>
       </thead>
+
       <tbody id="data"></tbody>
     </table>
   </div>
@@ -198,13 +253,23 @@
   <div class="err" id="err" style="display:none;"></div>
 </div>
 
+<!-- Bottom-sheet with full row data -->
+<div id="rowModal">
+  <div class="rm-backdrop"></div>
+  <div class="rm-sheet" role="dialog" aria-modal="true">
+    <div class="rm-head">
+      <div class="rm-title" id="rmTitle">Детали</div>
+      <button class="rm-close" id="rmClose" type="button">×</button>
+    </div>
+    <div class="rm-body" id="rmBody"></div>
+  </div>
+</div>
+
 <script>
 const JSON_URL = './postavki.json';
-
-/* localStorage key for column widths */
 const COLS_STORAGE_KEY = 'postavki_col_widths_v1';
 
-/* ===== data/sort state ===== */
+/* ===== state ===== */
 let DATA = [];
 let VIEW = [];
 let sortF = "vehicleNumber";
@@ -214,7 +279,7 @@ let activeTab = "_new";
 let newMonthKey = '';
 let hasCurrentMonth = false;
 
-/* ===== date/new helpers ===== */
+/* ===== helpers ===== */
 function pad2(n){ return String(n).padStart(2,'0'); }
 function monthKeyFromDeliveryDate(s){
   const m = String(s||'').trim().match(/^(\d{1,2})\.(\d{4})$/);
@@ -255,7 +320,6 @@ function computeNewMonthKey(){
     newMonthKey ? `NEW: ${newMonthKey}${hasCurrentMonth ? '' : ' (последний месяц с поставками)'}` : '';
 }
 
-/* ===== types ===== */
 function normType(t){
   t = (t||'').toString().trim().toLowerCase();
   if(t === 'уах') t = 'туах';
@@ -321,10 +385,10 @@ function renderTabs(){
 }
 
 /* =========================
-   SORTING (your custom rules preserved)
+   SORTING
    ========================= */
 
-/* series order: А,В,Е,И,К,М,Н,О,Р,С,Т,Х (written as A,B,E,I,K,M,H,O,P,C,T,X) */
+/* series order: А,В,Е,И,К,М,Н,О,Р,С,Т,Х (written A,B,E,I,K,M,H,O,P,C,T,X) */
 const SERIES_ORDER = "ABEIKMHOPCTX";
 const SERIES_WEIGHT = (() => {
   const m = {};
@@ -343,7 +407,7 @@ function canonSeriesChar(ch){
 
 function normVehicleNumberForSort(s){
   s = (s || '').toString().trim().toUpperCase();
-  s = s.replace(/\s+/g, '');               // spaces out, keep dash for ******-7 detection
+  s = s.replace(/\s+/g, '');               // remove spaces, keep dash for ******-7 detection
   s = s.replace(/[A-ZА-ЯІ]/g, ch => canonSeriesChar(ch));
   return s;
 }
@@ -353,7 +417,7 @@ function isPlateDash7(s){
 }
 function plateGroupThirdChar(normS){
   const ch3 = normS[2] || '';
-  return /\d/.test(ch3) ? 0 : 1; // 1 => letter, higher priority
+  return /\d/.test(ch3) ? 0 : 1; // 1 => letter => higher priority
 }
 
 function compareVehicleStringsAsc(a, b){
@@ -379,11 +443,6 @@ function compareVehicleStringsAsc(a, b){
   return 0;
 }
 
-/*
-  vehicleNumber compare in ASC:
-  - for автобус/электробус AND if both are ******-7 => third char letter group first
-  - then series-order compare
-*/
 function numSortAlg(a, b){
   const anRaw = (a.vehicleNumber || '').toString().trim();
   const bnRaw = (b.vehicleNumber || '').toString().trim();
@@ -403,10 +462,11 @@ function numSortAlg(a, b){
   const aDash7 = isPlateDash7(an);
   const bDash7 = isPlateDash7(bn);
 
+  // Third-char rule only if BOTH are bus/e-bus and BOTH look like ******-7
   if(applyThirdRuleA && applyThirdRuleB && aDash7 && bDash7){
     const aG = plateGroupThirdChar(an);
     const bG = plateGroupThirdChar(bn);
-    if(aG !== bG) return bG - aG; // letter-group (1) first in ASC
+    if(aG !== bG) return bG - aG; // letter-group first in ASC
   }
 
   const r = compareVehicleStringsAsc(an, bn);
@@ -450,7 +510,7 @@ function generalSort(a, b){
 }
 
 /* =========================
-   RENDER
+   RENDER / UI
    ========================= */
 function escapeHTML(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -460,7 +520,6 @@ function cell(x){
   return s ? escapeHTML(s) : '<span class="no">—</span>';
 }
 
-/* Search normalization for "Номер" */
 function normVehicleNumberForSearch(s){
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/[\s\-]/g, '');
@@ -474,6 +533,43 @@ function normVehicleNumberForSearch(s){
   return s;
 }
 
+/* modal helpers */
+function openRowModal(rowObj){
+  const modal = document.getElementById('rowModal');
+  const title = document.getElementById('rmTitle');
+  const body = document.getElementById('rmBody');
+
+  title.textContent = rowObj.vehicleNumber ? `Номер: ${rowObj.vehicleNumber}` : 'Детали';
+
+  const fields = [
+    ['Тип', rowObj.type],
+    ['Модель', rowObj.model],
+    ['Год', rowObj.year],
+    ['Дата', rowObj.deliveryDate],
+    ['Парк', rowObj.park],
+    ['Номер', rowObj.vehicleNumber],
+    ['Заводской №', rowObj.factoryNumber],
+    ['Гаражный №', rowObj.garageNumber],
+    ['Цвет', rowObj.color],
+  ];
+
+  body.innerHTML = fields.map(([k,v])=>`
+    <div class="rm-row">
+      <div class="rm-k">${escapeHTML(k)}</div>
+      <div class="rm-v">${escapeHTML(((v||'—').toString()) || '—')}</div>
+    </div>
+  `).join('');
+
+  modal.style.display = '';
+  document.documentElement.style.overflow = 'hidden';
+}
+function closeRowModal(){
+  const modal = document.getElementById('rowModal');
+  modal.style.display = 'none';
+  document.documentElement.style.overflow = '';
+}
+
+/* render table */
 function render(){
   const colFilters = {};
   document.querySelectorAll('.colFilter').forEach(inp=>{
@@ -531,24 +627,41 @@ function render(){
   }
   empty.style.display = 'none';
 
-  tbody.innerHTML = VIEW.map(v=>`<tr>
-    <td>${escapeHTML(typeLabel(v.type))}</td>
-    <td>${cell(v.model)}</td>
-    <td>${cell(v.year)}</td>
-    <td>${cell(v.deliveryDate)}</td>
-    <td>${cell(v.park)}</td>
-    <td class="num">${cell(v.vehicleNumber)}</td>
-    <td>${cell(v.factoryNumber)}</td>
-    <td>${cell(v.garageNumber)}</td>
-    <td>${cell(v.color)}</td>
-  </tr>`).join('');
+  // ВАЖНО: кладём в data-row JSON с полными значениями
+  tbody.innerHTML = VIEW.map(v=>{
+    const payloadObj = {
+      type: typeLabel(v.type),
+      model: (v.model||''),
+      year: (v.year||''),
+      deliveryDate: (v.deliveryDate||''),
+      park: (v.park||''),
+      vehicleNumber: (v.vehicleNumber||''),
+      factoryNumber: (v.factoryNumber||''),
+      garageNumber: (v.garageNumber||''),
+      color: (v.color||'')
+    };
+
+    // кладём как base64, чтобы не мучаться с экранированием кавычек
+    const payload = btoa(unescape(encodeURIComponent(JSON.stringify(payloadObj))));
+
+    return `<tr data-rowb64="${payload}">
+      <td>${escapeHTML(typeLabel(v.type))}</td>
+      <td>${cell(v.model)}</td>
+      <td>${cell(v.year)}</td>
+      <td>${cell(v.deliveryDate)}</td>
+      <td>${cell(v.park)}</td>
+      <td class="num">${cell(v.vehicleNumber)}</td>
+      <td>${cell(v.factoryNumber)}</td>
+      <td>${cell(v.garageNumber)}</td>
+      <td>${cell(v.color)}</td>
+    </tr>`;
+  }).join('');
 }
 
-/* sort click */
+/* sort click (avoid when resizing) */
 function initSortClick(){
   document.querySelectorAll('th[data-f]').forEach(th=>{
     th.onclick = (e)=>{
-      // если кликнули по ресайзеру — не сортируем
       if(e.target && e.target.classList && e.target.classList.contains('resizer')) return;
 
       document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
@@ -571,6 +684,27 @@ document.addEventListener('input', (e) => {
     render();
   }
 });
+
+/* row click => open modal */
+document.getElementById('data').addEventListener('click', (e)=>{
+  const tr = e.target.closest('tr');
+  if(!tr) return;
+  const b64 = tr.getAttribute('data-rowb64');
+  if(!b64) return;
+
+  try{
+    const txt = decodeURIComponent(escape(atob(b64)));
+    const obj = JSON.parse(txt);
+    openRowModal(obj);
+  }catch(err){
+    // ignore
+  }
+});
+
+/* modal close */
+document.getElementById('rmClose').addEventListener('click', closeRowModal);
+document.querySelector('#rowModal .rm-backdrop').addEventListener('click', closeRowModal);
+document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeRowModal(); });
 
 /* errors */
 function showErr(msg){
@@ -636,9 +770,8 @@ async function loadJson(){
 }
 
 /* =========================
-   Excel-like column resizing
+   Excel-like column resizing (with persistence)
    ========================= */
-
 function getStoredColWidths(){
   try{
     const raw = localStorage.getItem(COLS_STORAGE_KEY);
@@ -650,25 +783,19 @@ function getStoredColWidths(){
     return null;
   }
 }
-
 function setStoredColWidths(obj){
-  try{
-    localStorage.setItem(COLS_STORAGE_KEY, JSON.stringify(obj));
-  }catch{}
+  try{ localStorage.setItem(COLS_STORAGE_KEY, JSON.stringify(obj)); }catch{}
 }
-
 function getColEls(){
   const tbl = document.getElementById('tbl');
   if(!tbl) return [];
   return Array.from(tbl.querySelectorAll('colgroup col[data-colkey]'));
 }
-
 function applyStoredColWidths(){
   const saved = getStoredColWidths();
   if(!saved) return;
 
-  const cols = getColEls();
-  cols.forEach(col=>{
+  getColEls().forEach(col=>{
     const key = col.getAttribute('data-colkey');
     const px = saved[key];
     if(typeof px === 'number' && px >= 30){
@@ -676,11 +803,6 @@ function applyStoredColWidths(){
     }
   });
 }
-
-/*
-  Создаём ресайзеры на всех заголовках, кроме последнего (последний можно тоже, но смысла меньше).
-  Ресайз влияет на <col> соответствующей колонки => ширина меняется и в head, и в body.
-*/
 function initColumnResizers(){
   const tbl = document.getElementById('tbl');
   if(!tbl) return;
@@ -689,11 +811,8 @@ function initColumnResizers(){
   const cols = getColEls();
   const colByKey = new Map(cols.map(c => [c.getAttribute('data-colkey'), c]));
 
-  // добавляем "ручки"
   ths.forEach((th, idx)=>{
-    // не ставим на последний столбец, чтобы не тянуть “в никуда”
     if(idx === ths.length - 1) return;
-
     if(th.querySelector('.resizer')) return;
 
     const r = document.createElement('div');
@@ -711,7 +830,6 @@ function initColumnResizers(){
 
     drag.colEl.style.width = newW + 'px';
 
-    // сохраняем “на лету”
     const saved = getStoredColWidths() || {};
     saved[drag.colKey] = newW;
     setStoredColWidths(saved);
@@ -720,7 +838,7 @@ function initColumnResizers(){
   function stopDrag(){
     if(!drag) return;
     document.body.classList.remove('resizing');
-    drag.resizer.releasePointerCapture(drag.pointerId);
+    try{ drag.resizer.releasePointerCapture(drag.pointerId); }catch{}
     drag = null;
     window.removeEventListener('pointermove', onPointerMove);
     window.removeEventListener('pointerup', stopDrag);
@@ -738,7 +856,6 @@ function initColumnResizers(){
     const colEl = colByKey.get(colKey);
     if(!colEl) return;
 
-    // текущую ширину берём из реального th, так “как на экране”
     const th = target.closest('th');
     const rect = th.getBoundingClientRect();
 
@@ -760,10 +877,8 @@ function initColumnResizers(){
     window.addEventListener('pointercancel', stopDrag);
   }, {passive:false});
 }
-
 function resetColWidths(){
   localStorage.removeItem(COLS_STORAGE_KEY);
-  // сбрасываем inline width у <col>, возвращаем к CSS (%)
   getColEls().forEach(col => col.style.width = '');
 }
 
