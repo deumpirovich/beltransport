@@ -21,26 +21,14 @@
     .msg {color:#b25127;margin:5px 0; line-height:1.25;}
     .topbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
     .search {margin:6px 0 7px 0; display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+    input[type="text"] {padding:4px 9px; font-size:13px; border-radius:5px; border:1px solid #bbc; width:260px;}
     .tabs{display:flex; gap:6px; flex-wrap:wrap; margin:6px 0 4px 0;}
     .tab{padding:3px 10px; border-radius:10px; border:1px solid #cfd7ea; background:#eef3ff; cursor:pointer; user-select:none; font-size:12px; white-space:nowrap;}
     .tab.active{background:#2543a5; color:#fff; border-color:#2543a5;}
     .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
 
-    .btn{
-      padding: 4px 10px;
-      border-radius: 8px;
-      border: 1px solid #cfd7ea;
-      background: #fff;
-      cursor: pointer;
-      font-size: 12px;
-      color:#2543a5;
-      user-select:none;
-    }
-    .btn:hover{ background:#f6f9ff; }
-
     .tableWrap{margin-top:8px;}
     table { width: 100%; border-collapse: collapse; background:#fff; border-radius:8px; overflow:hidden; font-size:13px; }
-    table#tbl{ table-layout: fixed; }
 
     th, td { padding: 6px 6px; text-align: center; vertical-align: middle; }
     thead th{
@@ -49,13 +37,7 @@
       border-bottom: 1.5px solid #abc;
     }
 
-    td, th{
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    th { color: #2543a5; font-weight: 600; cursor: pointer; user-select: none; position: relative; }
+    th { color: #2543a5; font-weight: 600; cursor: pointer; user-select: none; }
     th.active { background: #d2e3ff; }
     tr { border-bottom: 1px solid #eee;}
     tr:hover { background: #f0f5ff;}
@@ -83,93 +65,23 @@
     }
     .colFilter:focus{ border-color:#2543a5; }
 
-    /* ===== Excel-like resizer (DESKTOP ONLY will be enabled by JS) ===== */
-    .resizer{
-      position:absolute;
-      top:0;
-      right:-4px;
-      width:8px;
-      height:100%;
-      cursor: col-resize;
-      user-select:none;
-      touch-action:none;
-      z-index:5;
-    }
-    th:hover .resizer::after{
-      content:'';
-      position:absolute;
-      top:0; bottom:0;
-      left:3px;
-      width:2px;
-      background: rgba(37,67,165,.35);
-    }
-    .resizing, .resizing *{ cursor: col-resize !important; user-select:none !important; }
-
-    /* Default widths */
-    col.c-type   { width: 9%;  }
-    col.c-model  { width: 20%; }
-    col.c-year   { width: 6%;  }
-    col.c-date   { width: 9%;  }
-    col.c-park   { width: 7%;  }
-    col.c-num    { width: 10%; }
-    col.c-factory{ width: 14%; }
-    col.c-garage { width: 11%; }
-    col.c-color  { width: 14%; }
-
     @media (max-width: 720px){
       .cont{margin:10px auto;}
+      input[type="text"]{width: 100%;}
       .counts{margin-left:0;}
       th, td{padding:6px 5px;}
       table{font-size:12px;}
       .tab{padding:3px 8px;}
-      /* на мобиле кнопку сброса можно спрятать, но оставляю */
     }
 
-    /* ===== Row details modal ===== */
-    #rowModal{ position: fixed; inset: 0; z-index: 1000; display:none; }
-    #rowModal .rm-backdrop{ position:absolute; inset:0; background: rgba(0,0,0,.35); }
-    #rowModal .rm-sheet{
-      position:absolute; left:0; right:0; bottom:0;
-      background:#fff;
-      border-radius: 14px 14px 0 0;
-      box-shadow: 0 -10px 25px rgba(0,0,0,.2);
-      max-height: 78vh;
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-    #rowModal .rm-head{
-      position: sticky; top: 0;
-      background:#fff;
-      padding: 10px 12px;
-      border-bottom: 1px solid #eef1f7;
-      display:flex; align-items:center; gap:10px;
-    }
-    #rowModal .rm-title{ font-weight: 700; color:#2543a5; }
-    #rowModal .rm-close{
-      margin-left:auto;
-      border:1px solid #d6deef;
-      background:#f6f9ff;
-      border-radius: 10px;
-      width: 34px; height: 30px;
-      cursor:pointer;
-      font-size: 18px;
-      line-height: 26px;
-    }
-    #rowModal .rm-body{ padding: 10px 12px 16px 12px; }
-    .rm-row{ display:flex; gap:10px; padding: 8px 0; border-bottom: 1px dashed #eef1f7; }
-    .rm-k{ width: 110px; flex: 0 0 110px; color:#5b6b98; font-size:12px; }
-    .rm-v{ flex: 1 1 auto; color:#23263a; word-break: break-word; }
-
+    /* Десктоп: расширяем "Модель", сужаем "Год" и "Парк" */
     @media (min-width: 721px){
-      #rowModal .rm-sheet{
-        left: 50%;
-        transform: translateX(-50%);
-        width: 520px;
-        border-radius:14px;
-        top: 12vh;
-        bottom:auto;
-        max-height: 76vh;
-      }
+      table { table-layout: fixed; } /* чтобы ширины колонок работали стабильно */
+
+      /* 1-Тип, 2-Модель, 3-Год, 4-Дата, 5-Парк, 6-Номер, 7-Зав.№, 8-Гаражн., 9-Цвет */
+      table th:nth-child(2), table td:nth-child(2) { width: 26%; } /* Модель */
+      table th:nth-child(3), table td:nth-child(3) { width: 6%; }  /* Год */
+      table th:nth-child(5), table td:nth-child(5) { width: 7%; }  /* Парк */
     }
   </style>
 </head>
@@ -181,7 +93,6 @@
         <span id="monthHint" style="color:#5b6b98;"></span>
       </div>
       <div class="counts"><span id="countShown">0</span> / <span id="countAll">0</span></div>
-      <button class="btn" id="btnResetCols" title="Сбросить сохранённые ширины столбцов">Сброс ширин</button>
     </div>
 
     <div class="search">
@@ -192,30 +103,18 @@
   </div>
 
   <div class="tableWrap">
-    <table id="tbl">
-      <colgroup>
-        <col class="c-type" data-colkey="type">
-        <col class="c-model" data-colkey="model">
-        <col class="c-year" data-colkey="year">
-        <col class="c-date" data-colkey="deliveryDate">
-        <col class="c-park" data-colkey="park">
-        <col class="c-num" data-colkey="vehicleNumber">
-        <col class="c-factory" data-colkey="factoryNumber">
-        <col class="c-garage" data-colkey="garageNumber">
-        <col class="c-color" data-colkey="color">
-      </colgroup>
-
+    <table>
       <thead>
         <tr>
-          <th data-f="type" data-colkey="type">Тип</th>
-          <th data-f="model" data-colkey="model">Модель</th>
-          <th data-f="year" data-colkey="year">Год</th>
-          <th data-f="deliveryDate" data-colkey="deliveryDate">Дата</th>
-          <th data-f="park" data-colkey="park">Парк</th>
-          <th data-f="vehicleNumber" data-colkey="vehicleNumber" class="active">Номер</th>
-          <th data-f="factoryNumber" data-colkey="factoryNumber">Заводской №</th>
-          <th data-f="garageNumber" data-colkey="garageNumber">Гаражный №</th>
-          <th data-f="color" data-colkey="color">Цвет</th>
+          <th data-f="type">Тип</th>
+          <th data-f="model">Модель</th>
+          <th data-f="year">Год</th>
+          <th data-f="deliveryDate">Дата</th>
+          <th data-f="park">Парк</th>
+          <th data-f="vehicleNumber" class="active">Номер</th>
+          <th data-f="factoryNumber">Заводской №</th>
+          <th data-f="garageNumber">Гаражный №</th>
+          <th data-f="color">Цвет</th>
         </tr>
 
         <tr class="filters">
@@ -230,7 +129,6 @@
           <th><input class="colFilter" data-col="color"></th>
         </tr>
       </thead>
-
       <tbody id="data"></tbody>
     </table>
   </div>
@@ -239,21 +137,8 @@
   <div class="err" id="err" style="display:none;"></div>
 </div>
 
-<div id="rowModal">
-  <div class="rm-backdrop"></div>
-  <div class="rm-sheet" role="dialog" aria-modal="true">
-    <div class="rm-head">
-      <div class="rm-title" id="rmTitle">Детали</div>
-      <button class="rm-close" id="rmClose" type="button">×</button>
-    </div>
-    <div class="rm-body" id="rmBody"></div>
-  </div>
-</div>
-
 <script>
 const JSON_URL = './postavki.json';
-const COLS_STORAGE_KEY = 'postavki_col_widths_v2';
-const ENABLE_RESIZE_MIN_WIDTH = 900; // ресайз только на “десктопе/планшете”
 
 let DATA = [];
 let VIEW = [];
@@ -368,42 +253,55 @@ function renderTabs(){
   });
 }
 
-/* ===== Sorting rules ===== */
-const SERIES_ORDER = "ABEIKMHOPCTX";
-const SERIES_WEIGHT = (() => {
+/* =========================
+   SORTING
+   ========================= */
+
+const BUS_SERIES_ORDER = "ABEIKMHOPCTX";
+const BUS_SERIES_WEIGHT = (() => {
   const m = {};
-  for(let i=0;i<SERIES_ORDER.length;i++) m[SERIES_ORDER[i]] = i;
+  for(let i=0;i<BUS_SERIES_ORDER.length;i++) m[BUS_SERIES_ORDER[i]] = i;
   return m;
 })();
 
 function canonSeriesChar(ch){
   ch = (ch || '').toString().toUpperCase();
-  if(Object.prototype.hasOwnProperty.call(SERIES_WEIGHT, ch)) return ch;
-  const ru2lat = {'А':'A','В':'B','Е':'E','И':'I','І':'I','К':'K','М':'M','Н':'H','О':'O','Р':'P','С':'C','Т':'T','Х':'X'};
+  if(Object.prototype.hasOwnProperty.call(BUS_SERIES_WEIGHT, ch)) return ch;
+
+  const ru2lat = {
+    'А':'A','В':'B','Е':'E','И':'I','І':'I','К':'K','М':'M','Н':'H','О':'O','Р':'P','С':'C','Т':'T','Х':'X'
+  };
   return ru2lat[ch] || ch;
 }
+
 function normVehicleNumberForSort(s){
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/\s+/g, '');
   s = s.replace(/[A-ZА-ЯІ]/g, ch => canonSeriesChar(ch));
   return s;
 }
-function isPlateDash7(s){ return /^[A-Z0-9]{6}-7$/.test(s); }
+
+function isPlateDash7(s){
+  return /^[A-Z0-9]{6}-7$/.test(s);
+}
+
 function plateGroupThirdChar(normS){
   const ch3 = normS[2] || '';
   return /\d/.test(ch3) ? 0 : 1;
 }
+
 function compareVehicleStringsAsc(a, b){
   const n = Math.max(a.length, b.length);
   for(let i=0;i<n;i++){
     const ac = a[i] || '';
     const bc = b[i] || '';
+
     if(ac === bc) continue;
     if(!ac) return -1;
     if(!bc) return 1;
 
-    const aw = Object.prototype.hasOwnProperty.call(SERIES_WEIGHT, ac) ? SERIES_WEIGHT[ac] : null;
-    const bw = Object.prototype.hasOwnProperty.call(SERIES_WEIGHT, bc) ? SERIES_WEIGHT[bc] : null;
+    const aw = Object.prototype.hasOwnProperty.call(BUS_SERIES_WEIGHT, ac) ? BUS_SERIES_WEIGHT[ac] : null;
+    const bw = Object.prototype.hasOwnProperty.call(BUS_SERIES_WEIGHT, bc) ? BUS_SERIES_WEIGHT[bc] : null;
 
     if(aw !== null && bw !== null) return aw - bw;
     if(aw !== null && bw === null) return -1;
@@ -414,6 +312,7 @@ function compareVehicleStringsAsc(a, b){
   }
   return 0;
 }
+
 function numSortAlg(a, b){
   const anRaw = (a.vehicleNumber || '').toString().trim();
   const bnRaw = (b.vehicleNumber || '').toString().trim();
@@ -427,6 +326,7 @@ function numSortAlg(a, b){
 
   const tA = normType(a.type);
   const tB = normType(b.type);
+
   const applyThirdRuleA = (tA === 'автобус' || tA === 'электробус');
   const applyThirdRuleB = (tB === 'автобус' || tB === 'электробус');
 
@@ -448,6 +348,7 @@ function numSortAlg(a, b){
   if(aU > bU) return 1;
   return 0;
 }
+
 function normFactoryForSort(s){
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/[\s\-]/g, '');
@@ -455,11 +356,13 @@ function normFactoryForSort(s){
   s = s.replace(/[АВСЕНКМОРТХУ]/g, ch => map[ch] || ch);
   return s;
 }
+
 function generalSort(a, b){
   if(sortF === "vehicleNumber") {
     const r = numSortAlg(a, b);
     return sortDesc ? -r : r;
   }
+
   let av, bv;
   if(sortF === "factoryNumber"){
     av = normFactoryForSort(a.factoryNumber);
@@ -468,6 +371,7 @@ function generalSort(a, b){
     av = (a[sortF]||'').toLowerCase();
     bv = (b[sortF]||'').toLowerCase();
   }
+
   if(av < bv) return sortDesc ? 1 : -1;
   if(av > bv) return sortDesc ? -1 : 1;
 
@@ -475,64 +379,9 @@ function generalSort(a, b){
   return sortDesc ? -r2 : r2;
 }
 
-/* ===== render helpers ===== */
-function escapeHTML(s){
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function cell(x){
-  const s = (x||'').toString().trim();
-  return s ? escapeHTML(s) : '<span class="no">—</span>';
-}
-function normVehicleNumberForSearch(s){
-  s = (s || '').toString().trim().toUpperCase();
-  s = s.replace(/[\s\-]/g, '');
-  const map = {'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У','I':'И','І':'И'};
-  s = s.replace(/[ABCEHKMOPTXYIІ]/g, ch => map[ch] || ch);
-  return s;
-}
-
-/* ===== modal ===== */
-function openRowModal(rowObj){
-  const modal = document.getElementById('rowModal');
-  const title = document.getElementById('rmTitle');
-  const body = document.getElementById('rmBody');
-
-  title.textContent = rowObj.vehicleNumber ? `Номер: ${rowObj.vehicleNumber}` : 'Детали';
-
-  const fields = [
-    ['Тип', rowObj.type],
-    ['Модель', rowObj.model],
-    ['Год', rowObj.year],
-    ['Дата', rowObj.deliveryDate],
-    ['Парк', rowObj.park],
-    ['Номер', rowObj.vehicleNumber],
-    ['Заводской №', rowObj.factoryNumber],
-    ['Гаражный №', rowObj.garageNumber],
-    ['Цвет', rowObj.color],
-  ];
-
-  body.innerHTML = fields.map(([k,v])=>`
-    <div class="rm-row">
-      <div class="rm-k">${escapeHTML(k)}</div>
-      <div class="rm-v">${escapeHTML(((v||'—').toString()) || '—')}</div>
-    </div>
-  `).join('');
-
-  modal.style.display = '';
-  // IMPORTANT: in iframe лучше блокировать body, не documentElement
-  document.body.style.overflow = 'hidden';
-}
-function closeRowModal(){
-  const modal = document.getElementById('rowModal');
-  modal.style.display = 'none';
-  document.body.style.overflow = '';
-}
-
-document.getElementById('rmClose').addEventListener('click', closeRowModal);
-document.querySelector('#rowModal .rm-backdrop').addEventListener('click', closeRowModal);
-document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeRowModal(); });
-
-/* ===== render ===== */
+/* =========================
+   RENDER
+   ========================= */
 function render(){
   const colFilters = {};
   document.querySelectorAll('.colFilter').forEach(inp=>{
@@ -548,9 +397,11 @@ function render(){
         const mk = monthKeyFromDeliveryDate(v.deliveryDate);
         if(mk !== newMonthKey) return false;
       }
+
       if(activeTab !== '_new' && activeTab !== '_all'){
         if(normType(v.type) !== activeTab) return false;
       }
+
       for(const [col, rawNeedle] of Object.entries(colFilters)){
         const needle = rawNeedle.toString().toLowerCase();
 
@@ -570,6 +421,7 @@ function render(){
         const hay = (v[col] || '').toString().toLowerCase();
         if(!hay.includes(needle)) return false;
       }
+
       return true;
     })
     .sort(generalSort);
@@ -587,98 +439,41 @@ function render(){
   }
   empty.style.display = 'none';
 
-  tbody.innerHTML = VIEW.map(v=>{
-    const payloadObj = {
-      type: typeLabel(v.type),
-      model: (v.model||''),
-      year: (v.year||''),
-      deliveryDate: (v.deliveryDate||''),
-      park: (v.park||''),
-      vehicleNumber: (v.vehicleNumber||''),
-      factoryNumber: (v.factoryNumber||''),
-      garageNumber: (v.garageNumber||''),
-      color: (v.color||'')
-    };
-    const payload = btoa(unescape(encodeURIComponent(JSON.stringify(payloadObj))));
-
-    return `<tr data-rowb64="${payload}">
-      <td>${escapeHTML(typeLabel(v.type))}</td>
-      <td>${cell(v.model)}</td>
-      <td>${cell(v.year)}</td>
-      <td>${cell(v.deliveryDate)}</td>
-      <td>${cell(v.park)}</td>
-      <td class="num">${cell(v.vehicleNumber)}</td>
-      <td>${cell(v.factoryNumber)}</td>
-      <td>${cell(v.garageNumber)}</td>
-      <td>${cell(v.color)}</td>
-    </tr>`;
-  }).join('');
+  tbody.innerHTML = VIEW.map(v=>`<tr>
+    <td>${escapeHTML(typeLabel(v.type))}</td>
+    <td>${cell(v.model)}</td>
+    <td>${cell(v.year)}</td>
+    <td>${cell(v.deliveryDate)}</td>
+    <td>${cell(v.park)}</td>
+    <td class="num">${cell(v.vehicleNumber)}</td>
+    <td>${cell(v.factoryNumber)}</td>
+    <td>${cell(v.garageNumber)}</td>
+    <td>${cell(v.color)}</td>
+  </tr>`).join('');
 }
 
-/* sort click (avoid when resizing) */
-function initSortClick(){
-  document.querySelectorAll('th[data-f]').forEach(th=>{
-    th.onclick = (e)=>{
-      if(e.target && e.target.classList && e.target.classList.contains('resizer')) return;
+/** header click sort */
+document.querySelectorAll('th[data-f]').forEach(th=>{
+  th.onclick = ()=>{
+    document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
+    th.classList.add('active');
 
-      document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
-      th.classList.add('active');
+    const f = th.getAttribute('data-f');
+    if(sortF === f) sortDesc = !sortDesc;
+    else {
+      sortF = f;
+      sortDesc = (f === "vehicleNumber") ? true : false;
+    }
+    render();
+  };
+});
 
-      const f = th.getAttribute('data-f');
-      if(sortF === f) sortDesc = !sortDesc;
-      else {
-        sortF = f;
-        sortDesc = (f === "vehicleNumber") ? true : false;
-      }
-      render();
-    };
-  });
-}
-
-/* filters input */
 document.addEventListener('input', (e) => {
   if(e.target && e.target.classList && e.target.classList.contains('colFilter')){
     render();
   }
 });
 
-/* ===== tap-to-open without breaking scroll ===== */
-(function initRowTap(){
-  const tbody = document.getElementById('data');
-  let start = null;
-  const TAP_MAX_MOVE = 12; // px
-  const TAP_MAX_TIME = 500; // ms
-
-  tbody.addEventListener('pointerdown', (e)=>{
-    const tr = e.target.closest('tr');
-    if(!tr) return;
-    start = { x: e.clientX, y: e.clientY, t: Date.now(), tr };
-  }, {passive:true});
-
-  tbody.addEventListener('pointerup', (e)=>{
-    if(!start) return;
-    const tr = e.target.closest('tr');
-    if(!tr || tr !== start.tr){ start = null; return; }
-
-    const dx = Math.abs(e.clientX - start.x);
-    const dy = Math.abs(e.clientY - start.y);
-    const dt = Date.now() - start.t;
-    start = null;
-
-    // если это был скролл/свайп — не открываем
-    if(dx > TAP_MAX_MOVE || dy > TAP_MAX_MOVE || dt > TAP_MAX_TIME) return;
-
-    const b64 = tr.getAttribute('data-rowb64');
-    if(!b64) return;
-    try{
-      const txt = decodeURIComponent(escape(atob(b64)));
-      const obj = JSON.parse(txt);
-      openRowModal(obj);
-    }catch{}
-  }, {passive:true});
-})();
-
-/* ===== errors ===== */
 function showErr(msg){
   const e = document.getElementById('err');
   e.style.display = '';
@@ -690,7 +485,6 @@ function hideErr(){
   e.textContent = '';
 }
 
-/* ===== json load ===== */
 function pickArray(j){
   if(Array.isArray(j)) return j;
   if(j && Array.isArray(j.vehicles)) return j.vehicles;
@@ -711,6 +505,7 @@ function mapRow(r){
     color: r.color || ''
   };
 }
+
 async function loadJson(){
   try{
     hideErr();
@@ -739,128 +534,6 @@ async function loadJson(){
     showErr('Не загрузился ' + JSON_URL + ' — ' + err.message);
   }
 }
-
-/* ===== Column resizing (desktop only) ===== */
-function getStoredColWidths(){
-  try{
-    const raw = localStorage.getItem(COLS_STORAGE_KEY);
-    if(!raw) return null;
-    const obj = JSON.parse(raw);
-    if(!obj || typeof obj !== 'object') return null;
-    return obj;
-  }catch{
-    return null;
-  }
-}
-function setStoredColWidths(obj){
-  try{ localStorage.setItem(COLS_STORAGE_KEY, JSON.stringify(obj)); }catch{}
-}
-function getColEls(){
-  const tbl = document.getElementById('tbl');
-  if(!tbl) return [];
-  return Array.from(tbl.querySelectorAll('colgroup col[data-colkey]'));
-}
-function applyStoredColWidths(){
-  const saved = getStoredColWidths();
-  if(!saved) return;
-  getColEls().forEach(col=>{
-    const key = col.getAttribute('data-colkey');
-    const px = saved[key];
-    if(typeof px === 'number' && px >= 30){
-      col.style.width = px + 'px';
-    }
-  });
-}
-function initColumnResizersDesktopOnly(){
-  if(window.innerWidth < ENABLE_RESIZE_MIN_WIDTH) return; // IMPORTANT
-
-  const tbl = document.getElementById('tbl');
-  if(!tbl) return;
-
-  const ths = Array.from(tbl.querySelectorAll('thead tr:first-child th[data-colkey]'));
-  const cols = getColEls();
-  const colByKey = new Map(cols.map(c => [c.getAttribute('data-colkey'), c]));
-
-  ths.forEach((th, idx)=>{
-    if(idx === ths.length - 1) return;
-    if(th.querySelector('.resizer')) return;
-
-    const r = document.createElement('div');
-    r.className = 'resizer';
-    r.setAttribute('data-colkey', th.getAttribute('data-colkey'));
-    th.appendChild(r);
-  });
-
-  let drag = null;
-
-  function onPointerMove(e){
-    if(!drag) return;
-    const dx = e.clientX - drag.startX;
-    const newW = Math.max(drag.minW, drag.startW + dx);
-
-    drag.colEl.style.width = newW + 'px';
-
-    const saved = getStoredColWidths() || {};
-    saved[drag.colKey] = newW;
-    setStoredColWidths(saved);
-  }
-
-  function stopDrag(){
-    if(!drag) return;
-    document.body.classList.remove('resizing');
-    try{ drag.resizer.releasePointerCapture(drag.pointerId); }catch{}
-    drag = null;
-    window.removeEventListener('pointermove', onPointerMove);
-    window.removeEventListener('pointerup', stopDrag);
-    window.removeEventListener('pointercancel', stopDrag);
-  }
-
-  tbl.addEventListener('pointerdown', (e)=>{
-    const target = e.target;
-    if(!target || !target.classList || !target.classList.contains('resizer')) return;
-
-    e.preventDefault();
-    e.stopPropagation();
-
-    const colKey = target.getAttribute('data-colkey');
-    const colEl = colByKey.get(colKey);
-    if(!colEl) return;
-
-    const th = target.closest('th');
-    const rect = th.getBoundingClientRect();
-
-    drag = {
-      pointerId: e.pointerId,
-      resizer: target,
-      colKey,
-      colEl,
-      startX: e.clientX,
-      startW: rect.width,
-      minW: 45
-    };
-
-    document.body.classList.add('resizing');
-    target.setPointerCapture(e.pointerId);
-
-    window.addEventListener('pointermove', onPointerMove);
-    window.addEventListener('pointerup', stopDrag);
-    window.addEventListener('pointercancel', stopDrag);
-  }, {passive:false});
-}
-
-function resetColWidths(){
-  localStorage.removeItem(COLS_STORAGE_KEY);
-  getColEls().forEach(col => col.style.width = '');
-}
-
-/* ===== boot ===== */
-initSortClick();
-applyStoredColWidths();
-initColumnResizersDesktopOnly();
-
-document.getElementById('btnResetCols').onclick = ()=>{
-  resetColWidths();
-};
 
 renderTabs();
 loadJson();
