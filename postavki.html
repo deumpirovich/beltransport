@@ -382,6 +382,20 @@ function generalSort(a, b){
 /* =========================
    RENDER
    ========================= */
+function escapeHTML(s){
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[c]));
+}
+
+function cell(x){
+  const s = (x||'').toString().trim();
+  return s ? escapeHTML(s) : '<span class="no">—</span>';
+}
 function render(){
   const colFilters = {};
   document.querySelectorAll('.colFilter').forEach(inp=>{
