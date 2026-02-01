@@ -40,8 +40,6 @@
 
     .tableWrap{margin-top:8px;}
     table { width: 100%; border-collapse: collapse; background:#fff; border-radius:8px; overflow:hidden; font-size:13px; }
-
-    /* ключ: управляем ширинами колонок через <colgroup> */
     table#tbl{ table-layout: fixed; }
 
     th, td { padding: 6px 6px; text-align: center; vertical-align: middle; }
@@ -51,7 +49,6 @@
       border-bottom: 1.5px solid #abc;
     }
 
-    /* ellipsis by default (для viewer) */
     td, th{
       overflow: hidden;
       text-overflow: ellipsis;
@@ -67,7 +64,6 @@
     .empty {padding:18px 0; text-align:center; color:#9aa6c3; font-style:italic;}
     .err {margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px; white-space:pre-wrap;}
 
-    /* строка фильтров */
     thead tr.filters th{
       background:#ecf1fa;
       border-bottom: 1.5px solid #abc;
@@ -87,7 +83,7 @@
     }
     .colFilter:focus{ border-color:#2543a5; }
 
-    /* ===== Excel-like resizer ===== */
+    /* ===== Excel-like resizer (DESKTOP ONLY will be enabled by JS) ===== */
     .resizer{
       position:absolute;
       top:0;
@@ -109,12 +105,12 @@
     }
     .resizing, .resizing *{ cursor: col-resize !important; user-select:none !important; }
 
-    /* ===== Default column widths ===== */
+    /* Default widths */
     col.c-type   { width: 9%;  }
-    col.c-model  { width: 20%; } /* шире */
-    col.c-year   { width: 6%;  } /* уже */
+    col.c-model  { width: 20%; }
+    col.c-year   { width: 6%;  }
     col.c-date   { width: 9%;  }
-    col.c-park   { width: 7%;  } /* уже */
+    col.c-park   { width: 7%;  }
     col.c-num    { width: 10%; }
     col.c-factory{ width: 14%; }
     col.c-garage { width: 11%; }
@@ -126,32 +122,27 @@
       th, td{padding:6px 5px;}
       table{font-size:12px;}
       .tab{padding:3px 8px;}
+      /* на мобиле кнопку сброса можно спрятать, но оставляю */
     }
 
-    /* ===== Row details modal (mobile-friendly) ===== */
+    /* ===== Row details modal ===== */
     #rowModal{ position: fixed; inset: 0; z-index: 1000; display:none; }
-    #rowModal .rm-backdrop{
-      position:absolute; inset:0;
-      background: rgba(0,0,0,.35);
-    }
+    #rowModal .rm-backdrop{ position:absolute; inset:0; background: rgba(0,0,0,.35); }
     #rowModal .rm-sheet{
-      position:absolute;
-      left: 0; right: 0; bottom: 0;
+      position:absolute; left:0; right:0; bottom:0;
       background:#fff;
       border-radius: 14px 14px 0 0;
       box-shadow: 0 -10px 25px rgba(0,0,0,.2);
       max-height: 78vh;
       overflow: auto;
+      -webkit-overflow-scrolling: touch;
     }
     #rowModal .rm-head{
-      position: sticky;
-      top: 0;
+      position: sticky; top: 0;
       background:#fff;
       padding: 10px 12px;
       border-bottom: 1px solid #eef1f7;
-      display:flex;
-      align-items:center;
-      gap:10px;
+      display:flex; align-items:center; gap:10px;
     }
     #rowModal .rm-title{ font-weight: 700; color:#2543a5; }
     #rowModal .rm-close{
@@ -165,12 +156,7 @@
       line-height: 26px;
     }
     #rowModal .rm-body{ padding: 10px 12px 16px 12px; }
-    .rm-row{
-      display:flex;
-      gap:10px;
-      padding: 8px 0;
-      border-bottom: 1px dashed #eef1f7;
-    }
+    .rm-row{ display:flex; gap:10px; padding: 8px 0; border-bottom: 1px dashed #eef1f7; }
     .rm-k{ width: 110px; flex: 0 0 110px; color:#5b6b98; font-size:12px; }
     .rm-v{ flex: 1 1 auto; color:#23263a; word-break: break-word; }
 
@@ -253,7 +239,6 @@
   <div class="err" id="err" style="display:none;"></div>
 </div>
 
-<!-- Bottom-sheet with full row data -->
 <div id="rowModal">
   <div class="rm-backdrop"></div>
   <div class="rm-sheet" role="dialog" aria-modal="true">
@@ -267,9 +252,9 @@
 
 <script>
 const JSON_URL = './postavki.json';
-const COLS_STORAGE_KEY = 'postavki_col_widths_v1';
+const COLS_STORAGE_KEY = 'postavki_col_widths_v2';
+const ENABLE_RESIZE_MIN_WIDTH = 900; // ресайз только на “десктопе/планшете”
 
-/* ===== state ===== */
 let DATA = [];
 let VIEW = [];
 let sortF = "vehicleNumber";
@@ -279,7 +264,6 @@ let activeTab = "_new";
 let newMonthKey = '';
 let hasCurrentMonth = false;
 
-/* ===== helpers ===== */
 function pad2(n){ return String(n).padStart(2,'0'); }
 function monthKeyFromDeliveryDate(s){
   const m = String(s||'').trim().match(/^(\d{1,2})\.(\d{4})$/);
@@ -384,11 +368,7 @@ function renderTabs(){
   });
 }
 
-/* =========================
-   SORTING
-   ========================= */
-
-/* series order: А,В,Е,И,К,М,Н,О,Р,С,Т,Х (written A,B,E,I,K,M,H,O,P,C,T,X) */
+/* ===== Sorting rules ===== */
 const SERIES_ORDER = "ABEIKMHOPCTX";
 const SERIES_WEIGHT = (() => {
   const m = {};
@@ -399,33 +379,25 @@ const SERIES_WEIGHT = (() => {
 function canonSeriesChar(ch){
   ch = (ch || '').toString().toUpperCase();
   if(Object.prototype.hasOwnProperty.call(SERIES_WEIGHT, ch)) return ch;
-  const ru2lat = {
-    'А':'A','В':'B','Е':'E','И':'I','І':'I','К':'K','М':'M','Н':'H','О':'O','Р':'P','С':'C','Т':'T','Х':'X'
-  };
+  const ru2lat = {'А':'A','В':'B','Е':'E','И':'I','І':'I','К':'K','М':'M','Н':'H','О':'O','Р':'P','С':'C','Т':'T','Х':'X'};
   return ru2lat[ch] || ch;
 }
-
 function normVehicleNumberForSort(s){
   s = (s || '').toString().trim().toUpperCase();
-  s = s.replace(/\s+/g, '');               // remove spaces, keep dash for ******-7 detection
+  s = s.replace(/\s+/g, '');
   s = s.replace(/[A-ZА-ЯІ]/g, ch => canonSeriesChar(ch));
   return s;
 }
-
-function isPlateDash7(s){
-  return /^[A-Z0-9]{6}-7$/.test(s);
-}
+function isPlateDash7(s){ return /^[A-Z0-9]{6}-7$/.test(s); }
 function plateGroupThirdChar(normS){
   const ch3 = normS[2] || '';
-  return /\d/.test(ch3) ? 0 : 1; // 1 => letter => higher priority
+  return /\d/.test(ch3) ? 0 : 1;
 }
-
 function compareVehicleStringsAsc(a, b){
   const n = Math.max(a.length, b.length);
   for(let i=0;i<n;i++){
     const ac = a[i] || '';
     const bc = b[i] || '';
-
     if(ac === bc) continue;
     if(!ac) return -1;
     if(!bc) return 1;
@@ -442,7 +414,6 @@ function compareVehicleStringsAsc(a, b){
   }
   return 0;
 }
-
 function numSortAlg(a, b){
   const anRaw = (a.vehicleNumber || '').toString().trim();
   const bnRaw = (b.vehicleNumber || '').toString().trim();
@@ -462,11 +433,10 @@ function numSortAlg(a, b){
   const aDash7 = isPlateDash7(an);
   const bDash7 = isPlateDash7(bn);
 
-  // Third-char rule only if BOTH are bus/e-bus and BOTH look like ******-7
   if(applyThirdRuleA && applyThirdRuleB && aDash7 && bDash7){
     const aG = plateGroupThirdChar(an);
     const bG = plateGroupThirdChar(bn);
-    if(aG !== bG) return bG - aG; // letter-group first in ASC
+    if(aG !== bG) return bG - aG;
   }
 
   const r = compareVehicleStringsAsc(an, bn);
@@ -478,7 +448,6 @@ function numSortAlg(a, b){
   if(aU > bU) return 1;
   return 0;
 }
-
 function normFactoryForSort(s){
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/[\s\-]/g, '');
@@ -486,13 +455,11 @@ function normFactoryForSort(s){
   s = s.replace(/[АВСЕНКМОРТХУ]/g, ch => map[ch] || ch);
   return s;
 }
-
 function generalSort(a, b){
   if(sortF === "vehicleNumber") {
-    const r = numSortAlg(a, b);     // ASC
+    const r = numSortAlg(a, b);
     return sortDesc ? -r : r;
   }
-
   let av, bv;
   if(sortF === "factoryNumber"){
     av = normFactoryForSort(a.factoryNumber);
@@ -501,7 +468,6 @@ function generalSort(a, b){
     av = (a[sortF]||'').toLowerCase();
     bv = (b[sortF]||'').toLowerCase();
   }
-
   if(av < bv) return sortDesc ? 1 : -1;
   if(av > bv) return sortDesc ? -1 : 1;
 
@@ -509,9 +475,7 @@ function generalSort(a, b){
   return sortDesc ? -r2 : r2;
 }
 
-/* =========================
-   RENDER / UI
-   ========================= */
+/* ===== render helpers ===== */
 function escapeHTML(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -519,21 +483,15 @@ function cell(x){
   const s = (x||'').toString().trim();
   return s ? escapeHTML(s) : '<span class="no">—</span>';
 }
-
 function normVehicleNumberForSearch(s){
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/[\s\-]/g, '');
-
-  const map = {
-    'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У',
-    'I':'И','І':'И'
-  };
-
+  const map = {'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У','I':'И','І':'И'};
   s = s.replace(/[ABCEHKMOPTXYIІ]/g, ch => map[ch] || ch);
   return s;
 }
 
-/* modal helpers */
+/* ===== modal ===== */
 function openRowModal(rowObj){
   const modal = document.getElementById('rowModal');
   const title = document.getElementById('rmTitle');
@@ -561,15 +519,20 @@ function openRowModal(rowObj){
   `).join('');
 
   modal.style.display = '';
-  document.documentElement.style.overflow = 'hidden';
+  // IMPORTANT: in iframe лучше блокировать body, не documentElement
+  document.body.style.overflow = 'hidden';
 }
 function closeRowModal(){
   const modal = document.getElementById('rowModal');
   modal.style.display = 'none';
-  document.documentElement.style.overflow = '';
+  document.body.style.overflow = '';
 }
 
-/* render table */
+document.getElementById('rmClose').addEventListener('click', closeRowModal);
+document.querySelector('#rowModal .rm-backdrop').addEventListener('click', closeRowModal);
+document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeRowModal(); });
+
+/* ===== render ===== */
 function render(){
   const colFilters = {};
   document.querySelectorAll('.colFilter').forEach(inp=>{
@@ -585,11 +548,9 @@ function render(){
         const mk = monthKeyFromDeliveryDate(v.deliveryDate);
         if(mk !== newMonthKey) return false;
       }
-
       if(activeTab !== '_new' && activeTab !== '_all'){
         if(normType(v.type) !== activeTab) return false;
       }
-
       for(const [col, rawNeedle] of Object.entries(colFilters)){
         const needle = rawNeedle.toString().toLowerCase();
 
@@ -609,7 +570,6 @@ function render(){
         const hay = (v[col] || '').toString().toLowerCase();
         if(!hay.includes(needle)) return false;
       }
-
       return true;
     })
     .sort(generalSort);
@@ -627,7 +587,6 @@ function render(){
   }
   empty.style.display = 'none';
 
-  // ВАЖНО: кладём в data-row JSON с полными значениями
   tbody.innerHTML = VIEW.map(v=>{
     const payloadObj = {
       type: typeLabel(v.type),
@@ -640,8 +599,6 @@ function render(){
       garageNumber: (v.garageNumber||''),
       color: (v.color||'')
     };
-
-    // кладём как base64, чтобы не мучаться с экранированием кавычек
     const payload = btoa(unescape(encodeURIComponent(JSON.stringify(payloadObj))));
 
     return `<tr data-rowb64="${payload}">
@@ -678,35 +635,50 @@ function initSortClick(){
   });
 }
 
-/* filter input */
+/* filters input */
 document.addEventListener('input', (e) => {
   if(e.target && e.target.classList && e.target.classList.contains('colFilter')){
     render();
   }
 });
 
-/* row click => open modal */
-document.getElementById('data').addEventListener('click', (e)=>{
-  const tr = e.target.closest('tr');
-  if(!tr) return;
-  const b64 = tr.getAttribute('data-rowb64');
-  if(!b64) return;
+/* ===== tap-to-open without breaking scroll ===== */
+(function initRowTap(){
+  const tbody = document.getElementById('data');
+  let start = null;
+  const TAP_MAX_MOVE = 12; // px
+  const TAP_MAX_TIME = 500; // ms
 
-  try{
-    const txt = decodeURIComponent(escape(atob(b64)));
-    const obj = JSON.parse(txt);
-    openRowModal(obj);
-  }catch(err){
-    // ignore
-  }
-});
+  tbody.addEventListener('pointerdown', (e)=>{
+    const tr = e.target.closest('tr');
+    if(!tr) return;
+    start = { x: e.clientX, y: e.clientY, t: Date.now(), tr };
+  }, {passive:true});
 
-/* modal close */
-document.getElementById('rmClose').addEventListener('click', closeRowModal);
-document.querySelector('#rowModal .rm-backdrop').addEventListener('click', closeRowModal);
-document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeRowModal(); });
+  tbody.addEventListener('pointerup', (e)=>{
+    if(!start) return;
+    const tr = e.target.closest('tr');
+    if(!tr || tr !== start.tr){ start = null; return; }
 
-/* errors */
+    const dx = Math.abs(e.clientX - start.x);
+    const dy = Math.abs(e.clientY - start.y);
+    const dt = Date.now() - start.t;
+    start = null;
+
+    // если это был скролл/свайп — не открываем
+    if(dx > TAP_MAX_MOVE || dy > TAP_MAX_MOVE || dt > TAP_MAX_TIME) return;
+
+    const b64 = tr.getAttribute('data-rowb64');
+    if(!b64) return;
+    try{
+      const txt = decodeURIComponent(escape(atob(b64)));
+      const obj = JSON.parse(txt);
+      openRowModal(obj);
+    }catch{}
+  }, {passive:true});
+})();
+
+/* ===== errors ===== */
 function showErr(msg){
   const e = document.getElementById('err');
   e.style.display = '';
@@ -718,7 +690,7 @@ function hideErr(){
   e.textContent = '';
 }
 
-/* json load */
+/* ===== json load ===== */
 function pickArray(j){
   if(Array.isArray(j)) return j;
   if(j && Array.isArray(j.vehicles)) return j.vehicles;
@@ -739,7 +711,6 @@ function mapRow(r){
     color: r.color || ''
   };
 }
-
 async function loadJson(){
   try{
     hideErr();
@@ -769,9 +740,7 @@ async function loadJson(){
   }
 }
 
-/* =========================
-   Excel-like column resizing (with persistence)
-   ========================= */
+/* ===== Column resizing (desktop only) ===== */
 function getStoredColWidths(){
   try{
     const raw = localStorage.getItem(COLS_STORAGE_KEY);
@@ -794,7 +763,6 @@ function getColEls(){
 function applyStoredColWidths(){
   const saved = getStoredColWidths();
   if(!saved) return;
-
   getColEls().forEach(col=>{
     const key = col.getAttribute('data-colkey');
     const px = saved[key];
@@ -803,7 +771,9 @@ function applyStoredColWidths(){
     }
   });
 }
-function initColumnResizers(){
+function initColumnResizersDesktopOnly(){
+  if(window.innerWidth < ENABLE_RESIZE_MIN_WIDTH) return; // IMPORTANT
+
   const tbl = document.getElementById('tbl');
   if(!tbl) return;
 
@@ -877,17 +847,16 @@ function initColumnResizers(){
     window.addEventListener('pointercancel', stopDrag);
   }, {passive:false});
 }
+
 function resetColWidths(){
   localStorage.removeItem(COLS_STORAGE_KEY);
   getColEls().forEach(col => col.style.width = '');
 }
 
-/* =========================
-   boot
-   ========================= */
+/* ===== boot ===== */
 initSortClick();
-initColumnResizers();
 applyStoredColWidths();
+initColumnResizersDesktopOnly();
 
 document.getElementById('btnResetCols').onclick = ()=>{
   resetColWidths();
