@@ -357,6 +357,15 @@ function normFactoryForSort(s){
   return s;
 }
 
+/* === ДОБАВЛЕНО: нормализация deliveryDate для сортировки "ГГГГ+ММ" === */
+function normDeliveryDateForSort(s){
+  const m = String(s || '').trim().match(/^(\d{1,2})\.(\d{4})$/);
+  if(!m) return '';
+  const mm = pad2(m[1]);
+  const yyyy = m[2];
+  return yyyy + mm; // сначала год, потом месяц
+}
+
 function generalSort(a, b){
   if(sortF === "vehicleNumber") {
     const r = numSortAlg(a, b);
@@ -364,7 +373,12 @@ function generalSort(a, b){
   }
 
   let av, bv;
-  if(sortF === "factoryNumber"){
+
+  /* === ИЗМЕНЕНО: сортировка по deliveryDate (ММ.ГГГГ) как ГГГГ, потом ММ === */
+  if(sortF === "deliveryDate"){
+    av = normDeliveryDateForSort(a.deliveryDate);
+    bv = normDeliveryDateForSort(b.deliveryDate);
+  } else if(sortF === "factoryNumber"){
     av = normFactoryForSort(a.factoryNumber);
     bv = normFactoryForSort(b.factoryNumber);
   } else {
@@ -478,7 +492,6 @@ function render(){
   </tr>`).join('');
 }
 
-/** header click sort */
 document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick = ()=>{
     document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
