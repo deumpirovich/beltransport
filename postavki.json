@@ -1,10 +1,32 @@
 {
-  "updatedAt": "30.01.2026 19:38",
+  "updatedAt": "06.02.2026 09:30",
   "vehicles": [
     {
+      "type": "ТУАХ",
+      "model": "МАЗ-303Т20",
+      "year": "2025",
+      "deliveryDate": "02.2026",
+      "park": "ТП3",
+      "licensePlate": "3378",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый"
+    },
+    {
+      "type": "ТУАХ",
+      "model": "МАЗ-303Т20",
+      "year": "2025",
+      "deliveryDate": "02.2026",
+      "park": "ТП3",
+      "licensePlate": "3376",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый"
+    },
+    {
       "type": "Электробус",
       "model": "БКМ-Е433 Vitovt II",
-      "year": "2026",
+      "year": "2025",
       "deliveryDate": "01.2026",
       "park": "ТП2",
       "licensePlate": "",
@@ -15,7 +37,7 @@
     {
       "type": "Электробус",
       "model": "БКМ-Е433 Vitovt II",
-      "year": "2026",
+      "year": "2025",
       "deliveryDate": "01.2026",
       "park": "ТП2",
       "licensePlate": "",
@@ -26,7 +48,7 @@
     {
       "type": "Электробус",
       "model": "БКМ-Е433 Vitovt II",
-      "year": "2026",
+      "year": "2025",
       "deliveryDate": "01.2026",
       "park": "ТП2",
       "licensePlate": "",
@@ -37,7 +59,7 @@
     {
       "type": "Электробус",
       "model": "БКМ-Е433 Vitovt II",
-      "year": "2026",
+      "year": "2025",
       "deliveryDate": "01.2026",
       "park": "АП6",
       "licensePlate": "",
@@ -48,7 +70,7 @@
     {
       "type": "Электробус",
       "model": "БКМ-Е433 Vitovt II",
-      "year": "2026",
+      "year": "2025",
       "deliveryDate": "01.2026",
       "park": "АП6",
       "licensePlate": "",
@@ -59,7 +81,7 @@
     {
       "type": "Электробус",
       "model": "БКМ-Е433 Vitovt II",
-      "year": "2026",
+      "year": "2025",
       "deliveryDate": "01.2026",
       "park": "АП6",
       "licensePlate": "",
@@ -70,7 +92,7 @@
     {
       "type": "Электробус",
       "model": "БКМ-Е433 Vitovt II",
-      "year": "2026",
+      "year": "2025",
       "deliveryDate": "01.2026",
       "park": "АП6",
       "licensePlate": "",
@@ -81,7 +103,7 @@
     {
       "type": "Электробус",
       "model": "БКМ-Е433 Vitovt II",
-      "year": "2026",
+      "year": "2025",
       "deliveryDate": "01.2026",
       "park": "АП6",
       "licensePlate": "",
@@ -92,7 +114,7 @@
     {
       "type": "Электробус",
       "model": "БКМ-Е433 Vitovt II",
-      "year": "2026",
+      "year": "2025",
       "deliveryDate": "01.2026",
       "park": "АП6",
       "licensePlate": "",
@@ -101,7 +123,7 @@
       "color": "жёлтый"
     },
     {
-      "type": "Троллейбус",
+      "type": "ТУАХ",
       "model": "МАЗ-303Т20",
       "year": "2025",
       "deliveryDate": "01.2026",
@@ -112,7 +134,7 @@
       "color": "салатовый"
     },
     {
-      "type": "Троллейбус",
+      "type": "ТУАХ",
       "model": "МАЗ-303Т20",
       "year": "2025",
       "deliveryDate": "01.2026",
@@ -123,7 +145,7 @@
       "color": "салатовый"
     },
     {
-      "type": "Троллейбус",
+      "type": "ТУАХ",
       "model": "МАЗ-303Т20",
       "year": "2025",
       "deliveryDate": "01.2026",
@@ -134,7 +156,7 @@
       "color": "салатовый"
     },
     {
-      "type": "Троллейбус",
+      "type": "ТУАХ",
       "model": "МАЗ-303Т20",
       "year": "2025",
       "deliveryDate": "01.2026",
@@ -145,7 +167,7 @@
       "color": "салатовый"
     },
     {
-      "type": "Троллейбус",
+      "type": "ТУАХ",
       "model": "МАЗ-303Т20",
       "year": "2025",
       "deliveryDate": "01.2026",
@@ -156,7 +178,7 @@
       "color": "салатовый"
     },
     {
-      "type": "Троллейбус",
+      "type": "ТУАХ",
       "model": "МАЗ-303Т20",
       "year": "2025",
       "deliveryDate": "01.2026",
@@ -167,7 +189,7 @@
       "color": "салатовый"
     },
     {
-      "type": "Троллейбус",
+      "type": "ТУАХ",
       "model": "МАЗ-303Т20",
       "year": "2025",
       "deliveryDate": "01.2026",
@@ -178,7 +200,7 @@
       "color": "салатовый"
     },
     {
-      "type": "Троллейбус",
+      "type": "ТУАХ",
       "model": "МАЗ-303Т20",
       "year": "2025",
       "deliveryDate": "01.2026",
@@ -189,7 +211,7 @@
       "color": "салатовый"
     },
     {
-      "type": "Троллейбус",
+      "type": "ТУАХ",
       "model": "МАЗ-303Т20",
       "year": "2025",
       "deliveryDate": "01.2026",
@@ -200,7 +222,7 @@
       "color": "салатовый"
     },
     {
-      "type": "Троллейбус",
+      "type": "ТУАХ",
       "model": "МАЗ-303Т20",
       "year": "2025",
       "deliveryDate": "01.2026",
@@ -211,7 +233,7 @@
       "color": "салатовый"
     },
     {
-      "type": "Троллейбус",
+      "type": "ТУАХ",
       "model": "МАЗ-303Т20",
       "year": "2025",
       "deliveryDate": "01.2026",
