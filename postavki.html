@@ -396,6 +396,18 @@ function cell(x){
   const s = (x||'').toString().trim();
   return s ? escapeHTML(s) : '<span class="no">—</span>';
 }
+
+function normVehicleNumberForSearch(s){
+  s = (s || '').toString().trim().toUpperCase();
+  s = s.replace(/[\s\-]/g, '');
+  const map = {
+    'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У',
+    'I':'И','І':'И'
+  };
+  s = s.replace(/[ABCEHKMOPTXYIІ]/g, ch => map[ch] || ch);
+  return s;
+}
+
 function render(){
   const colFilters = {};
   document.querySelectorAll('.colFilter').forEach(inp=>{
@@ -545,7 +557,7 @@ async function loadJson(){
     DATA = [];
     renderTabs();
     render();
-    showErr('Не загрузился ' + JSON_URL + ' — ' + err.message);
+    showErr('Ошибка: ' + err.message);
   }
 }
 
