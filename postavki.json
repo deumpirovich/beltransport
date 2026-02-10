@@ -1,6 +1,28 @@
 {
-  "updatedAt": "10.02.2026 09:24",
+  "updatedAt": "10.02.2026 11:36",
   "vehicles": [
+    {
+      "type": "Автобус",
+      "model": "МАЗ-281.040",
+      "year": "2026",
+      "deliveryDate": "02.2026",
+      "park": "АП5",
+      "licensePlate": "ВВ2441-7",
+      "factoryNumber": "",
+      "garageNumber": "15237",
+      "color": "серый"
+    },
+    {
+      "type": "Автобус",
+      "model": "МАЗ-281.040",
+      "year": "2026",
+      "deliveryDate": "02.2026",
+      "park": "АП5",
+      "licensePlate": "ВВ2439-7",
+      "factoryNumber": "",
+      "garageNumber": "15245",
+      "color": "серый"
+    },
     {
       "type": "ТУАХ",
       "model": "МАЗ-303Т20",
