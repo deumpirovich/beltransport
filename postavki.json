@@ -1,10 +1,10 @@
 {
-  "updatedAt": "10.02.2026 13:11",
+  "updatedAt": "10.02.2026 13:16",
   "vehicles": [
     {
       "type": "Автобус",
       "model": "МАЗ-281.120",
-      "year": "2026",
+      "year": "2025",
       "deliveryDate": "02.2026",
       "park": "АП5",
       "licensePlate": "ВВ2441-7",
@@ -15,7 +15,7 @@
     {
       "type": "Автобус",
       "model": "МАЗ-281.120",
-      "year": "2026",
+      "year": "2025",
       "deliveryDate": "02.2026",
       "park": "АП5",
       "licensePlate": "ВВ2439-7",
@@ -290,7 +290,7 @@
     {
       "type": "Автобус",
       "model": "HIGER-KLQ6126",
-      "year": "2026",
+      "year": "2025",
       "deliveryDate": "01.2026",
       "park": "АП5",
       "licensePlate": "ВВ2489-7",
@@ -43157,7 +43157,7 @@
     {
       "type": "Автобус",
       "model": "HIGER-KLQ6126",
-      "year": "2026",
+      "year": "2025",
       "deliveryDate": "01.2026",
       "park": "АП5",
       "licensePlate": "ВВ2250-7",
