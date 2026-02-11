@@ -1,29 +1,12 @@
 <!-- spisanie.html — Viewer "Реестр списания" (полный файл)
-  Загружает ./spisanie.json
-  NEW = текущий месяц по writeoffDate (MM.YYYY)
+  FIX: на небольших экранах "Заводской №" больше не налезает на "Дата вывода".
 
-  Сортировка по умолчанию:
-    1) writeoffDate desc (YYYYMM)
-    2) type order: автобус, троллейбус, трамвай, электробус
-    3) vehicleNumber (спец. правила для автобусов + общий алгоритм)
-
-  ВАЖНО (то, что ты попросил):
-  Для АВТОБУСОВ сортировка номеров идёт по приоритетам серий/диапазонов:
-    1)  КА0*** – КА3***
-    2)  КВ
-    3)  КЕ0*** – КЕ5***   (исключение: КЕ0100 отдельно ниже)
-    4)  КС1*** – КС9***
-    5)  KI
-    6)  КА4*** – КА9***
-    7)  КС0039
-    8)  КС0040
-    9)  КЕ0100
-    10) МА
-    11) КЕ6*** – КЕ9***
-    12) КН
-    13) АА, АВ, АЕ, AI, АК, АМ, АН, АО, АР, АС, АТ, АХ, ВА, ВВ
-
-  Латиница/кириллица в номере нормализуется (A<->А, B<->В, E<->Е, K<->К, M<->М, H<->Н, O<->О, P<->Р, C<->С, T<->Т, X<->Х, I/І<->И).
+  Что сделано:
+  1) Для десктопа (>=781px) сохранён fixed layout + явные ширины (как раньше).
+  2) Для мобильных/планшетов (<781px) ВКЛЮЧЕН table-layout:auto и горизонтальная прокрутка:
+     - таблица получает min-width, чтобы колонки не сжимались до налезания
+     - контейнер .tableWrap становится scrollable по X
+  3) У "Номер" и "Экс-номер" запрет переноса, чтобы значения не ломались.
 -->
 <!DOCTYPE html>
 <html lang="ru">
@@ -53,8 +36,20 @@
     .tab.active{background:#2543a5; color:#fff; border-color:#2543a5;}
     .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
 
-    .tableWrap{margin-top:8px;}
-    table { width: 100%; border-collapse: collapse; background:#fff; border-radius:8px; overflow:hidden; font-size:13px; }
+    .tableWrap{
+      margin-top:8px;
+      overflow-x: auto;              /* ключевой фикс */
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background:#fff;
+      border-radius:8px;
+      overflow:hidden;
+      font-size:13px;
+    }
 
     th, td { padding: 6px 6px; text-align: center; vertical-align: middle; }
     thead th{
@@ -67,7 +62,8 @@
     th.active { background: #d2e3ff; }
     tr { border-bottom: 1px solid #eee;}
     tr:hover { background: #f0f5ff;}
-    .num { font-weight: bold; color: #2543a5; }
+    .num { font-weight: bold; color: #2543a5; white-space: nowrap; }
+    .exnum { white-space: nowrap; }
     .no { color:#bbb; font-style:italic; }
     .empty {padding:18px 0; text-align:center; color:#9aa6c3; font-style:italic;}
     .err {margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px; white-space:pre-wrap;}
@@ -88,6 +84,7 @@
       outline: none;
       background: #fff;
       text-align: left;
+      min-width: 70px; /* чтобы inputs не схлопывались */
     }
     .colFilter:focus{ border-color:#2543a5; }
 
@@ -96,18 +93,26 @@
       .counts{margin-left:0;}
       th, td{padding:6px 5px;}
       table{font-size:12px;}
-      .tab{padding:3px 8px;}
+
+      /* На небольших экранах НЕ фиксируем ширины, а даём таблице минимальную ширину
+         и включаем горизонтальную прокрутку, чтобы не было налезания колонок. */
+      table{
+        table-layout: auto;   /* важно */
+        min-width: 980px;     /* под 10 колонок; можно поднять до 1050, если нужно */
+      }
     }
 
-    /* Десктоп: шире "Номер" */
     @media (min-width: 781px){
       table { table-layout: fixed; }
+
       /* 1-Тип,2-Модель,3-Год,4-Парк,5-Номер,6-Экс,7-Гаражн,8-Зав,9-Дата,10-Прим */
-      table th:nth-child(2), table td:nth-child(2) { width: 16%; }
-      table th:nth-child(3), table td:nth-child(3) { width: 6%; }
-      table th:nth-child(4), table td:nth-child(4) { width: 7%; }
-      table th:nth-child(5), table td:nth-child(5) { width: 16%; } /* номер */
-      table th:nth-child(10), table td:nth-child(10) { width: 18%; }
+      table th:nth-child(2), table td:nth-child(2) { width: 15%; } /* модель */
+      table th:nth-child(3), table td:nth-child(3) { width: 6%; }  /* год */
+      table th:nth-child(4), table td:nth-child(4) { width: 7%; }  /* парк */
+      table th:nth-child(5), table td:nth-child(5) { width: 14%; } /* номер */
+      table th:nth-child(6), table td:nth-child(6) { width: 14%; } /* экс-номер */
+      table th:nth-child(9), table td:nth-child(9) { width: 9%; }  /* дата вывода (чуть шире, чтобы не сжималось) */
+      table th:nth-child(10), table td:nth-child(10) { width: 16%; } /* примечание */
     }
   </style>
 </head>
@@ -171,7 +176,6 @@ const JSON_URL = './spisanie.json';
 let DATA = [];
 let VIEW = [];
 
-/* По умолчанию: сортируем по Дате вывода (desc). */
 let sortF = "writeoffDate";
 let sortDesc = true;
 
@@ -222,9 +226,7 @@ function computeNewMonthKey(){
 }
 
 /* ===== types ===== */
-function normType(t){
-  return (t||'').toString().trim().toLowerCase();
-}
+function normType(t){ return (t||'').toString().trim().toLowerCase(); }
 function typeLabel(t){
   t = normType(t);
   if(t === 'автобус') return 'Автобус';
@@ -288,14 +290,8 @@ function renderTabs(){
 }
 
 /* =========================
-   SORTING
+   SORTING (автобусы: спец-приоритеты)
    ========================= */
-
-/* Нормализация номера для СОРТИРОВКИ:
-   - uppercase
-   - убираем пробелы
-   - латиницу приводим к кириллице (единый стандарт)
-*/
 function canonToRU(ch){
   const map = {
     'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У',
@@ -307,80 +303,47 @@ function canonToRU(ch){
 function normPlateRU(s){
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/\s+/g, '');
-  // приводим латиницу/кириллицу к RU-канону
   s = s.replace(/[A-ZА-ЯІ]/g, ch => canonToRU(ch));
   return s;
 }
-
-/* извлекаем префикс из 2 букв: "КА", "КЕ", "КС", "КВ", "КН", "МА", "АА"... */
 function getPrefix2(plateRU){
   const m = plateRU.match(/^([А-Я]{2})/);
   return m ? m[1] : '';
 }
-
-/* первые 4 цифры после 2-буквенного префикса (если есть) */
 function getNum4(plateRU){
   const m = plateRU.match(/^[А-Я]{2}(\d{4})/);
   return m ? parseInt(m[1], 10) : null;
 }
-
-/* ключ приоритета для автобусов.
-   меньше = раньше в сортировке. */
 function busPriorityKey(plateRU){
   const p2 = getPrefix2(plateRU);
   const n4 = getNum4(plateRU);
 
-  // спец-исключения КС0039, КС0040, КЕ0100
   if(plateRU.startsWith('КС0039')) return {w: 700, d: 39};
   if(plateRU.startsWith('КС0040')) return {w: 710, d: 40};
   if(plateRU.startsWith('КЕ0100')) return {w: 720, d: 100};
 
-  // 1) КА0***-КА3***
   if(p2 === 'КА' && n4 !== null && n4 >= 0 && n4 <= 3999) return {w: 100, d: n4};
-
-  // 2) КВ (любые КВ****)
   if(p2 === 'КВ') return {w: 200, d: (n4 ?? 9999)};
-
-  // 3) КЕ0***-КЕ5*** (но КЕ0100 уже вынесено выше)
   if(p2 === 'КЕ' && n4 !== null && n4 >= 0 && n4 <= 5999) return {w: 300, d: n4};
-
-  // 4) КС1***-КС9***
   if(p2 === 'КС' && n4 !== null && n4 >= 1000 && n4 <= 9999) return {w: 400, d: n4};
-
-  // 5) KI (КИ****)
   if(p2 === 'КИ') return {w: 500, d: (n4 ?? 9999)};
-
-  // 6) КА4***-КА9***
   if(p2 === 'КА' && n4 !== null && n4 >= 4000 && n4 <= 9999) return {w: 600, d: n4};
 
-  // 10) МА
   if(p2 === 'МА') return {w: 800, d: (n4 ?? 9999)};
-
-  // 11) КЕ6***-КЕ9***
   if(p2 === 'КЕ' && n4 !== null && n4 >= 6000 && n4 <= 9999) return {w: 900, d: n4};
-
-  // 12) КН
   if(p2 === 'КН') return {w: 1000, d: (n4 ?? 9999)};
 
-  // 13) АА, АВ, АЕ, AI(АИ), АК, АМ, АН, АО, АР, АС, АТ, АХ, ВА, ВВ
   const tailOrder = ['АА','АВ','АЕ','АИ','АК','АМ','АН','АО','АР','АС','АТ','АХ','ВА','ВВ'];
   const idx = tailOrder.indexOf(p2);
   if(idx !== -1) return {w: 1100 + idx, d: (n4 ?? 9999)};
 
-  // всё остальное (не попало в твой список) — в самый конец автобусов
   return {w: 9999, d: (n4 ?? 9999)};
 }
-
-/* общий "умный" fallback компаратор по номеру (после нормализации RU):
-   - сравнение строк как есть (лексикографически)
-   - при равенстве — исходная строка
-*/
 function comparePlateRU(aRU, bRU){
   if(aRU < bRU) return -1;
   if(aRU > bRU) return 1;
   return 0;
 }
-
 function numSortAlg(a, b){
   const aRaw = (a.vehicleNumber || '').toString().trim();
   const bRaw = (b.vehicleNumber || '').toString().trim();
@@ -395,20 +358,16 @@ function numSortAlg(a, b){
   const tA = normType(a.type);
   const tB = normType(b.type);
 
-  // Спец-алгоритм только когда оба — автобусы
   if(tA === 'автобус' && tB === 'автобус'){
     const ak = busPriorityKey(aRU);
     const bk = busPriorityKey(bRU);
-
     if(ak.w !== bk.w) return ak.w - bk.w;
     if(ak.d !== bk.d) return ak.d - bk.d;
 
-    // если одинаковая "категория" и число — добиваем по строке
     const r = comparePlateRU(aRU, bRU);
     if(r !== 0) return r;
   }
 
-  // Для остальных (и как fallback) — просто сравнение нормализованных строк
   const r2 = comparePlateRU(aRU, bRU);
   if(r2 !== 0) return r2;
 
@@ -425,12 +384,10 @@ function normWriteoffDateForSort(s){
   if(!m) return '';
   return m[2] + pad2(m[1]);
 }
-
 function normFactoryForSort(s){
-  // тут можно оставить как было: упрощённая нормализация
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/[\s\-]/g, '');
-  s = s.replace(/[A-ZА-ЯІ]/g, ch => canonToRU(ch)); // тоже к RU
+  s = s.replace(/[A-ZА-ЯІ]/g, ch => canonToRU(ch));
   return s;
 }
 
@@ -492,8 +449,6 @@ function cell(x){
   const s = (x||'').toString().trim();
   return s ? escapeHTML(s) : '<span class="no">—</span>';
 }
-
-/* Нормализация для ПОИСКА (оставляем RU-канон + без дефисов/пробелов) */
 function normVehicleNumberForSearch(s){
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/[\s\-]/g, '');
@@ -564,7 +519,7 @@ function render(){
     <td>${cell(v.year)}</td>
     <td>${cell(v.park)}</td>
     <td class="num">${cell(v.vehicleNumber)}</td>
-    <td>${cell(v.exNumber)}</td>
+    <td class="exnum">${cell(v.exNumber)}</td>
     <td>${cell(v.garageNumber)}</td>
     <td>${cell(v.factoryNumber)}</td>
     <td>${cell(v.writeoffDate)}</td>
@@ -572,7 +527,7 @@ function render(){
   </tr>`).join('');
 }
 
-/* клики по заголовкам */
+/* clicks */
 document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick = ()=>{
     document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
@@ -582,14 +537,13 @@ document.querySelectorAll('th[data-f]').forEach(th=>{
     if(sortF === f) sortDesc = !sortDesc;
     else {
       sortF = f;
-      if(f === 'writeoffDate') sortDesc = true;
-      else sortDesc = false;
+      sortDesc = (f === 'writeoffDate') ? true : false;
     }
     render();
   };
 });
 
-/* фильтры */
+/* filters */
 document.addEventListener('input', (e) => {
   if(e.target && e.target.classList && e.target.classList.contains('colFilter')){
     render();
