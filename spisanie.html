@@ -1,11 +1,18 @@
 <!-- spisanie.html — Viewer "Реестр списания" (полный файл)
   Загружает ./spisanie.json
   NEW = текущий месяц по writeoffDate (MM.YYYY)
+
   Сортировка по умолчанию:
     1) writeoffDate desc (YYYYMM)
     2) type order: автобус, троллейбус, трамвай, электробус
     3) vehicleNumber (умный алгоритм)
-  Клик по заголовкам оставлен (можно менять сортировку), но tie-breaker всё равно по номеру.
+
+  ДОП. ПРАВИЛО ДЛЯ АВТОБУСОВ:
+    - номера автобусов бывают:
+        a) "старые" 6-символьные (после нормализации: ровно 6 [A-Z0-9])
+        b) "новые" с суффиксом "-7" (после нормализации: 6 [A-Z0-9] + "-7")
+    - при сортировке автобусов 6-символьные считаются "более старыми" и идут ПЕРЕД "-7"
+      (независимо от первой буквы серии: К/М не должны "уезжать" далеко вниз из-за порядка серий).
 -->
 <!DOCTYPE html>
 <html lang="ru">
@@ -81,18 +88,15 @@
       .tab{padding:3px 8px;}
     }
 
-    /* Десктоп: расширяем "Номер" за счёт "Примечание" и немного "Модель" */
+    /* Десктоп: расширяем "Номер" */
     @media (min-width: 781px){
       table { table-layout: fixed; }
       /* 1-Тип,2-Модель,3-Год,4-Парк,5-Номер,6-Экс,7-Гаражн,8-Зав,9-Дата,10-Прим */
-
-      table th:nth-child(2), table td:nth-child(2) { width: 16%; } /* модель (было 18%) */
+      table th:nth-child(2), table td:nth-child(2) { width: 16%; } /* модель */
       table th:nth-child(3), table td:nth-child(3) { width: 6%; }  /* год */
       table th:nth-child(4), table td:nth-child(4) { width: 7%; }  /* парк */
-
-      table th:nth-child(5), table td:nth-child(5) { width: 16%; } /* НОМЕР (СДЕЛАНО ШИРЕ) */
-
-      table th:nth-child(10), table td:nth-child(10) { width: 18%; } /* примечание (было 24%) */
+      table th:nth-child(5), table td:nth-child(5) { width: 16%; } /* номер */
+      table th:nth-child(10), table td:nth-child(10) { width: 18%; } /* примечание */
     }
   </style>
 </head>
@@ -273,7 +277,7 @@ function renderTabs(){
 }
 
 /* =========================
-   SORTING (номер — прежний алгоритм)
+   SORTING (номер — алгоритм + новое правило автобусов 6 vs -7)
    ========================= */
 
 const BUS_SERIES_ORDER = "ABEIKMHOPCTX";
@@ -300,8 +304,18 @@ function normVehicleNumberForSort(s){
   return s;
 }
 
-function isPlateDash7(s){
-  return /^[A-Z0-9]{6}-7$/.test(s);
+function isPlateDash7(normS){
+  return /^[A-Z0-9]{6}-7$/.test(normS);
+}
+function isPlate6(normS){
+  return /^[A-Z0-9]{6}$/.test(normS);
+}
+
+/* новое: тип номера автобуса для приоритета (меньше = раньше в сортировке) */
+function busPlateKind(normS){
+  if(isPlate6(normS)) return 0;      // "старые" 6-символьные
+  if(isPlateDash7(normS)) return 1;  // новые "...-7"
+  return 2;                          // всё остальное
 }
 
 function plateGroupThirdChar(normS){
@@ -346,6 +360,19 @@ function numSortAlg(a, b){
   const tA = normType(a.type);
   const tB = normType(b.type);
 
+  const isBusA = (tA === 'автобус');
+  const isBusB = (tB === 'автобус');
+
+  /* === НОВОЕ ПРАВИЛО: только если оба — автобусы ===
+     6-символьные должны идти перед "-7" независимо от серии */
+  if(isBusA && isBusB){
+    const ak = busPlateKind(an);
+    const bk = busPlateKind(bn);
+    if(ak !== bk) return ak - bk; // 0 (6) раньше 1 (-7)
+  }
+
+  /* старое спец-правило для "...-7" (3-й символ цифра/буква) оставляем
+     для автобусов и электробусов */
   const applyThirdRuleA = (tA === 'автобус' || tA === 'электробус');
   const applyThirdRuleB = (tB === 'автобус' || tB === 'электробус');
 
