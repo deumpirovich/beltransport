@@ -1,14 +1,10 @@
 <!-- spisanie.html — Viewer "Реестр списания" (полный файл)
-  ВАРИАНТ B: на узких экранах скрываем часть колонок, чтобы ничего не налезало.
+  Вариант B+ (modal "Подробнее") для небольших экранов (включая небольшие десктопы).
 
-  Что скрываем при ширине <= 900px:
-    - Год
-    - Гаражный №
-    - Заводской №
-    - Примечание
-
-  Остаётся на мобиле:
-    Тип / Модель / Парк / Номер / Экс-номер / Дата вывода
+  Правило:
+  - При ширине <= 1100px: скрываем колонки Год/Гаражный/Заводской/Примечание
+    и добавляем колонку "Подробнее" (кнопка открывает модалку с этими полями).
+  - При ширине > 1100px: показываем все колонки, модалка не нужна (но код остаётся).
 
   Сортировка автобусов по твоим приоритетам сохранена.
 -->
@@ -79,17 +75,30 @@
     }
     .colFilter:focus{ border-color:#2543a5; }
 
-    @media (max-width: 900px){
-      .cont{margin:10px auto;}
-      .counts{margin-left:0;}
-      th, td{padding:6px 5px;}
-      table{font-size:12px;}
+    .btnMini{
+      padding: 3px 8px;
+      border-radius: 8px;
+      border: 1px solid #cfd7ea;
+      background:#eef3ff;
+      color:#2543a5;
+      cursor:pointer;
+      font-size:12px;
+      white-space: nowrap;
+    }
+    .btnMini:hover{ background:#d8e6ff; }
 
-      /* Скрываем "тяжёлые" колонки на мобиле/планшете */
-      .hideSm { display: none; }
+    /* ===== responsive hiding + details column ===== */
+    .onlyCompact{ display:none; }
+    .hideCompact{ display:table-cell; }
+
+    @media (max-width: 1100px){
+      .hideCompact{ display:none !important; }
+      .onlyCompact{ display:table-cell !important; }
+      table{ font-size:12px; }
     }
 
-    @media (min-width: 901px){
+    /* ===== desktop widths ===== */
+    @media (min-width: 1101px){
       table { table-layout: fixed; }
       /* 1-Тип,2-Модель,3-Год,4-Парк,5-Номер,6-Экс,7-Гаражн,8-Зав,9-Дата,10-Прим */
       table th:nth-child(2), table td:nth-child(2) { width: 15%; } /* модель */
@@ -100,6 +109,57 @@
       table th:nth-child(9), table td:nth-child(9) { width: 9%; }  /* дата вывода */
       table th:nth-child(10), table td:nth-child(10) { width: 16%; } /* примечание */
     }
+
+    /* ===== modal ===== */
+    .modalBack{
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.25);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:14px;
+      z-index:9999;
+    }
+    .modal{
+      width:min(640px, 96vw);
+      background:#fff;
+      border-radius:10px;
+      box-shadow:0 6px 26px rgba(30,40,90,.22);
+      padding:12px 12px 10px 12px;
+    }
+    .modalHeader{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .modalTitle{
+      font-size:14px;
+      color:#1c3789;
+      font-weight:600;
+      margin:0;
+      line-height:1.25;
+      flex:1;
+    }
+    .modalClose{
+      border:none;
+      background:transparent;
+      cursor:pointer;
+      font-size:18px;
+      line-height:1;
+      padding:2px 6px;
+      color:#5b6b98;
+    }
+    .modalClose:hover{ color:#2543a5; }
+    .modalGrid{
+      display:grid;
+      grid-template-columns: 140px 1fr;
+      gap:8px 10px;
+      margin-top:10px;
+      align-items:start;
+    }
+    .k{ color:#5b6b98; font-size:12px; padding-top:2px; }
+    .v{ color:#23263a; font-size:13px; word-break: break-word; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
   </style>
 </head>
 <body>
@@ -126,36 +186,40 @@
           <th data-f="type">Тип</th>
           <th data-f="model">Модель</th>
 
-          <th data-f="year" class="hideSm">Год</th>
+          <th data-f="year" class="hideCompact">Год</th>
 
           <th data-f="park">Парк</th>
           <th data-f="vehicleNumber" class="active">Номер</th>
           <th data-f="exNumber">Экс-номер</th>
 
-          <th data-f="garageNumber" class="hideSm">Гаражный №</th>
-          <th data-f="factoryNumber" class="hideSm">Заводской №</th>
+          <th data-f="garageNumber" class="hideCompact">Гаражный №</th>
+          <th data-f="factoryNumber" class="hideCompact">Заводской №</th>
 
           <th data-f="writeoffDate">Дата вывода</th>
 
-          <th data-f="note" class="hideSm">Примечание</th>
+          <th data-f="note" class="hideCompact">Примечание</th>
+
+          <th class="onlyCompact" style="cursor:default;">Подробнее</th>
         </tr>
 
         <tr class="filters">
           <th><input class="colFilter" data-col="type"></th>
           <th><input class="colFilter" data-col="model"></th>
 
-          <th class="hideSm"><input class="colFilter" data-col="year"></th>
+          <th class="hideCompact"><input class="colFilter" data-col="year"></th>
 
           <th><input class="colFilter" data-col="park"></th>
           <th><input class="colFilter" data-col="vehicleNumber"></th>
           <th><input class="colFilter" data-col="exNumber"></th>
 
-          <th class="hideSm"><input class="colFilter" data-col="garageNumber"></th>
-          <th class="hideSm"><input class="colFilter" data-col="factoryNumber"></th>
+          <th class="hideCompact"><input class="colFilter" data-col="garageNumber"></th>
+          <th class="hideCompact"><input class="colFilter" data-col="factoryNumber"></th>
 
           <th><input class="colFilter" data-col="writeoffDate"></th>
 
-          <th class="hideSm"><input class="colFilter" data-col="note"></th>
+          <th class="hideCompact"><input class="colFilter" data-col="note"></th>
+
+          <th class="onlyCompact"></th>
         </tr>
       </thead>
       <tbody id="data"></tbody>
@@ -164,6 +228,30 @@
 
   <div class="empty" id="empty" style="display:none;">Нет данных по фильтру</div>
   <div class="err" id="err" style="display:none;"></div>
+</div>
+
+<!-- Modal -->
+<div class="modalBack" id="detailBack" onclick="if(event.target.id==='detailBack') closeDetail()">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modalHeader">
+      <h3 class="modalTitle" id="detailTitle"></h3>
+      <button class="modalClose" onclick="closeDetail()" aria-label="Закрыть">✕</button>
+    </div>
+
+    <div class="modalGrid">
+      <div class="k">Тип</div><div class="v" id="d_type"></div>
+      <div class="k">Модель</div><div class="v" id="d_model"></div>
+      <div class="k">Парк</div><div class="v" id="d_park"></div>
+      <div class="k">Номер</div><div class="v mono" id="d_num"></div>
+      <div class="k">Экс-номер</div><div class="v mono" id="d_ex"></div>
+      <div class="k">Дата вывода</div><div class="v mono" id="d_date"></div>
+
+      <div class="k">Год</div><div class="v" id="d_year"></div>
+      <div class="k">Гаражный №</div><div class="v mono" id="d_gar"></div>
+      <div class="k">Заводской №</div><div class="v mono" id="d_fac"></div>
+      <div class="k">Примечание</div><div class="v" id="d_note"></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -380,12 +468,6 @@ function normWriteoffDateForSort(s){
   if(!m) return '';
   return m[2] + pad2(m[1]);
 }
-function normFactoryForSort(s){
-  s = (s || '').toString().trim().toUpperCase();
-  s = s.replace(/[\s\-]/g, '');
-  s = s.replace(/[A-ZА-ЯІ]/g, ch => canonToRU(ch));
-  return s;
-}
 
 /* базовый приоритет: date desc -> type order -> number */
 function basePriorityCompare(a, b){
@@ -412,9 +494,6 @@ function generalSort(a, b){
   if(sortF === "writeoffDate"){
     av = normWriteoffDateForSort(a.writeoffDate);
     bv = normWriteoffDateForSort(b.writeoffDate);
-  } else if(sortF === "factoryNumber"){
-    av = normFactoryForSort(a.factoryNumber);
-    bv = normFactoryForSort(b.factoryNumber);
   } else if(sortF === "type"){
     av = typeWeight(a.type);
     bv = typeWeight(b.type);
@@ -451,6 +530,38 @@ function normVehicleNumberForSearch(s){
   s = s.replace(/[A-ZА-ЯІ]/g, ch => canonToRU(ch));
   return s;
 }
+
+/* ===== modal helpers ===== */
+function isCompact(){
+  return window.matchMedia && window.matchMedia('(max-width: 1100px)').matches;
+}
+function openDetail(idx){
+  const v = VIEW[idx];
+  if(!v) return;
+
+  const title = `${typeLabel(v.type)} ${v.vehicleNumber || '—'}${v.exNumber ? (' / ' + v.exNumber) : ''}`;
+  document.getElementById('detailTitle').textContent = title;
+
+  document.getElementById('d_type').textContent = typeLabel(v.type);
+  document.getElementById('d_model').textContent = v.model || '—';
+  document.getElementById('d_park').textContent = v.park || '—';
+  document.getElementById('d_num').textContent = v.vehicleNumber || '—';
+  document.getElementById('d_ex').textContent = v.exNumber || '—';
+  document.getElementById('d_date').textContent = v.writeoffDate || '—';
+
+  document.getElementById('d_year').textContent = v.year || '—';
+  document.getElementById('d_gar').textContent = v.garageNumber || '—';
+  document.getElementById('d_fac').textContent = v.factoryNumber || '—';
+  document.getElementById('d_note').textContent = v.note || '—';
+
+  document.getElementById('detailBack').style.display = 'flex';
+}
+function closeDetail(){
+  document.getElementById('detailBack').style.display = 'none';
+}
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape') closeDetail();
+});
 
 function render(){
   const colFilters = {};
@@ -509,22 +620,26 @@ function render(){
   }
   empty.style.display = 'none';
 
-  tbody.innerHTML = VIEW.map(v=>`<tr>
+  const compact = isCompact();
+
+  tbody.innerHTML = VIEW.map((v, i)=>`<tr>
     <td>${escapeHTML(typeLabel(v.type))}</td>
     <td>${cell(v.model)}</td>
 
-    <td class="hideSm">${cell(v.year)}</td>
+    <td class="hideCompact">${cell(v.year)}</td>
 
     <td>${cell(v.park)}</td>
     <td class="num">${cell(v.vehicleNumber)}</td>
     <td class="exnum">${cell(v.exNumber)}</td>
 
-    <td class="hideSm">${cell(v.garageNumber)}</td>
-    <td class="hideSm">${cell(v.factoryNumber)}</td>
+    <td class="hideCompact">${cell(v.garageNumber)}</td>
+    <td class="hideCompact">${cell(v.factoryNumber)}</td>
 
     <td>${cell(v.writeoffDate)}</td>
 
-    <td class="hideSm">${cell(v.note)}</td>
+    <td class="hideCompact">${cell(v.note)}</td>
+
+    <td class="onlyCompact">${compact ? `<button class="btnMini" onclick="openDetail(${i})">Подробнее</button>` : ''}</td>
   </tr>`).join('');
 }
 
@@ -549,6 +664,13 @@ document.addEventListener('input', (e) => {
   if(e.target && e.target.classList && e.target.classList.contains('colFilter')){
     render();
   }
+});
+
+/* rerender on resize (to show/hide "Подробнее") */
+let resizeT = null;
+window.addEventListener('resize', ()=>{
+  clearTimeout(resizeT);
+  resizeT = setTimeout(()=>render(), 120);
 });
 
 /* errors */
