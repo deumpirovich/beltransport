@@ -5,14 +5,25 @@
   Сортировка по умолчанию:
     1) writeoffDate desc (YYYYMM)
     2) type order: автобус, троллейбус, трамвай, электробус
-    3) vehicleNumber (умный алгоритм)
+    3) vehicleNumber (спец. правила для автобусов + общий алгоритм)
 
-  ДОП. ПРАВИЛО ДЛЯ АВТОБУСОВ:
-    - номера автобусов бывают:
-        a) "старые" 6-символьные (после нормализации: ровно 6 [A-Z0-9])
-        b) "новые" с суффиксом "-7" (после нормализации: 6 [A-Z0-9] + "-7")
-    - при сортировке автобусов 6-символьные считаются "более старыми" и идут ПЕРЕД "-7"
-      (независимо от первой буквы серии: К/М не должны "уезжать" далеко вниз из-за порядка серий).
+  ВАЖНО (то, что ты попросил):
+  Для АВТОБУСОВ сортировка номеров идёт по приоритетам серий/диапазонов:
+    1)  КА0*** – КА3***
+    2)  КВ
+    3)  КЕ0*** – КЕ5***   (исключение: КЕ0100 отдельно ниже)
+    4)  КС1*** – КС9***
+    5)  KI
+    6)  КА4*** – КА9***
+    7)  КС0039
+    8)  КС0040
+    9)  КЕ0100
+    10) МА
+    11) КЕ6*** – КЕ9***
+    12) КН
+    13) АА, АВ, АЕ, AI, АК, АМ, АН, АО, АР, АС, АТ, АХ, ВА, ВВ
+
+  Латиница/кириллица в номере нормализуется (A<->А, B<->В, E<->Е, K<->К, M<->М, H<->Н, O<->О, P<->Р, C<->С, T<->Т, X<->Х, I/І<->И).
 -->
 <!DOCTYPE html>
 <html lang="ru">
@@ -88,15 +99,15 @@
       .tab{padding:3px 8px;}
     }
 
-    /* Десктоп: расширяем "Номер" */
+    /* Десктоп: шире "Номер" */
     @media (min-width: 781px){
       table { table-layout: fixed; }
       /* 1-Тип,2-Модель,3-Год,4-Парк,5-Номер,6-Экс,7-Гаражн,8-Зав,9-Дата,10-Прим */
-      table th:nth-child(2), table td:nth-child(2) { width: 16%; } /* модель */
-      table th:nth-child(3), table td:nth-child(3) { width: 6%; }  /* год */
-      table th:nth-child(4), table td:nth-child(4) { width: 7%; }  /* парк */
+      table th:nth-child(2), table td:nth-child(2) { width: 16%; }
+      table th:nth-child(3), table td:nth-child(3) { width: 6%; }
+      table th:nth-child(4), table td:nth-child(4) { width: 7%; }
       table th:nth-child(5), table td:nth-child(5) { width: 16%; } /* номер */
-      table th:nth-child(10), table td:nth-child(10) { width: 18%; } /* примечание */
+      table th:nth-child(10), table td:nth-child(10) { width: 18%; }
     }
   </style>
 </head>
@@ -169,6 +180,8 @@ let newMonthKey = '';
 let hasCurrentMonth = false;
 
 function pad2(n){ return String(n).padStart(2,'0'); }
+
+/* ===== NEW month ===== */
 function monthKeyFromWriteoffDate(s){
   const m = String(s||'').trim().match(/^(\d{1,2})\.(\d{4})$/);
   if(!m) return '';
@@ -208,9 +221,9 @@ function computeNewMonthKey(){
     newMonthKey ? `NEW: ${newMonthKey}${hasCurrentMonth ? '' : ' (последний месяц со списаниями)'}` : '';
 }
 
+/* ===== types ===== */
 function normType(t){
-  t = (t||'').toString().trim().toLowerCase();
-  return t;
+  return (t||'').toString().trim().toLowerCase();
 }
 function typeLabel(t){
   t = normType(t);
@@ -220,14 +233,13 @@ function typeLabel(t){
   if(t === 'электробус') return 'Электробус';
   return t ? (t[0].toUpperCase()+t.slice(1)) : '—';
 }
-
-/* фиксированный порядок типов для tie-break сортировки */
 const TYPE_ORDER = {'автобус': 0, 'троллейбус': 1, 'трамвай': 2, 'электробус': 3};
 function typeWeight(t){
   t = normType(t);
   return Object.prototype.hasOwnProperty.call(TYPE_ORDER, t) ? TYPE_ORDER[t] : 999;
 }
 
+/* ===== tabs ===== */
 const TAB_ORDER = [
   {key:'_new', label:'NEW'},
   {key:'автобус', label:'Автобус'},
@@ -250,7 +262,6 @@ function countForNew(){
   if(!newMonthKey) return 0;
   return DATA.filter(v => monthKeyFromWriteoffDate(v.writeoffDate) === newMonthKey).length;
 }
-
 function renderTabs(){
   const wrap = document.getElementById('tabs');
   const typeCounts = calcTypeCounts();
@@ -277,139 +288,150 @@ function renderTabs(){
 }
 
 /* =========================
-   SORTING (номер — алгоритм + новое правило автобусов 6 vs -7)
+   SORTING
    ========================= */
 
-const BUS_SERIES_ORDER = "ABEIKMHOPCTX";
-const BUS_SERIES_WEIGHT = (() => {
-  const m = {};
-  for(let i=0;i<BUS_SERIES_ORDER.length;i++) m[BUS_SERIES_ORDER[i]] = i;
-  return m;
-})();
-
-function canonSeriesChar(ch){
-  ch = (ch || '').toString().toUpperCase();
-  if(Object.prototype.hasOwnProperty.call(BUS_SERIES_WEIGHT, ch)) return ch;
-
-  const ru2lat = {
-    'А':'A','В':'B','Е':'E','И':'I','І':'I','К':'K','М':'M','Н':'H','О':'O','Р':'P','С':'C','Т':'T','Х':'X'
+/* Нормализация номера для СОРТИРОВКИ:
+   - uppercase
+   - убираем пробелы
+   - латиницу приводим к кириллице (единый стандарт)
+*/
+function canonToRU(ch){
+  const map = {
+    'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У',
+    'I':'И','І':'И'
   };
-  return ru2lat[ch] || ch;
+  const u = (ch||'').toString().toUpperCase();
+  return map[u] || u;
 }
-
-function normVehicleNumberForSort(s){
+function normPlateRU(s){
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/\s+/g, '');
-  s = s.replace(/[A-ZА-ЯІ]/g, ch => canonSeriesChar(ch));
+  // приводим латиницу/кириллицу к RU-канону
+  s = s.replace(/[A-ZА-ЯІ]/g, ch => canonToRU(ch));
   return s;
 }
 
-function isPlateDash7(normS){
-  return /^[A-Z0-9]{6}-7$/.test(normS);
-}
-function isPlate6(normS){
-  return /^[A-Z0-9]{6}$/.test(normS);
-}
-
-/* новое: тип номера автобуса для приоритета (меньше = раньше в сортировке) */
-function busPlateKind(normS){
-  if(isPlate6(normS)) return 0;      // "старые" 6-символьные
-  if(isPlateDash7(normS)) return 1;  // новые "...-7"
-  return 2;                          // всё остальное
+/* извлекаем префикс из 2 букв: "КА", "КЕ", "КС", "КВ", "КН", "МА", "АА"... */
+function getPrefix2(plateRU){
+  const m = plateRU.match(/^([А-Я]{2})/);
+  return m ? m[1] : '';
 }
 
-function plateGroupThirdChar(normS){
-  const ch3 = normS[2] || '';
-  return /\d/.test(ch3) ? 0 : 1;
+/* первые 4 цифры после 2-буквенного префикса (если есть) */
+function getNum4(plateRU){
+  const m = plateRU.match(/^[А-Я]{2}(\d{4})/);
+  return m ? parseInt(m[1], 10) : null;
 }
 
-function compareVehicleStringsAsc(a, b){
-  const n = Math.max(a.length, b.length);
-  for(let i=0;i<n;i++){
-    const ac = a[i] || '';
-    const bc = b[i] || '';
+/* ключ приоритета для автобусов.
+   меньше = раньше в сортировке. */
+function busPriorityKey(plateRU){
+  const p2 = getPrefix2(plateRU);
+  const n4 = getNum4(plateRU);
 
-    if(ac === bc) continue;
-    if(!ac) return -1;
-    if(!bc) return 1;
+  // спец-исключения КС0039, КС0040, КЕ0100
+  if(plateRU.startsWith('КС0039')) return {w: 700, d: 39};
+  if(plateRU.startsWith('КС0040')) return {w: 710, d: 40};
+  if(plateRU.startsWith('КЕ0100')) return {w: 720, d: 100};
 
-    const aw = Object.prototype.hasOwnProperty.call(BUS_SERIES_WEIGHT, ac) ? BUS_SERIES_WEIGHT[ac] : null;
-    const bw = Object.prototype.hasOwnProperty.call(BUS_SERIES_WEIGHT, bc) ? BUS_SERIES_WEIGHT[bc] : null;
+  // 1) КА0***-КА3***
+  if(p2 === 'КА' && n4 !== null && n4 >= 0 && n4 <= 3999) return {w: 100, d: n4};
 
-    if(aw !== null && bw !== null) return aw - bw;
-    if(aw !== null && bw === null) return -1;
-    if(aw === null && bw !== null) return 1;
+  // 2) КВ (любые КВ****)
+  if(p2 === 'КВ') return {w: 200, d: (n4 ?? 9999)};
 
-    if(ac < bc) return -1;
-    if(ac > bc) return 1;
-  }
+  // 3) КЕ0***-КЕ5*** (но КЕ0100 уже вынесено выше)
+  if(p2 === 'КЕ' && n4 !== null && n4 >= 0 && n4 <= 5999) return {w: 300, d: n4};
+
+  // 4) КС1***-КС9***
+  if(p2 === 'КС' && n4 !== null && n4 >= 1000 && n4 <= 9999) return {w: 400, d: n4};
+
+  // 5) KI (КИ****)
+  if(p2 === 'КИ') return {w: 500, d: (n4 ?? 9999)};
+
+  // 6) КА4***-КА9***
+  if(p2 === 'КА' && n4 !== null && n4 >= 4000 && n4 <= 9999) return {w: 600, d: n4};
+
+  // 10) МА
+  if(p2 === 'МА') return {w: 800, d: (n4 ?? 9999)};
+
+  // 11) КЕ6***-КЕ9***
+  if(p2 === 'КЕ' && n4 !== null && n4 >= 6000 && n4 <= 9999) return {w: 900, d: n4};
+
+  // 12) КН
+  if(p2 === 'КН') return {w: 1000, d: (n4 ?? 9999)};
+
+  // 13) АА, АВ, АЕ, AI(АИ), АК, АМ, АН, АО, АР, АС, АТ, АХ, ВА, ВВ
+  const tailOrder = ['АА','АВ','АЕ','АИ','АК','АМ','АН','АО','АР','АС','АТ','АХ','ВА','ВВ'];
+  const idx = tailOrder.indexOf(p2);
+  if(idx !== -1) return {w: 1100 + idx, d: (n4 ?? 9999)};
+
+  // всё остальное (не попало в твой список) — в самый конец автобусов
+  return {w: 9999, d: (n4 ?? 9999)};
+}
+
+/* общий "умный" fallback компаратор по номеру (после нормализации RU):
+   - сравнение строк как есть (лексикографически)
+   - при равенстве — исходная строка
+*/
+function comparePlateRU(aRU, bRU){
+  if(aRU < bRU) return -1;
+  if(aRU > bRU) return 1;
   return 0;
 }
 
 function numSortAlg(a, b){
-  const anRaw = (a.vehicleNumber || '').toString().trim();
-  const bnRaw = (b.vehicleNumber || '').toString().trim();
+  const aRaw = (a.vehicleNumber || '').toString().trim();
+  const bRaw = (b.vehicleNumber || '').toString().trim();
 
-  if(!anRaw && !bnRaw) return 0;
-  if(!anRaw) return 1;
-  if(!bnRaw) return -1;
+  if(!aRaw && !bRaw) return 0;
+  if(!aRaw) return 1;
+  if(!bRaw) return -1;
 
-  const an = normVehicleNumberForSort(anRaw);
-  const bn = normVehicleNumberForSort(bnRaw);
+  const aRU = normPlateRU(aRaw);
+  const bRU = normPlateRU(bRaw);
 
   const tA = normType(a.type);
   const tB = normType(b.type);
 
-  const isBusA = (tA === 'автобус');
-  const isBusB = (tB === 'автобус');
+  // Спец-алгоритм только когда оба — автобусы
+  if(tA === 'автобус' && tB === 'автобус'){
+    const ak = busPriorityKey(aRU);
+    const bk = busPriorityKey(bRU);
 
-  /* === НОВОЕ ПРАВИЛО: только если оба — автобусы ===
-     6-символьные должны идти перед "-7" независимо от серии */
-  if(isBusA && isBusB){
-    const ak = busPlateKind(an);
-    const bk = busPlateKind(bn);
-    if(ak !== bk) return ak - bk; // 0 (6) раньше 1 (-7)
+    if(ak.w !== bk.w) return ak.w - bk.w;
+    if(ak.d !== bk.d) return ak.d - bk.d;
+
+    // если одинаковая "категория" и число — добиваем по строке
+    const r = comparePlateRU(aRU, bRU);
+    if(r !== 0) return r;
   }
 
-  /* старое спец-правило для "...-7" (3-й символ цифра/буква) оставляем
-     для автобусов и электробусов */
-  const applyThirdRuleA = (tA === 'автобус' || tA === 'электробус');
-  const applyThirdRuleB = (tB === 'автобус' || tB === 'электробус');
+  // Для остальных (и как fallback) — просто сравнение нормализованных строк
+  const r2 = comparePlateRU(aRU, bRU);
+  if(r2 !== 0) return r2;
 
-  const aDash7 = isPlateDash7(an);
-  const bDash7 = isPlateDash7(bn);
-
-  if(applyThirdRuleA && applyThirdRuleB && aDash7 && bDash7){
-    const aG = plateGroupThirdChar(an);
-    const bG = plateGroupThirdChar(bn);
-    if(aG !== bG) return bG - aG;
-  }
-
-  const r = compareVehicleStringsAsc(an, bn);
-  if(r !== 0) return r;
-
-  const aU = anRaw.toUpperCase();
-  const bU = bnRaw.toUpperCase();
+  const aU = aRaw.toUpperCase();
+  const bU = bRaw.toUpperCase();
   if(aU < bU) return -1;
   if(aU > bU) return 1;
   return 0;
-}
-
-function normFactoryForSort(s){
-  s = (s || '').toString().trim().toUpperCase();
-  s = s.replace(/[\s\-]/g, '');
-  const map = {'А':'A','В':'B','С':'C','Е':'E','Н':'H','К':'K','М':'M','О':'O','Р':'P','Т':'T','Х':'X','У':'Y'};
-  s = s.replace(/[АВСЕНКМОРТХУ]/g, ch => map[ch] || ch);
-  return s;
 }
 
 /* writeoffDate (MM.YYYY) -> YYYYMM */
 function normWriteoffDateForSort(s){
   const m = String(s || '').trim().match(/^(\d{1,2})\.(\d{4})$/);
   if(!m) return '';
-  const mm = pad2(m[1]);
-  const yyyy = m[2];
-  return yyyy + mm;
+  return m[2] + pad2(m[1]);
+}
+
+function normFactoryForSort(s){
+  // тут можно оставить как было: упрощённая нормализация
+  s = (s || '').toString().trim().toUpperCase();
+  s = s.replace(/[\s\-]/g, '');
+  s = s.replace(/[A-ZА-ЯІ]/g, ch => canonToRU(ch)); // тоже к RU
+  return s;
 }
 
 /* базовый приоритет: date desc -> type order -> number */
@@ -466,20 +488,16 @@ function escapeHTML(s){
     "'":'&#39;'
   }[c]));
 }
-
 function cell(x){
   const s = (x||'').toString().trim();
   return s ? escapeHTML(s) : '<span class="no">—</span>';
 }
 
+/* Нормализация для ПОИСКА (оставляем RU-канон + без дефисов/пробелов) */
 function normVehicleNumberForSearch(s){
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/[\s\-]/g, '');
-  const map = {
-    'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У',
-    'I':'И','І':'И'
-  };
-  s = s.replace(/[ABCEHKMOPTXYIІ]/g, ch => map[ch] || ch);
+  s = s.replace(/[A-ZА-ЯІ]/g, ch => canonToRU(ch));
   return s;
 }
 
@@ -554,6 +572,7 @@ function render(){
   </tr>`).join('');
 }
 
+/* клики по заголовкам */
 document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick = ()=>{
     document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
@@ -564,20 +583,20 @@ document.querySelectorAll('th[data-f]').forEach(th=>{
     else {
       sortF = f;
       if(f === 'writeoffDate') sortDesc = true;
-      else if(f === 'vehicleNumber') sortDesc = false;
       else sortDesc = false;
     }
-
     render();
   };
 });
 
+/* фильтры */
 document.addEventListener('input', (e) => {
   if(e.target && e.target.classList && e.target.classList.contains('colFilter')){
     render();
   }
 });
 
+/* errors */
 function showErr(msg){
   const e = document.getElementById('err');
   e.style.display = '';
@@ -589,6 +608,7 @@ function hideErr(){
   e.textContent = '';
 }
 
+/* json mapping */
 function pickArray(j){
   if(Array.isArray(j)) return j;
   if(j && Array.isArray(j.vehicles)) return j.vehicles;
