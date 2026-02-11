@@ -1,0 +1,624 @@
+<!-- spisanie.html — Viewer "Реестр списания" (полный файл)
+  Загружает ./spisanie.json
+  NEW = текущий месяц по writeoffDate (MM.YYYY)
+  Сортировка по умолчанию:
+    1) writeoffDate desc (YYYYMM)
+    2) type order: автобус, троллейбус, трамвай, электробус
+    3) vehicleNumber (умный алгоритм)
+  Клик по заголовкам оставлен (можно менять сортировку), но tie-breaker всё равно по номеру.
+-->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Транспорт Минска — Реестр списания</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f7fa; color: #23263a; margin: 0; padding: 0;}
+    .cont { max-width: 1200px; margin: 15px auto; padding: 0 10px; }
+
+    .stickyTop{
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #f5f7fa;
+      padding-top: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e3e8f5;
+    }
+
+    .msg {color:#b25127;margin:5px 0; line-height:1.25;}
+    .topbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+    .search {margin:6px 0 7px 0; display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+    .tabs{display:flex; gap:6px; flex-wrap:wrap; margin:6px 0 4px 0;}
+    .tab{padding:3px 10px; border-radius:10px; border:1px solid #cfd7ea; background:#eef3ff; cursor:pointer; user-select:none; font-size:12px; white-space:nowrap;}
+    .tab.active{background:#2543a5; color:#fff; border-color:#2543a5;}
+    .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
+
+    .tableWrap{margin-top:8px;}
+    table { width: 100%; border-collapse: collapse; background:#fff; border-radius:8px; overflow:hidden; font-size:13px; }
+
+    th, td { padding: 6px 6px; text-align: center; vertical-align: middle; }
+    thead th{
+      position: static;
+      background:#ecf1fa;
+      border-bottom: 1.5px solid #abc;
+    }
+
+    th { color: #2543a5; font-weight: 600; cursor: pointer; user-select: none; }
+    th.active { background: #d2e3ff; }
+    tr { border-bottom: 1px solid #eee;}
+    tr:hover { background: #f0f5ff;}
+    .num { font-weight: bold; color: #2543a5; }
+    .no { color:#bbb; font-style:italic; }
+    .empty {padding:18px 0; text-align:center; color:#9aa6c3; font-style:italic;}
+    .err {margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px; white-space:pre-wrap;}
+
+    thead tr.filters th{
+      background:#ecf1fa;
+      border-bottom: 1.5px solid #abc;
+      padding: 4px 6px 6px 6px;
+      cursor: default;
+    }
+    .colFilter{
+      width: 100%;
+      box-sizing: border-box;
+      padding: 3px 6px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: 1px solid #bbc;
+      outline: none;
+      background: #fff;
+      text-align: left;
+    }
+    .colFilter:focus{ border-color:#2543a5; }
+
+    @media (max-width: 780px){
+      .cont{margin:10px auto;}
+      .counts{margin-left:0;}
+      th, td{padding:6px 5px;}
+      table{font-size:12px;}
+      .tab{padding:3px 8px;}
+    }
+
+    @media (min-width: 781px){
+      table { table-layout: fixed; }
+      /* 1-Тип,2-Модель,3-Год,4-Парк,5-Номер,6-Экс,7-Гаражн,8-Зав,9-Дата,10-Прим */
+      table th:nth-child(2), table td:nth-child(2) { width: 18%; } /* модель */
+      table th:nth-child(3), table td:nth-child(3) { width: 6%; }  /* год */
+      table th:nth-child(4), table td:nth-child(4) { width: 7%; }  /* парк */
+      table th:nth-child(10), table td:nth-child(10) { width: 24%; } /* примечание */
+    }
+  </style>
+</head>
+<body>
+<div class="cont">
+  <div class="stickyTop" id="stickyTop">
+    <div class="topbar">
+      <div class="msg">
+        <span id="monthHint" style="color:#5b6b98;"></span>
+      </div>
+      <div class="counts"><span id="countShown">0</span> / <span id="countAll">0</span></div>
+    </div>
+
+    <div class="search">
+      <div style="color:#5b6b98;font-size:12px;" id="updatedAt"></div>
+    </div>
+
+    <div class="tabs" id="tabs"></div>
+  </div>
+
+  <div class="tableWrap">
+    <table>
+      <thead>
+        <tr>
+          <th data-f="type">Тип</th>
+          <th data-f="model">Модель</th>
+          <th data-f="year">Год</th>
+          <th data-f="park">Парк</th>
+          <th data-f="vehicleNumber" class="active">Номер</th>
+          <th data-f="exNumber">Экс-номер</th>
+          <th data-f="garageNumber">Гаражный №</th>
+          <th data-f="factoryNumber">Заводской №</th>
+          <th data-f="writeoffDate">Дата вывода</th>
+          <th data-f="note">Примечание</th>
+        </tr>
+
+        <tr class="filters">
+          <th><input class="colFilter" data-col="type"></th>
+          <th><input class="colFilter" data-col="model"></th>
+          <th><input class="colFilter" data-col="year"></th>
+          <th><input class="colFilter" data-col="park"></th>
+          <th><input class="colFilter" data-col="vehicleNumber"></th>
+          <th><input class="colFilter" data-col="exNumber"></th>
+          <th><input class="colFilter" data-col="garageNumber"></th>
+          <th><input class="colFilter" data-col="factoryNumber"></th>
+          <th><input class="colFilter" data-col="writeoffDate"></th>
+          <th><input class="colFilter" data-col="note"></th>
+        </tr>
+      </thead>
+      <tbody id="data"></tbody>
+    </table>
+  </div>
+
+  <div class="empty" id="empty" style="display:none;">Нет данных по фильтру</div>
+  <div class="err" id="err" style="display:none;"></div>
+</div>
+
+<script>
+const JSON_URL = './spisanie.json';
+
+let DATA = [];
+let VIEW = [];
+
+/* По умолчанию: сортируем по Дате вывода (desc). */
+let sortF = "writeoffDate";
+let sortDesc = true;
+
+let activeTab = "_new";
+let newMonthKey = '';
+let hasCurrentMonth = false;
+
+function pad2(n){ return String(n).padStart(2,'0'); }
+function monthKeyFromWriteoffDate(s){
+  const m = String(s||'').trim().match(/^(\d{1,2})\.(\d{4})$/);
+  if(!m) return '';
+  return `${pad2(m[1])}.${m[2]}`;
+}
+function currentMonthKey(){
+  const d = new Date();
+  return `${pad2(d.getMonth()+1)}.${d.getFullYear()}`;
+}
+function computeNewMonthKey(){
+  const months = new Set();
+  DATA.forEach(v=>{
+    const mk = monthKeyFromWriteoffDate(v.writeoffDate);
+    if(mk) months.add(mk);
+  });
+
+  if(!months.size){
+    newMonthKey = '';
+    hasCurrentMonth = false;
+    document.getElementById('monthHint').textContent = '';
+    return;
+  }
+
+  const cur = currentMonthKey();
+  hasCurrentMonth = months.has(cur);
+
+  if(hasCurrentMonth){
+    newMonthKey = cur;
+  } else {
+    newMonthKey = [...months].sort((a,b)=>{
+      const [am,ay]=a.split('.'); const [bm,by]=b.split('.');
+      return Number(by+bm) - Number(ay+am);
+    })[0];
+  }
+
+  document.getElementById('monthHint').textContent =
+    newMonthKey ? `NEW: ${newMonthKey}${hasCurrentMonth ? '' : ' (последний месяц со списаниями)'}` : '';
+}
+
+function normType(t){
+  t = (t||'').toString().trim().toLowerCase();
+  return t;
+}
+function typeLabel(t){
+  t = normType(t);
+  if(t === 'автобус') return 'Автобус';
+  if(t === 'троллейбус') return 'Троллейбус';
+  if(t === 'трамвай') return 'Трамвай';
+  if(t === 'электробус') return 'Электробус';
+  return t ? (t[0].toUpperCase()+t.slice(1)) : '—';
+}
+
+/* фиксированный порядок типов для tie-break сортировки */
+const TYPE_ORDER = {'автобус': 0, 'троллейбус': 1, 'трамвай': 2, 'электробус': 3};
+function typeWeight(t){
+  t = normType(t);
+  return Object.prototype.hasOwnProperty.call(TYPE_ORDER, t) ? TYPE_ORDER[t] : 999;
+}
+
+const TAB_ORDER = [
+  {key:'_new', label:'NEW'},
+  {key:'автобус', label:'Автобус'},
+  {key:'троллейбус', label:'Троллейбус'},
+  {key:'трамвай', label:'Трамвай'},
+  {key:'электробус', label:'Электробус'},
+  {key:'_all', label:'Все'}
+];
+
+function calcTypeCounts(){
+  const m = {};
+  DATA.forEach(v=>{
+    const t = normType(v.type);
+    if(!t) return;
+    m[t] = (m[t]||0)+1;
+  });
+  return m;
+}
+function countForNew(){
+  if(!newMonthKey) return 0;
+  return DATA.filter(v => monthKeyFromWriteoffDate(v.writeoffDate) === newMonthKey).length;
+}
+
+function renderTabs(){
+  const wrap = document.getElementById('tabs');
+  const typeCounts = calcTypeCounts();
+  const newCount = countForNew();
+
+  wrap.innerHTML = TAB_ORDER.map(t => {
+    let c = 0;
+    if(t.key === '_new') c = newCount;
+    else if(t.key === '_all') c = DATA.length;
+    else c = (typeCounts[t.key] || 0);
+
+    return `<div class="tab ${activeTab===t.key?'active':''}" data-tab="${t.key}">
+      ${t.label} <span style="opacity:.75;">${c}</span>
+    </div>`;
+  }).join('');
+
+  wrap.querySelectorAll('.tab').forEach(el=>{
+    el.onclick = ()=>{
+      activeTab = el.getAttribute('data-tab');
+      renderTabs();
+      render();
+    };
+  });
+}
+
+/* =========================
+   SORTING (номер — прежний алгоритм)
+   ========================= */
+
+const BUS_SERIES_ORDER = "ABEIKMHOPCTX";
+const BUS_SERIES_WEIGHT = (() => {
+  const m = {};
+  for(let i=0;i<BUS_SERIES_ORDER.length;i++) m[BUS_SERIES_ORDER[i]] = i;
+  return m;
+})();
+
+function canonSeriesChar(ch){
+  ch = (ch || '').toString().toUpperCase();
+  if(Object.prototype.hasOwnProperty.call(BUS_SERIES_WEIGHT, ch)) return ch;
+
+  const ru2lat = {
+    'А':'A','В':'B','Е':'E','И':'I','І':'I','К':'K','М':'M','Н':'H','О':'O','Р':'P','С':'C','Т':'T','Х':'X'
+  };
+  return ru2lat[ch] || ch;
+}
+
+function normVehicleNumberForSort(s){
+  s = (s || '').toString().trim().toUpperCase();
+  s = s.replace(/\s+/g, '');
+  s = s.replace(/[A-ZА-ЯІ]/g, ch => canonSeriesChar(ch));
+  return s;
+}
+
+function isPlateDash7(s){
+  return /^[A-Z0-9]{6}-7$/.test(s);
+}
+
+function plateGroupThirdChar(normS){
+  const ch3 = normS[2] || '';
+  return /\d/.test(ch3) ? 0 : 1;
+}
+
+function compareVehicleStringsAsc(a, b){
+  const n = Math.max(a.length, b.length);
+  for(let i=0;i<n;i++){
+    const ac = a[i] || '';
+    const bc = b[i] || '';
+
+    if(ac === bc) continue;
+    if(!ac) return -1;
+    if(!bc) return 1;
+
+    const aw = Object.prototype.hasOwnProperty.call(BUS_SERIES_WEIGHT, ac) ? BUS_SERIES_WEIGHT[ac] : null;
+    const bw = Object.prototype.hasOwnProperty.call(BUS_SERIES_WEIGHT, bc) ? BUS_SERIES_WEIGHT[bc] : null;
+
+    if(aw !== null && bw !== null) return aw - bw;
+    if(aw !== null && bw === null) return -1;
+    if(aw === null && bw !== null) return 1;
+
+    if(ac < bc) return -1;
+    if(ac > bc) return 1;
+  }
+  return 0;
+}
+
+function numSortAlg(a, b){
+  const anRaw = (a.vehicleNumber || '').toString().trim();
+  const bnRaw = (b.vehicleNumber || '').toString().trim();
+
+  if(!anRaw && !bnRaw) return 0;
+  if(!anRaw) return 1;
+  if(!bnRaw) return -1;
+
+  const an = normVehicleNumberForSort(anRaw);
+  const bn = normVehicleNumberForSort(bnRaw);
+
+  const tA = normType(a.type);
+  const tB = normType(b.type);
+
+  const applyThirdRuleA = (tA === 'автобус' || tA === 'электробус');
+  const applyThirdRuleB = (tB === 'автобус' || tB === 'электробус');
+
+  const aDash7 = isPlateDash7(an);
+  const bDash7 = isPlateDash7(bn);
+
+  if(applyThirdRuleA && applyThirdRuleB && aDash7 && bDash7){
+    const aG = plateGroupThirdChar(an);
+    const bG = plateGroupThirdChar(bn);
+    if(aG !== bG) return bG - aG;
+  }
+
+  const r = compareVehicleStringsAsc(an, bn);
+  if(r !== 0) return r;
+
+  const aU = anRaw.toUpperCase();
+  const bU = bnRaw.toUpperCase();
+  if(aU < bU) return -1;
+  if(aU > bU) return 1;
+  return 0;
+}
+
+function normFactoryForSort(s){
+  s = (s || '').toString().trim().toUpperCase();
+  s = s.replace(/[\s\-]/g, '');
+  const map = {'А':'A','В':'B','С':'C','Е':'E','Н':'H','К':'K','М':'M','О':'O','Р':'P','Т':'T','Х':'X','У':'Y'};
+  s = s.replace(/[АВСЕНКМОРТХУ]/g, ch => map[ch] || ch);
+  return s;
+}
+
+/* writeoffDate (MM.YYYY) -> YYYYMM */
+function normWriteoffDateForSort(s){
+  const m = String(s || '').trim().match(/^(\d{1,2})\.(\d{4})$/);
+  if(!m) return '';
+  const mm = pad2(m[1]);
+  const yyyy = m[2];
+  return yyyy + mm;
+}
+
+/* базовый приоритет, который ты просил: date desc -> type order -> number */
+function basePriorityCompare(a, b){
+  const ad = normWriteoffDateForSort(a.writeoffDate);
+  const bd = normWriteoffDateForSort(b.writeoffDate);
+  if(ad !== bd) return (ad < bd) ? 1 : -1; /* desc */
+
+  const at = typeWeight(a.type);
+  const bt = typeWeight(b.type);
+  if(at !== bt) return at - bt; /* asc */
+
+  return numSortAlg(a, b); /* asc */
+}
+
+function generalSort(a, b){
+  /* Если пользователь кликнул по заголовку — сортируем по выбранному полю,
+     но при равенстве всё равно применяем базовый tie-break, чтобы было стабильно. */
+
+  if(sortF === "vehicleNumber") {
+    const r = numSortAlg(a, b);
+    if(r !== 0) return sortDesc ? -r : r;
+    return basePriorityCompare(a, b);
+  }
+
+  let av, bv;
+
+  if(sortF === "writeoffDate"){
+    av = normWriteoffDateForSort(a.writeoffDate);
+    bv = normWriteoffDateForSort(b.writeoffDate);
+  } else if(sortF === "factoryNumber"){
+    av = normFactoryForSort(a.factoryNumber);
+    bv = normFactoryForSort(b.factoryNumber);
+  } else if(sortF === "type"){
+    av = typeWeight(a.type);
+    bv = typeWeight(b.type);
+  } else {
+    av = (a[sortF]||'').toString().toLowerCase();
+    bv = (b[sortF]||'').toString().toLowerCase();
+  }
+
+  if(av < bv) return sortDesc ? 1 : -1;
+  if(av > bv) return sortDesc ? -1 : 1;
+
+  return basePriorityCompare(a, b);
+}
+
+/* =========================
+   RENDER
+   ========================= */
+function escapeHTML(s){
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[c]));
+}
+
+function cell(x){
+  const s = (x||'').toString().trim();
+  return s ? escapeHTML(s) : '<span class="no">—</span>';
+}
+
+function normVehicleNumberForSearch(s){
+  s = (s || '').toString().trim().toUpperCase();
+  s = s.replace(/[\s\-]/g, '');
+  const map = {
+    'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У',
+    'I':'И','І':'И'
+  };
+  s = s.replace(/[ABCEHKMOPTXYIІ]/g, ch => map[ch] || ch);
+  return s;
+}
+
+function render(){
+  const colFilters = {};
+  document.querySelectorAll('.colFilter').forEach(inp=>{
+    const col = inp.getAttribute('data-col');
+    const val = (inp.value || '').toString().trim();
+    if(val) colFilters[col] = val;
+  });
+
+  VIEW = DATA
+    .filter(v=>{
+      if(activeTab === '_new'){
+        if(!newMonthKey) return false;
+        const mk = monthKeyFromWriteoffDate(v.writeoffDate);
+        if(mk !== newMonthKey) return false;
+      }
+
+      if(activeTab !== '_new' && activeTab !== '_all'){
+        if(normType(v.type) !== activeTab) return false;
+      }
+
+      for(const [col, rawNeedle] of Object.entries(colFilters)){
+        const needle = rawNeedle.toString().toLowerCase();
+
+        if(col === 'type'){
+          const hay = typeLabel(v.type).toLowerCase();
+          if(!hay.includes(needle)) return false;
+          continue;
+        }
+
+        if(col === 'vehicleNumber' || col === 'exNumber'){
+          const hay = normVehicleNumberForSearch(v[col]);
+          const n = normVehicleNumberForSearch(rawNeedle);
+          if(!hay.includes(n)) return false;
+          continue;
+        }
+
+        const hay = (v[col] || '').toString().toLowerCase();
+        if(!hay.includes(needle)) return false;
+      }
+
+      return true;
+    })
+    .sort(generalSort);
+
+  document.getElementById('countShown').textContent = VIEW.length;
+  document.getElementById('countAll').textContent = DATA.length;
+
+  const tbody = document.getElementById('data');
+  const empty = document.getElementById('empty');
+
+  if(!VIEW.length){
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = VIEW.map(v=>`<tr>
+    <td>${escapeHTML(typeLabel(v.type))}</td>
+    <td>${cell(v.model)}</td>
+    <td>${cell(v.year)}</td>
+    <td>${cell(v.park)}</td>
+    <td class="num">${cell(v.vehicleNumber)}</td>
+    <td>${cell(v.exNumber)}</td>
+    <td>${cell(v.garageNumber)}</td>
+    <td>${cell(v.factoryNumber)}</td>
+    <td>${cell(v.writeoffDate)}</td>
+    <td>${cell(v.note)}</td>
+  </tr>`).join('');
+}
+
+document.querySelectorAll('th[data-f]').forEach(th=>{
+  th.onclick = ()=>{
+    document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
+    th.classList.add('active');
+
+    const f = th.getAttribute('data-f');
+    if(sortF === f) sortDesc = !sortDesc;
+    else {
+      sortF = f;
+
+      /* дефолтные направления:
+         - date: desc
+         - number: asc? (но у тебя приоритет по дате, так что number обычно вторичен)
+         - остальные: asc
+      */
+      if(f === 'writeoffDate') sortDesc = true;
+      else if(f === 'vehicleNumber') sortDesc = false;
+      else sortDesc = false;
+    }
+
+    render();
+  };
+});
+
+document.addEventListener('input', (e) => {
+  if(e.target && e.target.classList && e.target.classList.contains('colFilter')){
+    render();
+  }
+});
+
+function showErr(msg){
+  const e = document.getElementById('err');
+  e.style.display = '';
+  e.textContent = msg;
+}
+function hideErr(){
+  const e = document.getElementById('err');
+  e.style.display = 'none';
+  e.textContent = '';
+}
+
+function pickArray(j){
+  if(Array.isArray(j)) return j;
+  if(j && Array.isArray(j.vehicles)) return j.vehicles;
+  if(j && Array.isArray(j.data)) return j.data;
+  if(j && Array.isArray(j.items)) return j.items;
+  return [];
+}
+function mapRow(r){
+  return {
+    type: r.type || '',
+    model: r.model || '',
+    year: r.year || '',
+    park: r.park || '',
+    vehicleNumber: (r.licensePlate || r.registrationNumber || r.vehicleNumber || ''),
+    exNumber: r.exNumber || '',
+    garageNumber: r.garageNumber || '',
+    factoryNumber: r.factoryNumber || '',
+    writeoffDate: r.writeoffDate || '',
+    note: r.note || ''
+  };
+}
+
+async function loadJson(){
+  try{
+    hideErr();
+    const r = await fetch(JSON_URL, {cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j = await r.json();
+
+    const arr = pickArray(j);
+    const updatedAt = (j && !Array.isArray(j) && j.updatedAt) ? j.updatedAt : '';
+
+    DATA = arr.map(mapRow);
+    document.getElementById('updatedAt').textContent = updatedAt ? ('Обновлено: ' + updatedAt) : '';
+
+    computeNewMonthKey();
+
+    activeTab = "_new";
+    sortF = "writeoffDate";
+    sortDesc = true;
+
+    renderTabs();
+    render();
+  } catch(err){
+    DATA = [];
+    renderTabs();
+    render();
+    showErr('Ошибка: ' + err.message);
+  }
+}
+
+renderTabs();
+loadJson();
+</script>
+</body>
+</html>
