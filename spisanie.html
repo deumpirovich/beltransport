@@ -81,13 +81,18 @@
       .tab{padding:3px 8px;}
     }
 
+    /* Десктоп: расширяем "Номер" за счёт "Примечание" и немного "Модель" */
     @media (min-width: 781px){
       table { table-layout: fixed; }
       /* 1-Тип,2-Модель,3-Год,4-Парк,5-Номер,6-Экс,7-Гаражн,8-Зав,9-Дата,10-Прим */
-      table th:nth-child(2), table td:nth-child(2) { width: 18%; } /* модель */
+
+      table th:nth-child(2), table td:nth-child(2) { width: 16%; } /* модель (было 18%) */
       table th:nth-child(3), table td:nth-child(3) { width: 6%; }  /* год */
       table th:nth-child(4), table td:nth-child(4) { width: 7%; }  /* парк */
-      table th:nth-child(10), table td:nth-child(10) { width: 24%; } /* примечание */
+
+      table th:nth-child(5), table td:nth-child(5) { width: 16%; } /* НОМЕР (СДЕЛАНО ШИРЕ) */
+
+      table th:nth-child(10), table td:nth-child(10) { width: 18%; } /* примечание (было 24%) */
     }
   </style>
 </head>
@@ -380,23 +385,20 @@ function normWriteoffDateForSort(s){
   return yyyy + mm;
 }
 
-/* базовый приоритет, который ты просил: date desc -> type order -> number */
+/* базовый приоритет: date desc -> type order -> number */
 function basePriorityCompare(a, b){
   const ad = normWriteoffDateForSort(a.writeoffDate);
   const bd = normWriteoffDateForSort(b.writeoffDate);
-  if(ad !== bd) return (ad < bd) ? 1 : -1; /* desc */
+  if(ad !== bd) return (ad < bd) ? 1 : -1;
 
   const at = typeWeight(a.type);
   const bt = typeWeight(b.type);
-  if(at !== bt) return at - bt; /* asc */
+  if(at !== bt) return at - bt;
 
-  return numSortAlg(a, b); /* asc */
+  return numSortAlg(a, b);
 }
 
 function generalSort(a, b){
-  /* Если пользователь кликнул по заголовку — сортируем по выбранному полю,
-     но при равенстве всё равно применяем базовый tie-break, чтобы было стабильно. */
-
   if(sortF === "vehicleNumber") {
     const r = numSortAlg(a, b);
     if(r !== 0) return sortDesc ? -r : r;
@@ -534,12 +536,6 @@ document.querySelectorAll('th[data-f]').forEach(th=>{
     if(sortF === f) sortDesc = !sortDesc;
     else {
       sortF = f;
-
-      /* дефолтные направления:
-         - date: desc
-         - number: asc? (но у тебя приоритет по дате, так что number обычно вторичен)
-         - остальные: asc
-      */
       if(f === 'writeoffDate') sortDesc = true;
       else if(f === 'vehicleNumber') sortDesc = false;
       else sortDesc = false;
