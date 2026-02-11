@@ -1,12 +1,16 @@
 <!-- spisanie.html — Viewer "Реестр списания" (полный файл)
-  FIX: на небольших экранах "Заводской №" больше не налезает на "Дата вывода".
+  ВАРИАНТ B: на узких экранах скрываем часть колонок, чтобы ничего не налезало.
 
-  Что сделано:
-  1) Для десктопа (>=781px) сохранён fixed layout + явные ширины (как раньше).
-  2) Для мобильных/планшетов (<781px) ВКЛЮЧЕН table-layout:auto и горизонтальная прокрутка:
-     - таблица получает min-width, чтобы колонки не сжимались до налезания
-     - контейнер .tableWrap становится scrollable по X
-  3) У "Номер" и "Экс-номер" запрет переноса, чтобы значения не ломались.
+  Что скрываем при ширине <= 900px:
+    - Год
+    - Гаражный №
+    - Заводской №
+    - Примечание
+
+  Остаётся на мобиле:
+    Тип / Модель / Парк / Номер / Экс-номер / Дата вывода
+
+  Сортировка автобусов по твоим приоритетам сохранена.
 -->
 <!DOCTYPE html>
 <html lang="ru">
@@ -36,20 +40,8 @@
     .tab.active{background:#2543a5; color:#fff; border-color:#2543a5;}
     .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
 
-    .tableWrap{
-      margin-top:8px;
-      overflow-x: auto;              /* ключевой фикс */
-      -webkit-overflow-scrolling: touch;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background:#fff;
-      border-radius:8px;
-      overflow:hidden;
-      font-size:13px;
-    }
+    .tableWrap{margin-top:8px;}
+    table { width: 100%; border-collapse: collapse; background:#fff; border-radius:8px; overflow:hidden; font-size:13px; }
 
     th, td { padding: 6px 6px; text-align: center; vertical-align: middle; }
     thead th{
@@ -84,34 +76,28 @@
       outline: none;
       background: #fff;
       text-align: left;
-      min-width: 70px; /* чтобы inputs не схлопывались */
     }
     .colFilter:focus{ border-color:#2543a5; }
 
-    @media (max-width: 780px){
+    @media (max-width: 900px){
       .cont{margin:10px auto;}
       .counts{margin-left:0;}
       th, td{padding:6px 5px;}
       table{font-size:12px;}
 
-      /* На небольших экранах НЕ фиксируем ширины, а даём таблице минимальную ширину
-         и включаем горизонтальную прокрутку, чтобы не было налезания колонок. */
-      table{
-        table-layout: auto;   /* важно */
-        min-width: 980px;     /* под 10 колонок; можно поднять до 1050, если нужно */
-      }
+      /* Скрываем "тяжёлые" колонки на мобиле/планшете */
+      .hideSm { display: none; }
     }
 
-    @media (min-width: 781px){
+    @media (min-width: 901px){
       table { table-layout: fixed; }
-
       /* 1-Тип,2-Модель,3-Год,4-Парк,5-Номер,6-Экс,7-Гаражн,8-Зав,9-Дата,10-Прим */
       table th:nth-child(2), table td:nth-child(2) { width: 15%; } /* модель */
       table th:nth-child(3), table td:nth-child(3) { width: 6%; }  /* год */
       table th:nth-child(4), table td:nth-child(4) { width: 7%; }  /* парк */
       table th:nth-child(5), table td:nth-child(5) { width: 14%; } /* номер */
       table th:nth-child(6), table td:nth-child(6) { width: 14%; } /* экс-номер */
-      table th:nth-child(9), table td:nth-child(9) { width: 9%; }  /* дата вывода (чуть шире, чтобы не сжималось) */
+      table th:nth-child(9), table td:nth-child(9) { width: 9%; }  /* дата вывода */
       table th:nth-child(10), table td:nth-child(10) { width: 16%; } /* примечание */
     }
   </style>
@@ -139,27 +125,37 @@
         <tr>
           <th data-f="type">Тип</th>
           <th data-f="model">Модель</th>
-          <th data-f="year">Год</th>
+
+          <th data-f="year" class="hideSm">Год</th>
+
           <th data-f="park">Парк</th>
           <th data-f="vehicleNumber" class="active">Номер</th>
           <th data-f="exNumber">Экс-номер</th>
-          <th data-f="garageNumber">Гаражный №</th>
-          <th data-f="factoryNumber">Заводской №</th>
+
+          <th data-f="garageNumber" class="hideSm">Гаражный №</th>
+          <th data-f="factoryNumber" class="hideSm">Заводской №</th>
+
           <th data-f="writeoffDate">Дата вывода</th>
-          <th data-f="note">Примечание</th>
+
+          <th data-f="note" class="hideSm">Примечание</th>
         </tr>
 
         <tr class="filters">
           <th><input class="colFilter" data-col="type"></th>
           <th><input class="colFilter" data-col="model"></th>
-          <th><input class="colFilter" data-col="year"></th>
+
+          <th class="hideSm"><input class="colFilter" data-col="year"></th>
+
           <th><input class="colFilter" data-col="park"></th>
           <th><input class="colFilter" data-col="vehicleNumber"></th>
           <th><input class="colFilter" data-col="exNumber"></th>
-          <th><input class="colFilter" data-col="garageNumber"></th>
-          <th><input class="colFilter" data-col="factoryNumber"></th>
+
+          <th class="hideSm"><input class="colFilter" data-col="garageNumber"></th>
+          <th class="hideSm"><input class="colFilter" data-col="factoryNumber"></th>
+
           <th><input class="colFilter" data-col="writeoffDate"></th>
-          <th><input class="colFilter" data-col="note"></th>
+
+          <th class="hideSm"><input class="colFilter" data-col="note"></th>
         </tr>
       </thead>
       <tbody id="data"></tbody>
@@ -516,14 +512,19 @@ function render(){
   tbody.innerHTML = VIEW.map(v=>`<tr>
     <td>${escapeHTML(typeLabel(v.type))}</td>
     <td>${cell(v.model)}</td>
-    <td>${cell(v.year)}</td>
+
+    <td class="hideSm">${cell(v.year)}</td>
+
     <td>${cell(v.park)}</td>
     <td class="num">${cell(v.vehicleNumber)}</td>
     <td class="exnum">${cell(v.exNumber)}</td>
-    <td>${cell(v.garageNumber)}</td>
-    <td>${cell(v.factoryNumber)}</td>
+
+    <td class="hideSm">${cell(v.garageNumber)}</td>
+    <td class="hideSm">${cell(v.factoryNumber)}</td>
+
     <td>${cell(v.writeoffDate)}</td>
-    <td>${cell(v.note)}</td>
+
+    <td class="hideSm">${cell(v.note)}</td>
   </tr>`).join('');
 }
 
