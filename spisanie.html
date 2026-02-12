@@ -1,21 +1,20 @@
 <!-- spisanie.html — Viewer "Реестр списания" (полный файл)
-  ВАРИАНТ A: горизонтальный скролл по X на узких экранах.
-  Цель: никаких "налезаний" колонок вообще.
+  FIX 1 (налезание "Тип" на "Модель" на больших экранах):
+    - убрал table-layout: fixed на десктопе
+    - включил table-layout: auto ВЕЗДЕ
+    - добавил table{min-width:1400px} для гарантии, что колонки не сожмутся до налезания
+    - оставил горизонтальный скролл контейнера .tableWrap (Вариант A) — теперь работает и на десктопе при необходимости
 
-  Как сделано:
-  1) .tableWrap { overflow-x:auto; } — таблица может прокручиваться по X.
-  2) table { min-width: 1250px; } на узких экранах — колонки не сжимаются до налезания.
-  3) Номера (Номер/Экс-номер/Гаражный/Заводской) и Дата — в одну строку:
-     white-space: nowrap; (и для заводского добавлен overflow:hidden + text-overflow:ellipsis,
-     чтобы визуально "умещалось в одну строку" даже если очень длинное).
-     Полное значение при этом доступно по hover (title).
-  4) Сортировка автобусов по твоим приоритетам сохранена.
+  FIX 2 (все данные по центру):
+    - td и th уже были center, дополнительно: input фильтров тоже по центру
+      (если нужно, скажешь — верну фильтры влево)
 
-  Примечание про "длинные заводские":
-  В одну строку физически "влезть" в экран они не могут без:
-    - уменьшения шрифта до микроскопического, или
-    - обрезки.
-  Поэтому сделано корректно: ОДНА СТРОКА + троеточие + title (полностью).
+  ВАЖНО: "ничего не обрезая"
+    - я НЕ использую ellipsis/overflow hidden нигде (в т.ч. для заводского).
+    - длинные значения остаются в одну строку (nowrap) и расширяют таблицу;
+      если ширины экрана не хватает — появляется горизонтальный скролл, но налезания нет.
+
+  Сортировка автобусов по твоим приоритетам сохранена.
 -->
 <!DOCTYPE html>
 <html lang="ru">
@@ -45,7 +44,7 @@
     .tab.active{background:#2543a5; color:#fff; border-color:#2543a5;}
     .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
 
-    /* Вариант A: скролл контейнера */
+    /* Вариант A: скролл контейнера всегда доступен */
     .tableWrap{
       margin-top: 8px;
       overflow-x: auto;
@@ -54,14 +53,23 @@
 
     table {
       width: 100%;
+      min-width: 1400px;           /* ключевая гарантия от налезания */
       border-collapse: collapse;
       background:#fff;
       border-radius:8px;
       overflow:hidden;
       font-size:13px;
+
+      table-layout: auto;          /* ключевая правка: не fixed */
     }
 
-    th, td { padding: 6px 6px; text-align: center; vertical-align: middle; }
+    th, td {
+      padding: 6px 6px;
+      text-align: center;          /* все данные по центру */
+      vertical-align: middle;
+      white-space: nowrap;         /* чтобы значения не переносились и не ломали высоту */
+    }
+
     thead th{
       position: static;
       background:#ecf1fa;
@@ -84,6 +92,7 @@
       padding: 4px 6px 6px 6px;
       cursor: default;
     }
+
     .colFilter{
       width: 100%;
       box-sizing: border-box;
@@ -93,49 +102,17 @@
       border: 1px solid #bbc;
       outline: none;
       background: #fff;
-      text-align: left;
-      min-width: 80px; /* чтобы фильтры не схлопывались */
+      text-align: center;     /* фильтры тоже по центру */
+      min-width: 90px;        /* чтобы inputs не схлопывались */
     }
     .colFilter:focus{ border-color:#2543a5; }
-
-    /* ВАЖНО: ни один номер/дата не переносится на новую строку */
-    td.nowrap, th.nowrap { white-space: nowrap; }
-
-    /* Для очень длинных заводских — одна строка + троеточие */
-    td.factoryCell{
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 1px; /* работает в table-layout: fixed; задаём через widths ниже */
-    }
 
     @media (max-width: 780px){
       .cont{margin:10px auto;}
       .counts{margin-left:0;}
       th, td{padding:6px 5px;}
-      table{font-size:12px;}
-
-      /* На узких экранах: даём таблице минимальную ширину и разрешаем скролл */
-      table{
-        table-layout: auto;   /* важный момент: не сжимаем насильно */
-        min-width: 1250px;    /* чтобы 10 колонок гарантированно не налезали */
-      }
-    }
-
-    @media (min-width: 781px){
-      /* На широких — фиксированная сетка, ровные колонки */
-      table { table-layout: fixed; }
-
-      /* 1-Тип,2-Модель,3-Год,4-Парк,5-Номер,6-Экс,7-Гаражн,8-Зав,9-Дата,10-Прим */
-      table th:nth-child(2), table td:nth-child(2) { width: 15%; } /* модель */
-      table th:nth-child(3), table td:nth-child(3) { width: 6%; }  /* год */
-      table th:nth-child(4), table td:nth-child(4) { width: 7%; }  /* парк */
-      table th:nth-child(5), table td:nth-child(5) { width: 14%; } /* номер */
-      table th:nth-child(6), table td:nth-child(6) { width: 14%; } /* экс-номер */
-      table th:nth-child(7), table td:nth-child(7) { width: 10%; } /* гаражный */
-      table th:nth-child(8), table td:nth-child(8) { width: 13%; } /* заводской (шире, но с ellipsis при переполнении) */
-      table th:nth-child(9), table td:nth-child(9) { width: 9%; }  /* дата вывода */
-      table th:nth-child(10), table td:nth-child(10) { width: 12%; } /* примечание */
+      table{font-size:12px; min-width: 1250px;}
+      .colFilter{ min-width: 80px; }
     }
   </style>
 </head>
@@ -164,11 +141,11 @@
           <th data-f="model">Модель</th>
           <th data-f="year">Год</th>
           <th data-f="park">Парк</th>
-          <th data-f="vehicleNumber" class="active nowrap">Номер</th>
-          <th data-f="exNumber" class="nowrap">Экс-номер</th>
-          <th data-f="garageNumber" class="nowrap">Гаражный №</th>
-          <th data-f="factoryNumber" class="nowrap">Заводской №</th>
-          <th data-f="writeoffDate" class="nowrap">Дата вывода</th>
+          <th data-f="vehicleNumber" class="active">Номер</th>
+          <th data-f="exNumber">Экс-номер</th>
+          <th data-f="garageNumber">Гаражный №</th>
+          <th data-f="factoryNumber">Заводской №</th>
+          <th data-f="writeoffDate">Дата вывода</th>
           <th data-f="note">Примечание</th>
         </tr>
 
@@ -537,10 +514,10 @@ function render(){
   empty.style.display = 'none';
 
   tbody.innerHTML = VIEW.map(v=>{
-    const fac = (v.factoryNumber || '').toString().trim();
-    const gar = (v.garageNumber || '').toString().trim();
-    const exn = (v.exNumber || '').toString().trim();
     const num = (v.vehicleNumber || '').toString().trim();
+    const exn = (v.exNumber || '').toString().trim();
+    const gar = (v.garageNumber || '').toString().trim();
+    const fac = (v.factoryNumber || '').toString().trim();
 
     return `<tr>
       <td>${escapeHTML(typeLabel(v.type))}</td>
@@ -548,13 +525,12 @@ function render(){
       <td>${cell(v.year)}</td>
       <td>${cell(v.park)}</td>
 
-      <td class="num nowrap" title="${escapeHTML(num)}">${cell(num)}</td>
-      <td class="nowrap" title="${escapeHTML(exn)}">${cell(exn)}</td>
-      <td class="nowrap" title="${escapeHTML(gar)}">${cell(gar)}</td>
+      <td class="num" title="${escapeHTML(num)}">${cell(num)}</td>
+      <td title="${escapeHTML(exn)}">${cell(exn)}</td>
+      <td title="${escapeHTML(gar)}">${cell(gar)}</td>
+      <td title="${escapeHTML(fac)}">${cell(fac)}</td>
 
-      <td class="factoryCell nowrap" title="${escapeHTML(fac)}">${cell(fac)}</td>
-
-      <td class="nowrap" title="${escapeHTML(v.writeoffDate||'')}">${cell(v.writeoffDate)}</td>
+      <td title="${escapeHTML(v.writeoffDate||'')}">${cell(v.writeoffDate)}</td>
       <td>${cell(v.note)}</td>
     </tr>`;
   }).join('');
