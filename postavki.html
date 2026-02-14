@@ -83,6 +83,14 @@
       table th:nth-child(3), table td:nth-child(3) { width: 6%; }  /* Год */
       table th:nth-child(5), table td:nth-child(5) { width: 7%; }  /* Парк */
     }
+
+    /* ===== NEW: "серый курсив" для отдельных ячеек ===== */
+    td.muted{
+      color:#8b95a7;
+      font-style:italic;
+      font-weight: normal; /* чтобы "Номер" не был жирным, если muted */
+    }
+    /* если нужно оставить жирность номера даже в muted — удалите font-weight выше */
   </style>
 </head>
 <body>
@@ -422,6 +430,17 @@ function normVehicleNumberForSearch(s){
   return s;
 }
 
+/* ===== NEW: helpers for muted cells ===== */
+function isMuted(v, key){
+  return !!(v && v.gray && typeof v.gray === 'object' && v.gray[key]);
+}
+function tdClass(v, key, baseClass=''){
+  const c = [];
+  if(baseClass) c.push(baseClass);
+  if(isMuted(v, key)) c.push('muted');
+  return c.length ? ` class="${c.join(' ')}"` : '';
+}
+
 function render(){
   const colFilters = {};
   document.querySelectorAll('.colFilter').forEach(inp=>{
@@ -480,15 +499,15 @@ function render(){
   empty.style.display = 'none';
 
   tbody.innerHTML = VIEW.map(v=>`<tr>
-    <td>${escapeHTML(typeLabel(v.type))}</td>
-    <td>${cell(v.model)}</td>
-    <td>${cell(v.year)}</td>
-    <td>${cell(v.deliveryDate)}</td>
-    <td>${cell(v.park)}</td>
-    <td class="num">${cell(v.vehicleNumber)}</td>
-    <td>${cell(v.factoryNumber)}</td>
-    <td>${cell(v.garageNumber)}</td>
-    <td>${cell(v.color)}</td>
+    <td${tdClass(v,'type')}>${escapeHTML(typeLabel(v.type))}</td>
+    <td${tdClass(v,'model')}>${cell(v.model)}</td>
+    <td${tdClass(v,'year')}>${cell(v.year)}</td>
+    <td${tdClass(v,'deliveryDate')}>${cell(v.deliveryDate)}</td>
+    <td${tdClass(v,'park')}>${cell(v.park)}</td>
+    <td${tdClass(v,'vehicleNumber','num')}>${cell(v.vehicleNumber)}</td>
+    <td${tdClass(v,'factoryNumber')}>${cell(v.factoryNumber)}</td>
+    <td${tdClass(v,'garageNumber')}>${cell(v.garageNumber)}</td>
+    <td${tdClass(v,'color')}>${cell(v.color)}</td>
   </tr>`).join('');
 }
 
@@ -541,7 +560,9 @@ function mapRow(r){
     vehicleNumber: (r.licensePlate || r.registrationNumber || r.vehicleNumber || ''),
     factoryNumber: r.factoryNumber || '',
     garageNumber: r.garageNumber || '',
-    color: r.color || ''
+    color: r.color || '',
+    /* NEW: переносим флаги "серых" ячеек из JSON */
+    gray: (r.gray && typeof r.gray === 'object') ? r.gray : {}
   };
 }
 
