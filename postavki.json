@@ -1,5 +1,5 @@
 {
-  "updatedAt": "14.02.2026 13:28",
+  "updatedAt": "15.02.2026 15:29",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -178,7 +178,7 @@
       "deliveryDate": "02.2026",
       "park": "ТП3",
       "licensePlate": "3378",
-      "factoryNumber": "",
+      "factoryNumber": "S0000145",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {}
