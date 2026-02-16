@@ -1,6 +1,30 @@
 {
-  "updatedAt": "15.02.2026 15:29",
+  "updatedAt": "16.02.2026 19:24",
   "vehicles": [
+    {
+      "type": "Электробус",
+      "model": "",
+      "year": "2026",
+      "deliveryDate": "02.2026",
+      "park": "АП6",
+      "licensePlate": "",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "жёлтый",
+      "gray": {}
+    },
+    {
+      "type": "Электробус",
+      "model": "",
+      "year": "2026",
+      "deliveryDate": "02.2026",
+      "park": "АП6",
+      "licensePlate": "",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "жёлтый",
+      "gray": {}
+    },
     {
       "type": "ТУАХ",
       "model": "МАЗ-303Т20",
