@@ -1,5 +1,5 @@
 {
-  "updatedAt": "16.02.2026 19:24",
+  "updatedAt": "17.02.2026 13:47",
   "vehicles": [
     {
       "type": "Электробус",
@@ -118,7 +118,7 @@
       "deliveryDate": "02.2026",
       "park": "ТП3",
       "licensePlate": "3382",
-      "factoryNumber": "",
+      "factoryNumber": "S0000139",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {}
