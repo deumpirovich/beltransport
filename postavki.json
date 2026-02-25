@@ -1,9 +1,45 @@
 {
-  "updatedAt": "17.02.2026 22:06",
+  "updatedAt": "25.02.2026 21:44",
   "vehicles": [
     {
+      "type": "ТУАХ",
+      "model": "МАЗ-203Т70 (у/п)",
+      "year": "2026",
+      "deliveryDate": "02.2026",
+      "park": "ТП5",
+      "licensePlate": "5135",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {}
+    },
+    {
+      "type": "ТУАХ",
+      "model": "МАЗ-203Т70 (у/п)",
+      "year": "2026",
+      "deliveryDate": "02.2026",
+      "park": "ТП5",
+      "licensePlate": "5136",
+      "factoryNumber": "T0001266",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {}
+    },
+    {
+      "type": "ТУАХ",
+      "model": "МАЗ-203Т70 (у/п)",
+      "year": "2026",
+      "deliveryDate": "02.2026",
+      "park": "ТП4",
+      "licensePlate": "4318",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {}
+    },
+    {
       "type": "Электробус",
-      "model": "",
+      "model": "БКМ-Е433 Vitovt II",
       "year": "2026",
       "deliveryDate": "02.2026",
       "park": "АП6",
@@ -15,7 +51,67 @@
     },
     {
       "type": "Электробус",
-      "model": "",
+      "model": "БКМ-Е433 Vitovt II",
+      "year": "2026",
+      "deliveryDate": "02.2026",
+      "park": "АП6",
+      "licensePlate": "",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "жёлтый",
+      "gray": {}
+    },
+    {
+      "type": "Электробус",
+      "model": "БКМ-Е433 Vitovt II",
+      "year": "2026",
+      "deliveryDate": "02.2026",
+      "park": "АП6",
+      "licensePlate": "",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "жёлтый",
+      "gray": {}
+    },
+    {
+      "type": "Электробус",
+      "model": "БКМ-Е433 Vitovt II",
+      "year": "2026",
+      "deliveryDate": "02.2026",
+      "park": "АП6",
+      "licensePlate": "",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "жёлтый",
+      "gray": {}
+    },
+    {
+      "type": "ТУАХ",
+      "model": "МАЗ-203Т70 (у/п)",
+      "year": "2026",
+      "deliveryDate": "02.2026",
+      "park": "ТП3",
+      "licensePlate": "",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {}
+    },
+    {
+      "type": "Электробус",
+      "model": "БКМ-Е433 Vitovt II",
+      "year": "2026",
+      "deliveryDate": "02.2026",
+      "park": "АП6",
+      "licensePlate": "",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "жёлтый",
+      "gray": {}
+    },
+    {
+      "type": "Электробус",
+      "model": "БКМ-Е433 Vitovt II",
       "year": "2026",
       "deliveryDate": "02.2026",
       "park": "АП6",
@@ -82,7 +178,7 @@
       "deliveryDate": "02.2026",
       "park": "ТП3",
       "licensePlate": "3379",
-      "factoryNumber": "",
+      "factoryNumber": "S0000121",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {}
@@ -130,7 +226,7 @@
       "deliveryDate": "02.2026",
       "park": "ТП3",
       "licensePlate": "3383",
-      "factoryNumber": "",
+      "factoryNumber": "S0000143",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {}
@@ -190,7 +286,7 @@
       "deliveryDate": "12.2025",
       "park": "ТП3",
       "licensePlate": "3369",
-      "factoryNumber": "",
+      "factoryNumber": "S0000129",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {}
@@ -222,36 +318,36 @@
     {
       "type": "Электробус",
       "model": "БКМ-Е433 Vitovt II",
-      "year": "2025",
+      "year": "2026",
       "deliveryDate": "01.2026",
       "park": "ТП2",
-      "licensePlate": "",
-      "factoryNumber": "",
-      "garageNumber": "",
+      "licensePlate": "ААЕ137-7",
+      "factoryNumber": "T0000120",
+      "garageNumber": "44004",
       "color": "жёлтый",
       "gray": {}
     },
     {
       "type": "Электробус",
       "model": "БКМ-Е433 Vitovt II",
-      "year": "2025",
+      "year": "2026",
       "deliveryDate": "01.2026",
       "park": "ТП2",
-      "licensePlate": "",
-      "factoryNumber": "",
-      "garageNumber": "",
+      "licensePlate": "ААЕ145-7",
+      "factoryNumber": "T0000121",
+      "garageNumber": "44005",
       "color": "жёлтый",
       "gray": {}
     },
     {
       "type": "Электробус",
       "model": "БКМ-Е433 Vitovt II",
-      "year": "2025",
+      "year": "2026",
       "deliveryDate": "01.2026",
       "park": "ТП2",
-      "licensePlate": "",
-      "factoryNumber": "",
-      "garageNumber": "",
+      "licensePlate": "ААЕ151-7",
+      "factoryNumber": "T0000122",
+      "garageNumber": "44006",
       "color": "жёлтый",
       "gray": {}
     },
@@ -334,7 +430,7 @@
       "deliveryDate": "01.2026",
       "park": "ТП3",
       "licensePlate": "3374",
-      "factoryNumber": "",
+      "factoryNumber": "S0000137",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {}
@@ -358,7 +454,7 @@
       "deliveryDate": "01.2026",
       "park": "ТП3",
       "licensePlate": "3372",
-      "factoryNumber": "",
+      "factoryNumber": "S0000130",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {}
@@ -20059,7 +20155,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "05.2009",
       "park": "ТП5",
@@ -20071,7 +20167,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "05.2009",
       "park": "ТП5",
@@ -20095,7 +20191,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "05.2009",
       "park": "ТП5",
@@ -20119,7 +20215,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "05.2009",
       "park": "ТП5",
@@ -20143,7 +20239,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "06.2009",
       "park": "ТП5",
@@ -20155,7 +20251,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "06.2009",
       "park": "ТП5",
@@ -20167,7 +20263,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "06.2009",
       "park": "ТП5",
@@ -20179,7 +20275,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "06.2009",
       "park": "ТП5",
@@ -22087,7 +22183,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "05.2009",
       "park": "ТП4",
@@ -22099,7 +22195,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "05.2009",
       "park": "ТП4",
@@ -22111,7 +22207,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "05.2009",
       "park": "ТП4",
@@ -22123,7 +22219,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "05.2009",
       "park": "ТП4",
@@ -22135,7 +22231,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "06.2009",
       "park": "ТП4",
@@ -22147,7 +22243,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "06.2009",
       "park": "ТП4",
@@ -28003,7 +28099,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "05.2009",
       "park": "ТП3",
@@ -28015,7 +28111,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "05.2009",
       "park": "ТП3",
@@ -28027,7 +28123,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "05.2009",
       "park": "ТП3",
@@ -28039,7 +28135,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "05.2009",
       "park": "ТП3",
@@ -28051,7 +28147,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "05.2009",
       "park": "ТП3",
@@ -28063,7 +28159,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "06.2009",
       "park": "ТП3",
@@ -28075,7 +28171,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "06.2009",
       "park": "ТП3",
@@ -28087,7 +28183,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "06.2009",
       "park": "ТП3",
@@ -29911,7 +30007,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "05.2009",
       "park": "ТП2",
@@ -29923,7 +30019,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "05.2009",
       "park": "ТП2",
@@ -29935,7 +30031,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "05.2009",
       "park": "ТП2",
@@ -29947,7 +30043,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "05.2009",
       "park": "ТП2",
@@ -29959,7 +30055,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "05.2009",
       "park": "ТП2",
@@ -29971,7 +30067,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "06.2009",
       "park": "ТП2",
@@ -29983,7 +30079,7 @@
     },
     {
       "type": "Троллейбус",
-      "model": "БКМ-32100 «Сябар»",
+      "model": "БКМ-32100 «Сябар» (у/п)",
       "year": "2009",
       "deliveryDate": "06.2009",
       "park": "ТП2",
