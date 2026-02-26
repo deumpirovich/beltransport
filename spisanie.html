@@ -33,26 +33,27 @@
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
 
-      /* вычислим через JS (чтобы точно учитывать высоту stickyTop) */
+      /* вычислим через JS */
       max-height: 60vh;
 
+      /* важно: НЕ задаём белый фон контейнеру, чтобы не было ощущения "пустой белой простыни" */
+      background: transparent;
       border-radius: 8px;
-      background: #fff;
     }
 
     table {
-      width: 100%;
       border-collapse: collapse;
       background:#fff;
       border-radius:8px;
       overflow:hidden;
       font-size:13px;
 
-      /* авто-ширины по содержимому */
-      table-layout: auto;
+      /* ключ: ширина по содержимому, без растягивания на весь экран */
+      width: max-content;
+      min-width: fit-content;
 
-      /* пусть появится X-скролл при необходимости */
-      min-width: 1100px;
+      /* авто-раскладка по контенту */
+      table-layout: auto;
     }
 
     th, td {
@@ -83,8 +84,7 @@
 
     thead tr.filters th{
       position: sticky;
-      /* top выставляем динамически через JS */
-      top: var(--filtersTop, 34px);
+      top: var(--filtersTop, 34px); /* выставляем динамически */
       z-index: 3;
       background:#ecf1fa;
       border-bottom: 1.5px solid #abc;
@@ -112,7 +112,7 @@
       outline: none;
       background: #fff;
       text-align: center;
-      min-width: 70px;
+      min-width: 60px;
     }
     .colFilter:focus{ border-color:#2543a5; }
 
@@ -120,8 +120,8 @@
       .cont{margin:10px auto;}
       .counts{margin-left:0;}
       th, td{padding:6px 5px;}
-      table{font-size:12px; min-width: 980px;}
-      .colFilter{ min-width: 60px; }
+      table{font-size:12px;}
+      .colFilter{ min-width: 55px; }
     }
 
     td.muted{
@@ -200,30 +200,22 @@ let hasCurrentMonth = false;
 
 function pad2(n){ return String(n).padStart(2,'0'); }
 
-/* ===== sticky sizes (NEW) ===== */
+/* ===== sticky sizes ===== */
 function updateStickyMetrics(){
-  // 1) max-height для контейнера таблицы (Y-скролл)
   const wrap = document.getElementById('tableWrap');
   const stickyTop = document.getElementById('stickyTop');
   if(wrap && stickyTop){
-    const rect = stickyTop.getBoundingClientRect();
-    const topH = Math.max(0, Math.round(rect.height));
-    // 20px запас снизу + возможные отступы
+    const topH = Math.max(0, Math.round(stickyTop.getBoundingClientRect().height));
     wrap.style.maxHeight = `calc(100vh - ${topH + 25}px)`;
   }
 
-  // 2) top для строки фильтров = реальная высота первой строки шапки
   const headRow = document.getElementById('headRow');
   if(headRow){
     const h = Math.max(0, Math.ceil(headRow.getBoundingClientRect().height));
     document.documentElement.style.setProperty('--filtersTop', h + 'px');
   }
 }
-
-window.addEventListener('resize', () => {
-  // после ресайза размеры могут поменяться
-  updateStickyMetrics();
-});
+window.addEventListener('resize', () => updateStickyMetrics());
 
 /* ===== NEW month ===== */
 function monthKeyFromWriteoffDate(s){
@@ -324,7 +316,7 @@ function renderTabs(){
     el.onclick = ()=>{
       activeTab = el.getAttribute('data-tab');
       renderTabs();
-      render();             // ширины/высоты пересчитаются на основе нового VIEW
+      render();
     };
   });
 }
@@ -504,7 +496,7 @@ function tdClass(v, key, baseClass=''){
   return c.length ? ` class="${c.join(' ')}"` : '';
 }
 
-/* ===== hide empty columns ===== */
+/* hide empty columns */
 const COLS = [
   {key:'type', isEmpty:(v)=>!normType(v.type)},
   {key:'model', isEmpty:(v)=>!(v.model||'').toString().trim()},
@@ -597,14 +589,12 @@ function render(){
     tbody.innerHTML = '';
     empty.style.display = '';
     setColumnVisibility(COLS.map(c=>c.key));
-    // важно обновить размеры (шапка могла измениться из-за скрытия)
     updateStickyMetrics();
     return;
   }
   empty.style.display = 'none';
 
-  // ВАЖНО: видимые колонки считаем по текущему VIEW (NEW/типы/все)
-  const visibleCols = computeVisibleCols();
+  const visibleCols = computeVisibleCols();     // для NEW/типов/_all
   setColumnVisibility(visibleCols);
   const visibleSet = new Set(visibleCols);
 
@@ -632,8 +622,6 @@ function render(){
     return `<tr>${cells.join('')}</tr>`;
   }).join('');
 
-  // после изменения DOM (скрытие колонок/переносы) пересчитать sticky-метрики
-  // requestAnimationFrame — чтобы размеры считались уже после отрисовки
   requestAnimationFrame(updateStickyMetrics);
 }
 
@@ -718,7 +706,6 @@ async function loadJson(){
     renderTabs();
     render();
 
-    // первичный расчёт sticky размеров
     requestAnimationFrame(updateStickyMetrics);
   } catch(err){
     DATA = [];
