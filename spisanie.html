@@ -26,52 +26,78 @@
     .tab.active{background:#2543a5; color:#fff; border-color:#2543a5;}
     .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
 
+    /* Контейнер: X-скролл и Y-скролл при нехватке высоты */
     .tableWrap{
       margin-top: 8px;
       overflow-x: auto;
+      overflow-y: auto;
       -webkit-overflow-scrolling: touch;
+
+      /* чтобы таблица могла скроллиться по Y, не уезжая за экран */
+      max-height: calc(100vh - 170px);
+      border-radius: 8px;
     }
 
     table {
       width: 100%;
-      min-width: 1400px;
       border-collapse: collapse;
       background:#fff;
       border-radius:8px;
       overflow:hidden;
       font-size:13px;
+
+      /* ВАЖНО: авто-ширины по содержимому */
       table-layout: auto;
+
+      /* минимальная ширина, чтобы сохранялся горизонтальный скролл при необходимости */
+      min-width: 1100px;
     }
 
     th, td {
       padding: 6px 6px;
       text-align: center;
       vertical-align: middle;
+
+      /* по умолчанию: не переносим (ширина по содержимому) */
       white-space: nowrap;
     }
 
+    /* Разрешаем перенос только для "Номер" и "Примечание" */
+    td.wrapNum, th.wrapNum,
+    td.wrapNote, th.wrapNote{
+      white-space: normal;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      line-height: 1.2;
+    }
+
     thead th{
-      position: static;
+      position: sticky;   /* чтобы шапка была видна при Y-скролле внутри .tableWrap */
+      top: 0;
+      z-index: 2;
       background:#ecf1fa;
       border-bottom: 1.5px solid #abc;
     }
 
-    th { color: #2543a5; font-weight: 600; cursor: pointer; user-select: none; }
-    th.active { background: #d2e3ff; }
-    tr { border-bottom: 1px solid #eee;}
-    tr:hover { background: #f0f5ff;}
-    .num { font-weight: bold; color: #2543a5; }
-
-    .no { color:#bbb; font-style:italic; }
-    .empty {padding:18px 0; text-align:center; color:#9aa6c3; font-style:italic;}
-    .err {margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px; white-space:pre-wrap;}
-
     thead tr.filters th{
+      position: sticky;
+      top: 33px;          /* высота первой строки заголовков; чуть ниже */
+      z-index: 2;
       background:#ecf1fa;
       border-bottom: 1.5px solid #abc;
       padding: 4px 6px 6px 6px;
       cursor: default;
     }
+
+    th { color: #2543a5; font-weight: 600; cursor: pointer; user-select: none; }
+    th.active { background: #d2e3ff; }
+    tr { border-bottom: 1px solid #eee;}
+    tbody tr:hover { background: #f0f5ff;}
+    .num { font-weight: bold; color: #2543a5; }
+
+    .no { color:#bbb; font-style:italic; }
+    .empty {padding:18px 0; text-align:center; color:#9aa6c3; font-style:italic;}
+    .err {margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px; white-space:pre-wrap;}
 
     .colFilter{
       width: 100%;
@@ -83,7 +109,7 @@
       outline: none;
       background: #fff;
       text-align: center;
-      min-width: 90px;
+      min-width: 80px;
     }
     .colFilter:focus{ border-color:#2543a5; }
 
@@ -91,8 +117,9 @@
       .cont{margin:10px auto;}
       .counts{margin-left:0;}
       th, td{padding:6px 5px;}
-      table{font-size:12px; min-width: 1250px;}
-      .colFilter{ min-width: 80px; }
+      table{font-size:12px; min-width: 980px;}
+      .colFilter{ min-width: 70px; }
+      .tableWrap{ max-height: calc(100vh - 160px); }
     }
 
     td.muted{
@@ -127,12 +154,12 @@
           <th data-f="model">Модель</th>
           <th data-f="year">Год</th>
           <th data-f="park">Парк</th>
-          <th data-f="vehicleNumber" class="active">Номер</th>
+          <th data-f="vehicleNumber" class="active wrapNum">Номер</th>
           <th data-f="exNumber">Экс-номер</th>
           <th data-f="garageNumber">Гаражный №</th>
           <th data-f="factoryNumber">Заводской №</th>
           <th data-f="writeoffDate">Дата вывода</th>
-          <th data-f="note">Примечание</th>
+          <th data-f="note" class="wrapNote">Примечание</th>
         </tr>
 
         <tr class="filters">
@@ -210,6 +237,7 @@ function computeNewMonthKey(){
     newMonthKey ? `NEW: ${newMonthKey}${hasCurrentMonth ? '' : ' (последний месяц со списаниями)'}` : '';
 }
 
+/* ===== types ===== */
 function normType(t){ return (t||'').toString().trim().toLowerCase(); }
 function typeLabel(t){
   t = normType(t);
@@ -225,6 +253,7 @@ function typeWeight(t){
   return Object.prototype.hasOwnProperty.call(TYPE_ORDER, t) ? TYPE_ORDER[t] : 999;
 }
 
+/* ===== tabs ===== */
 const TAB_ORDER = [
   {key:'_new', label:'NEW'},
   {key:'автобус', label:'Автобус'},
@@ -272,6 +301,9 @@ function renderTabs(){
   });
 }
 
+/* =========================
+   SORTING
+   ========================= */
 function canonToRU(ch){
   const map = {
     'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У',
@@ -411,6 +443,9 @@ function generalSort(a, b){
   return basePriorityCompare(a, b);
 }
 
+/* =========================
+   RENDER
+   ========================= */
 function escapeHTML(s){
   return String(s).replace(/[&<>"']/g, c => ({
     '&':'&amp;',
@@ -441,18 +476,18 @@ function tdClass(v, key, baseClass=''){
   return c.length ? ` class="${c.join(' ')}"` : '';
 }
 
-/* ===== NEW: hide empty columns ===== */
+/* ===== hide empty columns ===== */
 const COLS = [
-  {key:'type', th:'type', isEmpty:(v)=>!normType(v.type), renderTD:(v)=>escapeHTML(typeLabel(v.type)), tdAttr:(v)=>tdClass(v,'type')},
-  {key:'model', th:'model', isEmpty:(v)=>!(v.model||'').toString().trim(), renderTD:(v)=>cell(v.model), tdAttr:(v)=>tdClass(v,'model')},
-  {key:'year', th:'year', isEmpty:(v)=>!(v.year||'').toString().trim(), renderTD:(v)=>cell(v.year), tdAttr:(v)=>tdClass(v,'year')},
-  {key:'park', th:'park', isEmpty:(v)=>!(v.park||'').toString().trim(), renderTD:(v)=>cell(v.park), tdAttr:(v)=>tdClass(v,'park')},
-  {key:'vehicleNumber', th:'vehicleNumber', isEmpty:(v)=>!(v.vehicleNumber||'').toString().trim(), renderTD:(v)=>cell(v.vehicleNumber), tdAttr:(v)=>tdClass(v,'vehicleNumber','num')},
-  {key:'exNumber', th:'exNumber', isEmpty:(v)=>!(v.exNumber||'').toString().trim(), renderTD:(v)=>cell(v.exNumber), tdAttr:(v)=>tdClass(v,'exNumber')},
-  {key:'garageNumber', th:'garageNumber', isEmpty:(v)=>!(v.garageNumber||'').toString().trim(), renderTD:(v)=>cell(v.garageNumber), tdAttr:(v)=>tdClass(v,'garageNumber')},
-  {key:'factoryNumber', th:'factoryNumber', isEmpty:(v)=>!(v.factoryNumber||'').toString().trim(), renderTD:(v)=>cell(v.factoryNumber), tdAttr:(v)=>tdClass(v,'factoryNumber')},
-  {key:'writeoffDate', th:'writeoffDate', isEmpty:(v)=>!(v.writeoffDate||'').toString().trim(), renderTD:(v)=>cell(v.writeoffDate), tdAttr:(v)=>tdClass(v,'writeoffDate')},
-  {key:'note', th:'note', isEmpty:(v)=>!(v.note||'').toString().trim(), renderTD:(v)=>cell(v.note), tdAttr:(v)=>tdClass(v,'note')}
+  {key:'type', isEmpty:(v)=>!normType(v.type)},
+  {key:'model', isEmpty:(v)=>!(v.model||'').toString().trim()},
+  {key:'year', isEmpty:(v)=>!(v.year||'').toString().trim()},
+  {key:'park', isEmpty:(v)=>!(v.park||'').toString().trim()},
+  {key:'vehicleNumber', isEmpty:(v)=>!(v.vehicleNumber||'').toString().trim()},
+  {key:'exNumber', isEmpty:(v)=>!(v.exNumber||'').toString().trim()},
+  {key:'garageNumber', isEmpty:(v)=>!(v.garageNumber||'').toString().trim()},
+  {key:'factoryNumber', isEmpty:(v)=>!(v.factoryNumber||'').toString().trim()},
+  {key:'writeoffDate', isEmpty:(v)=>!(v.writeoffDate||'').toString().trim()},
+  {key:'note', isEmpty:(v)=>!(v.note||'').toString().trim()}
 ];
 
 function setColumnVisibility(visibleKeys){
@@ -538,7 +573,6 @@ function render(){
   }
   empty.style.display = 'none';
 
-  // NEW: вычисляем видимые колонки и скрываем пустые
   const visibleCols = computeVisibleCols();
   setColumnVisibility(visibleCols);
   const visibleSet = new Set(visibleCols);
@@ -549,27 +583,26 @@ function render(){
     const gar = (v.garageNumber || '').toString().trim();
     const fac = (v.factoryNumber || '').toString().trim();
 
-    // title оставим как было, но только если колонка вообще рисуется
-    const cellByKey = {
-      vehicleNumber: `<td${tdClass(v,'vehicleNumber','num')} title="${escapeHTML(num)}">${cell(num)}</td>`,
-      exNumber: `<td${tdClass(v,'exNumber')} title="${escapeHTML(exn)}">${cell(exn)}</td>`,
-      garageNumber: `<td${tdClass(v,'garageNumber')} title="${escapeHTML(gar)}">${cell(gar)}</td>`,
-      factoryNumber: `<td${tdClass(v,'factoryNumber')} title="${escapeHTML(fac)}">${cell(fac)}</td>`,
-      writeoffDate: `<td${tdClass(v,'writeoffDate')} title="${escapeHTML(v.writeoffDate||'')}">${cell(v.writeoffDate)}</td>`
-    };
+    const cells = [];
 
-    const tds = COLS
-      .filter(c => visibleSet.has(c.key))
-      .map(c => {
-        if(cellByKey[c.key]) return cellByKey[c.key];
-        return `<td${c.tdAttr(v)}>${c.renderTD(v)}</td>`;
-      })
-      .join('');
+    if(visibleSet.has('type')) cells.push(`<td${tdClass(v,'type')}>${escapeHTML(typeLabel(v.type))}</td>`);
+    if(visibleSet.has('model')) cells.push(`<td${tdClass(v,'model')}>${cell(v.model)}</td>`);
+    if(visibleSet.has('year')) cells.push(`<td${tdClass(v,'year')}>${cell(v.year)}</td>`);
+    if(visibleSet.has('park')) cells.push(`<td${tdClass(v,'park')}>${cell(v.park)}</td>`);
 
-    return `<tr>${tds}</tr>`;
+    if(visibleSet.has('vehicleNumber')) cells.push(`<td${tdClass(v,'vehicleNumber','num wrapNum')} title="${escapeHTML(num)}">${cell(num)}</td>`);
+    if(visibleSet.has('exNumber')) cells.push(`<td${tdClass(v,'exNumber')} title="${escapeHTML(exn)}">${cell(exn)}</td>`);
+    if(visibleSet.has('garageNumber')) cells.push(`<td${tdClass(v,'garageNumber')} title="${escapeHTML(gar)}">${cell(gar)}</td>`);
+    if(visibleSet.has('factoryNumber')) cells.push(`<td${tdClass(v,'factoryNumber')} title="${escapeHTML(fac)}">${cell(fac)}</td>`);
+
+    if(visibleSet.has('writeoffDate')) cells.push(`<td${tdClass(v,'writeoffDate')} title="${escapeHTML(v.writeoffDate||'')}">${cell(v.writeoffDate)}</td>`);
+    if(visibleSet.has('note')) cells.push(`<td${tdClass(v,'note','wrapNote')}>${cell(v.note)}</td>`);
+
+    return `<tr>${cells.join('')}</tr>`;
   }).join('');
 }
 
+/* clicks */
 document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick = ()=>{
     document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
@@ -585,12 +618,14 @@ document.querySelectorAll('th[data-f]').forEach(th=>{
   };
 });
 
+/* filters */
 document.addEventListener('input', (e) => {
   if(e.target && e.target.classList && e.target.classList.contains('colFilter')){
     render();
   }
 });
 
+/* errors */
 function showErr(msg){
   const e = document.getElementById('err');
   e.style.display = '';
@@ -602,6 +637,7 @@ function hideErr(){
   e.textContent = '';
 }
 
+/* json mapping */
 function pickArray(j){
   if(Array.isArray(j)) return j;
   if(j && Array.isArray(j.vehicles)) return j.vehicles;
