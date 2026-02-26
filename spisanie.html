@@ -26,16 +26,18 @@
     .tab.active{background:#2543a5; color:#fff; border-color:#2543a5;}
     .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
 
-    /* Контейнер: X-скролл и Y-скролл при нехватке высоты */
+    /* Контейнер таблицы: X/Y скроллы */
     .tableWrap{
       margin-top: 8px;
       overflow-x: auto;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
 
-      /* чтобы таблица могла скроллиться по Y, не уезжая за экран */
-      max-height: calc(100vh - 170px);
+      /* вычислим через JS (чтобы точно учитывать высоту stickyTop) */
+      max-height: 60vh;
+
       border-radius: 8px;
+      background: #fff;
     }
 
     table {
@@ -46,10 +48,10 @@
       overflow:hidden;
       font-size:13px;
 
-      /* ВАЖНО: авто-ширины по содержимому */
+      /* авто-ширины по содержимому */
       table-layout: auto;
 
-      /* минимальная ширина, чтобы сохранялся горизонтальный скролл при необходимости */
+      /* пусть появится X-скролл при необходимости */
       min-width: 1100px;
     }
 
@@ -58,11 +60,11 @@
       text-align: center;
       vertical-align: middle;
 
-      /* по умолчанию: не переносим (ширина по содержимому) */
+      /* по умолчанию не переносим */
       white-space: nowrap;
     }
 
-    /* Разрешаем перенос только для "Номер" и "Примечание" */
+    /* переносы только для "Номер" и "Примечание" */
     td.wrapNum, th.wrapNum,
     td.wrapNote, th.wrapNote{
       white-space: normal;
@@ -72,17 +74,18 @@
     }
 
     thead th{
-      position: sticky;   /* чтобы шапка была видна при Y-скролле внутри .tableWrap */
+      position: sticky;   /* липкая шапка при Y-скролле внутри .tableWrap */
       top: 0;
-      z-index: 2;
+      z-index: 3;
       background:#ecf1fa;
       border-bottom: 1.5px solid #abc;
     }
 
     thead tr.filters th{
       position: sticky;
-      top: 33px;          /* высота первой строки заголовков; чуть ниже */
-      z-index: 2;
+      /* top выставляем динамически через JS */
+      top: var(--filtersTop, 34px);
+      z-index: 3;
       background:#ecf1fa;
       border-bottom: 1.5px solid #abc;
       padding: 4px 6px 6px 6px;
@@ -109,7 +112,7 @@
       outline: none;
       background: #fff;
       text-align: center;
-      min-width: 80px;
+      min-width: 70px;
     }
     .colFilter:focus{ border-color:#2543a5; }
 
@@ -118,8 +121,7 @@
       .counts{margin-left:0;}
       th, td{padding:6px 5px;}
       table{font-size:12px; min-width: 980px;}
-      .colFilter{ min-width: 70px; }
-      .tableWrap{ max-height: calc(100vh - 160px); }
+      .colFilter{ min-width: 60px; }
     }
 
     td.muted{
@@ -146,10 +148,10 @@
     <div class="tabs" id="tabs"></div>
   </div>
 
-  <div class="tableWrap">
+  <div class="tableWrap" id="tableWrap">
     <table>
       <thead>
-        <tr>
+        <tr id="headRow">
           <th data-f="type">Тип</th>
           <th data-f="model">Модель</th>
           <th data-f="year">Год</th>
@@ -162,7 +164,7 @@
           <th data-f="note" class="wrapNote">Примечание</th>
         </tr>
 
-        <tr class="filters">
+        <tr class="filters" id="filterRow">
           <th><input class="colFilter" data-col="type"></th>
           <th><input class="colFilter" data-col="model"></th>
           <th><input class="colFilter" data-col="year"></th>
@@ -198,6 +200,32 @@ let hasCurrentMonth = false;
 
 function pad2(n){ return String(n).padStart(2,'0'); }
 
+/* ===== sticky sizes (NEW) ===== */
+function updateStickyMetrics(){
+  // 1) max-height для контейнера таблицы (Y-скролл)
+  const wrap = document.getElementById('tableWrap');
+  const stickyTop = document.getElementById('stickyTop');
+  if(wrap && stickyTop){
+    const rect = stickyTop.getBoundingClientRect();
+    const topH = Math.max(0, Math.round(rect.height));
+    // 20px запас снизу + возможные отступы
+    wrap.style.maxHeight = `calc(100vh - ${topH + 25}px)`;
+  }
+
+  // 2) top для строки фильтров = реальная высота первой строки шапки
+  const headRow = document.getElementById('headRow');
+  if(headRow){
+    const h = Math.max(0, Math.ceil(headRow.getBoundingClientRect().height));
+    document.documentElement.style.setProperty('--filtersTop', h + 'px');
+  }
+}
+
+window.addEventListener('resize', () => {
+  // после ресайза размеры могут поменяться
+  updateStickyMetrics();
+});
+
+/* ===== NEW month ===== */
 function monthKeyFromWriteoffDate(s){
   const m = String(s||'').trim().match(/^(\d{1,2})\.(\d{4})$/);
   if(!m) return '';
@@ -296,7 +324,7 @@ function renderTabs(){
     el.onclick = ()=>{
       activeTab = el.getAttribute('data-tab');
       renderTabs();
-      render();
+      render();             // ширины/высоты пересчитаются на основе нового VIEW
     };
   });
 }
@@ -493,8 +521,8 @@ const COLS = [
 function setColumnVisibility(visibleKeys){
   const keys = new Set(visibleKeys);
 
-  const thRow = document.querySelector('table thead tr:nth-child(1)');
-  const filterRow = document.querySelector('table thead tr.filters');
+  const thRow = document.getElementById('headRow');
+  const filterRow = document.getElementById('filterRow');
 
   const ths = Array.from(thRow.children);
   const fths = Array.from(filterRow.children);
@@ -569,10 +597,13 @@ function render(){
     tbody.innerHTML = '';
     empty.style.display = '';
     setColumnVisibility(COLS.map(c=>c.key));
+    // важно обновить размеры (шапка могла измениться из-за скрытия)
+    updateStickyMetrics();
     return;
   }
   empty.style.display = 'none';
 
+  // ВАЖНО: видимые колонки считаем по текущему VIEW (NEW/типы/все)
   const visibleCols = computeVisibleCols();
   setColumnVisibility(visibleCols);
   const visibleSet = new Set(visibleCols);
@@ -600,6 +631,10 @@ function render(){
 
     return `<tr>${cells.join('')}</tr>`;
   }).join('');
+
+  // после изменения DOM (скрытие колонок/переносы) пересчитать sticky-метрики
+  // requestAnimationFrame — чтобы размеры считались уже после отрисовки
+  requestAnimationFrame(updateStickyMetrics);
 }
 
 /* clicks */
@@ -682,6 +717,9 @@ async function loadJson(){
 
     renderTabs();
     render();
+
+    // первичный расчёт sticky размеров
+    requestAnimationFrame(updateStickyMetrics);
   } catch(err){
     DATA = [];
     renderTabs();
