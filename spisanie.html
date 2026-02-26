@@ -1,21 +1,3 @@
-<!-- spisanie.html — Viewer "Реестр списания" (полный файл)
-  FIX 1 (налезание "Тип" на "Модель" на больших экранах):
-    - убрал table-layout: fixed на десктопе
-    - включил table-layout: auto ВЕЗДЕ
-    - добавил table{min-width:1400px} для гарантии, что колонки не сожмутся до налезания
-    - оставил горизонтальный скролл контейнера .tableWrap (Вариант A) — теперь работает и на десктопе при необходимости
-
-  FIX 2 (все данные по центру):
-    - td и th уже были center, дополнительно: input фильтров тоже по центру
-      (если нужно, скажешь — верну фильтры влево)
-
-  ВАЖНО: "ничего не обрезая"
-    - я НЕ использую ellipsis/overflow hidden нигде (в т.ч. для заводского).
-    - длинные значения остаются в одну строку (nowrap) и расширяют таблицу;
-      если ширины экрана не хватает — появляется горизонтальный скролл, но налезания нет.
-
-  Сортировка автобусов по твоим приоритетам сохранена.
--->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -44,7 +26,6 @@
     .tab.active{background:#2543a5; color:#fff; border-color:#2543a5;}
     .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
 
-    /* Вариант A: скролл контейнера всегда доступен */
     .tableWrap{
       margin-top: 8px;
       overflow-x: auto;
@@ -53,21 +34,20 @@
 
     table {
       width: 100%;
-      min-width: 1400px;           /* ключевая гарантия от налезания */
+      min-width: 1400px;
       border-collapse: collapse;
       background:#fff;
       border-radius:8px;
       overflow:hidden;
       font-size:13px;
-
-      table-layout: auto;          /* ключевая правка: не fixed */
+      table-layout: auto;
     }
 
     th, td {
       padding: 6px 6px;
-      text-align: center;          /* все данные по центру */
+      text-align: center;
       vertical-align: middle;
-      white-space: nowrap;         /* чтобы значения не переносились и не ломали высоту */
+      white-space: nowrap;
     }
 
     thead th{
@@ -102,8 +82,8 @@
       border: 1px solid #bbc;
       outline: none;
       background: #fff;
-      text-align: center;     /* фильтры тоже по центру */
-      min-width: 90px;        /* чтобы inputs не схлопывались */
+      text-align: center;
+      min-width: 90px;
     }
     .colFilter:focus{ border-color:#2543a5; }
 
@@ -113,6 +93,12 @@
       th, td{padding:6px 5px;}
       table{font-size:12px; min-width: 1250px;}
       .colFilter{ min-width: 80px; }
+    }
+
+    td.muted{
+      color:#8b95a7;
+      font-style:italic;
+      font-weight: normal;
     }
   </style>
 </head>
@@ -185,7 +171,6 @@ let hasCurrentMonth = false;
 
 function pad2(n){ return String(n).padStart(2,'0'); }
 
-/* ===== NEW month ===== */
 function monthKeyFromWriteoffDate(s){
   const m = String(s||'').trim().match(/^(\d{1,2})\.(\d{4})$/);
   if(!m) return '';
@@ -225,7 +210,6 @@ function computeNewMonthKey(){
     newMonthKey ? `NEW: ${newMonthKey}${hasCurrentMonth ? '' : ' (последний месяц со списаниями)'}` : '';
 }
 
-/* ===== types ===== */
 function normType(t){ return (t||'').toString().trim().toLowerCase(); }
 function typeLabel(t){
   t = normType(t);
@@ -241,7 +225,6 @@ function typeWeight(t){
   return Object.prototype.hasOwnProperty.call(TYPE_ORDER, t) ? TYPE_ORDER[t] : 999;
 }
 
-/* ===== tabs ===== */
 const TAB_ORDER = [
   {key:'_new', label:'NEW'},
   {key:'автобус', label:'Автобус'},
@@ -289,9 +272,6 @@ function renderTabs(){
   });
 }
 
-/* =========================
-   SORTING (автобусы: спец-приоритеты)
-   ========================= */
 function canonToRU(ch){
   const map = {
     'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У',
@@ -378,7 +358,6 @@ function numSortAlg(a, b){
   return 0;
 }
 
-/* writeoffDate (MM.YYYY) -> YYYYMM */
 function normWriteoffDateForSort(s){
   const m = String(s || '').trim().match(/^(\d{1,2})\.(\d{4})$/);
   if(!m) return '';
@@ -391,7 +370,6 @@ function normFactoryForSort(s){
   return s;
 }
 
-/* базовый приоритет: date desc -> type order -> number */
 function basePriorityCompare(a, b){
   const ad = normWriteoffDateForSort(a.writeoffDate);
   const bd = normWriteoffDateForSort(b.writeoffDate);
@@ -433,9 +411,6 @@ function generalSort(a, b){
   return basePriorityCompare(a, b);
 }
 
-/* =========================
-   RENDER
-   ========================= */
 function escapeHTML(s){
   return String(s).replace(/[&<>"']/g, c => ({
     '&':'&amp;',
@@ -454,6 +429,55 @@ function normVehicleNumberForSearch(s){
   s = s.replace(/[\s\-]/g, '');
   s = s.replace(/[A-ZА-ЯІ]/g, ch => canonToRU(ch));
   return s;
+}
+
+function isMuted(v, key){
+  return !!(v && v.gray && typeof v.gray === 'object' && v.gray[key]);
+}
+function tdClass(v, key, baseClass=''){
+  const c = [];
+  if(baseClass) c.push(baseClass);
+  if(isMuted(v, key)) c.push('muted');
+  return c.length ? ` class="${c.join(' ')}"` : '';
+}
+
+/* ===== NEW: hide empty columns ===== */
+const COLS = [
+  {key:'type', th:'type', isEmpty:(v)=>!normType(v.type), renderTD:(v)=>escapeHTML(typeLabel(v.type)), tdAttr:(v)=>tdClass(v,'type')},
+  {key:'model', th:'model', isEmpty:(v)=>!(v.model||'').toString().trim(), renderTD:(v)=>cell(v.model), tdAttr:(v)=>tdClass(v,'model')},
+  {key:'year', th:'year', isEmpty:(v)=>!(v.year||'').toString().trim(), renderTD:(v)=>cell(v.year), tdAttr:(v)=>tdClass(v,'year')},
+  {key:'park', th:'park', isEmpty:(v)=>!(v.park||'').toString().trim(), renderTD:(v)=>cell(v.park), tdAttr:(v)=>tdClass(v,'park')},
+  {key:'vehicleNumber', th:'vehicleNumber', isEmpty:(v)=>!(v.vehicleNumber||'').toString().trim(), renderTD:(v)=>cell(v.vehicleNumber), tdAttr:(v)=>tdClass(v,'vehicleNumber','num')},
+  {key:'exNumber', th:'exNumber', isEmpty:(v)=>!(v.exNumber||'').toString().trim(), renderTD:(v)=>cell(v.exNumber), tdAttr:(v)=>tdClass(v,'exNumber')},
+  {key:'garageNumber', th:'garageNumber', isEmpty:(v)=>!(v.garageNumber||'').toString().trim(), renderTD:(v)=>cell(v.garageNumber), tdAttr:(v)=>tdClass(v,'garageNumber')},
+  {key:'factoryNumber', th:'factoryNumber', isEmpty:(v)=>!(v.factoryNumber||'').toString().trim(), renderTD:(v)=>cell(v.factoryNumber), tdAttr:(v)=>tdClass(v,'factoryNumber')},
+  {key:'writeoffDate', th:'writeoffDate', isEmpty:(v)=>!(v.writeoffDate||'').toString().trim(), renderTD:(v)=>cell(v.writeoffDate), tdAttr:(v)=>tdClass(v,'writeoffDate')},
+  {key:'note', th:'note', isEmpty:(v)=>!(v.note||'').toString().trim(), renderTD:(v)=>cell(v.note), tdAttr:(v)=>tdClass(v,'note')}
+];
+
+function setColumnVisibility(visibleKeys){
+  const keys = new Set(visibleKeys);
+
+  const thRow = document.querySelector('table thead tr:nth-child(1)');
+  const filterRow = document.querySelector('table thead tr.filters');
+
+  const ths = Array.from(thRow.children);
+  const fths = Array.from(filterRow.children);
+
+  COLS.forEach((c, idx)=>{
+    const show = keys.has(c.key);
+    if(ths[idx]) ths[idx].style.display = show ? '' : 'none';
+    if(fths[idx]) fths[idx].style.display = show ? '' : 'none';
+  });
+}
+
+function computeVisibleCols(){
+  const visible = [];
+  for(const c of COLS){
+    const anyNonEmpty = VIEW.some(v => !c.isEmpty(v));
+    if(anyNonEmpty) visible.push(c.key);
+  }
+  return visible;
 }
 
 function render(){
@@ -509,9 +533,15 @@ function render(){
   if(!VIEW.length){
     tbody.innerHTML = '';
     empty.style.display = '';
+    setColumnVisibility(COLS.map(c=>c.key));
     return;
   }
   empty.style.display = 'none';
+
+  // NEW: вычисляем видимые колонки и скрываем пустые
+  const visibleCols = computeVisibleCols();
+  setColumnVisibility(visibleCols);
+  const visibleSet = new Set(visibleCols);
 
   tbody.innerHTML = VIEW.map(v=>{
     const num = (v.vehicleNumber || '').toString().trim();
@@ -519,24 +549,27 @@ function render(){
     const gar = (v.garageNumber || '').toString().trim();
     const fac = (v.factoryNumber || '').toString().trim();
 
-    return `<tr>
-      <td>${escapeHTML(typeLabel(v.type))}</td>
-      <td>${cell(v.model)}</td>
-      <td>${cell(v.year)}</td>
-      <td>${cell(v.park)}</td>
+    // title оставим как было, но только если колонка вообще рисуется
+    const cellByKey = {
+      vehicleNumber: `<td${tdClass(v,'vehicleNumber','num')} title="${escapeHTML(num)}">${cell(num)}</td>`,
+      exNumber: `<td${tdClass(v,'exNumber')} title="${escapeHTML(exn)}">${cell(exn)}</td>`,
+      garageNumber: `<td${tdClass(v,'garageNumber')} title="${escapeHTML(gar)}">${cell(gar)}</td>`,
+      factoryNumber: `<td${tdClass(v,'factoryNumber')} title="${escapeHTML(fac)}">${cell(fac)}</td>`,
+      writeoffDate: `<td${tdClass(v,'writeoffDate')} title="${escapeHTML(v.writeoffDate||'')}">${cell(v.writeoffDate)}</td>`
+    };
 
-      <td class="num" title="${escapeHTML(num)}">${cell(num)}</td>
-      <td title="${escapeHTML(exn)}">${cell(exn)}</td>
-      <td title="${escapeHTML(gar)}">${cell(gar)}</td>
-      <td title="${escapeHTML(fac)}">${cell(fac)}</td>
+    const tds = COLS
+      .filter(c => visibleSet.has(c.key))
+      .map(c => {
+        if(cellByKey[c.key]) return cellByKey[c.key];
+        return `<td${c.tdAttr(v)}>${c.renderTD(v)}</td>`;
+      })
+      .join('');
 
-      <td title="${escapeHTML(v.writeoffDate||'')}">${cell(v.writeoffDate)}</td>
-      <td>${cell(v.note)}</td>
-    </tr>`;
+    return `<tr>${tds}</tr>`;
   }).join('');
 }
 
-/* clicks */
 document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick = ()=>{
     document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
@@ -552,14 +585,12 @@ document.querySelectorAll('th[data-f]').forEach(th=>{
   };
 });
 
-/* filters */
 document.addEventListener('input', (e) => {
   if(e.target && e.target.classList && e.target.classList.contains('colFilter')){
     render();
   }
 });
 
-/* errors */
 function showErr(msg){
   const e = document.getElementById('err');
   e.style.display = '';
@@ -571,7 +602,6 @@ function hideErr(){
   e.textContent = '';
 }
 
-/* json mapping */
 function pickArray(j){
   if(Array.isArray(j)) return j;
   if(j && Array.isArray(j.vehicles)) return j.vehicles;
@@ -590,7 +620,8 @@ function mapRow(r){
     garageNumber: r.garageNumber || '',
     factoryNumber: r.factoryNumber || '',
     writeoffDate: r.writeoffDate || '',
-    note: r.note || ''
+    note: r.note || '',
+    gray: (r.gray && typeof r.gray === 'object') ? r.gray : {}
   };
 }
 

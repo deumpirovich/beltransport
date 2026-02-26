@@ -84,13 +84,12 @@
       table th:nth-child(5), table td:nth-child(5) { width: 7%; }  /* Парк */
     }
 
-    /* ===== NEW: "серый курсив" для отдельных ячеек ===== */
+    /* "серый курсив" для отдельных ячеек */
     td.muted{
       color:#8b95a7;
       font-style:italic;
-      font-weight: normal; /* чтобы "Номер" не был жирным, если muted */
+      font-weight: normal;
     }
-    /* если нужно оставить жирность номера даже в muted — удалите font-weight выше */
   </style>
 </head>
 <body>
@@ -365,13 +364,12 @@ function normFactoryForSort(s){
   return s;
 }
 
-/* === ДОБАВЛЕНО: нормализация deliveryDate для сортировки "ГГГГ+ММ" === */
 function normDeliveryDateForSort(s){
   const m = String(s || '').trim().match(/^(\d{1,2})\.(\d{4})$/);
   if(!m) return '';
   const mm = pad2(m[1]);
   const yyyy = m[2];
-  return yyyy + mm; // сначала год, потом месяц
+  return yyyy + mm;
 }
 
 function generalSort(a, b){
@@ -382,7 +380,6 @@ function generalSort(a, b){
 
   let av, bv;
 
-  /* === ИЗМЕНЕНО: сортировка по deliveryDate (ММ.ГГГГ) как ГГГГ, потом ММ === */
   if(sortF === "deliveryDate"){
     av = normDeliveryDateForSort(a.deliveryDate);
     bv = normDeliveryDateForSort(b.deliveryDate);
@@ -430,7 +427,6 @@ function normVehicleNumberForSearch(s){
   return s;
 }
 
-/* ===== NEW: helpers for muted cells ===== */
 function isMuted(v, key){
   return !!(v && v.gray && typeof v.gray === 'object' && v.gray[key]);
 }
@@ -439,6 +435,45 @@ function tdClass(v, key, baseClass=''){
   if(baseClass) c.push(baseClass);
   if(isMuted(v, key)) c.push('muted');
   return c.length ? ` class="${c.join(' ')}"` : '';
+}
+
+/* ===== NEW: hide empty columns ===== */
+const COLS = [
+  {key:'type', th:'type', isEmpty: (v)=>!normType(v.type), renderTD: (v)=>escapeHTML(typeLabel(v.type)), tdAttr: (v)=>tdClass(v,'type')},
+  {key:'model', th:'model', isEmpty: (v)=>!(v.model||'').toString().trim(), renderTD: (v)=>cell(v.model), tdAttr: (v)=>tdClass(v,'model')},
+  {key:'year', th:'year', isEmpty: (v)=>!(v.year||'').toString().trim(), renderTD: (v)=>cell(v.year), tdAttr: (v)=>tdClass(v,'year')},
+  {key:'deliveryDate', th:'deliveryDate', isEmpty: (v)=>!(v.deliveryDate||'').toString().trim(), renderTD: (v)=>cell(v.deliveryDate), tdAttr: (v)=>tdClass(v,'deliveryDate')},
+  {key:'park', th:'park', isEmpty: (v)=>!(v.park||'').toString().trim(), renderTD: (v)=>cell(v.park), tdAttr: (v)=>tdClass(v,'park')},
+  {key:'vehicleNumber', th:'vehicleNumber', isEmpty: (v)=>!(v.vehicleNumber||'').toString().trim(), renderTD: (v)=>cell(v.vehicleNumber), tdAttr: (v)=>tdClass(v,'vehicleNumber','num')},
+  {key:'factoryNumber', th:'factoryNumber', isEmpty: (v)=>!(v.factoryNumber||'').toString().trim(), renderTD: (v)=>cell(v.factoryNumber), tdAttr: (v)=>tdClass(v,'factoryNumber')},
+  {key:'garageNumber', th:'garageNumber', isEmpty: (v)=>!(v.garageNumber||'').toString().trim(), renderTD: (v)=>cell(v.garageNumber), tdAttr: (v)=>tdClass(v,'garageNumber')},
+  {key:'color', th:'color', isEmpty: (v)=>!(v.color||'').toString().trim(), renderTD: (v)=>cell(v.color), tdAttr: (v)=>tdClass(v,'color')}
+];
+
+function setColumnVisibility(visibleKeys){
+  const keys = new Set(visibleKeys);
+
+  const thRow = document.querySelector('table thead tr:nth-child(1)');
+  const filterRow = document.querySelector('table thead tr.filters');
+
+  const ths = Array.from(thRow.children);
+  const fths = Array.from(filterRow.children);
+
+  COLS.forEach((c, idx)=>{
+    const show = keys.has(c.key);
+    if(ths[idx]) ths[idx].style.display = show ? '' : 'none';
+    if(fths[idx]) fths[idx].style.display = show ? '' : 'none';
+  });
+}
+
+function computeVisibleCols(){
+  // показываем колонку, если есть хотя бы одно НЕпустое значение в VIEW
+  const visible = [];
+  for(const c of COLS){
+    const anyNonEmpty = VIEW.some(v => !c.isEmpty(v));
+    if(anyNonEmpty) visible.push(c.key);
+  }
+  return visible;
 }
 
 function render(){
@@ -494,21 +529,26 @@ function render(){
   if(!VIEW.length){
     tbody.innerHTML = '';
     empty.style.display = '';
+    // если пусто — показываем все колонки (чтобы не "ломать" шапку)
+    setColumnVisibility(COLS.map(c=>c.key));
     return;
   }
   empty.style.display = 'none';
 
-  tbody.innerHTML = VIEW.map(v=>`<tr>
-    <td${tdClass(v,'type')}>${escapeHTML(typeLabel(v.type))}</td>
-    <td${tdClass(v,'model')}>${cell(v.model)}</td>
-    <td${tdClass(v,'year')}>${cell(v.year)}</td>
-    <td${tdClass(v,'deliveryDate')}>${cell(v.deliveryDate)}</td>
-    <td${tdClass(v,'park')}>${cell(v.park)}</td>
-    <td${tdClass(v,'vehicleNumber','num')}>${cell(v.vehicleNumber)}</td>
-    <td${tdClass(v,'factoryNumber')}>${cell(v.factoryNumber)}</td>
-    <td${tdClass(v,'garageNumber')}>${cell(v.garageNumber)}</td>
-    <td${tdClass(v,'color')}>${cell(v.color)}</td>
-  </tr>`).join('');
+  // NEW: вычисляем видимые колонки и скрываем пустые
+  const visibleCols = computeVisibleCols();
+  setColumnVisibility(visibleCols);
+
+  const visibleSet = new Set(visibleCols);
+
+  tbody.innerHTML = VIEW.map(v=>{
+    const tds = COLS
+      .filter(c => visibleSet.has(c.key))
+      .map(c => `<td${c.tdAttr(v)}>${c.renderTD(v)}</td>`)
+      .join('');
+
+    return `<tr>${tds}</tr>`;
+  }).join('');
 }
 
 document.querySelectorAll('th[data-f]').forEach(th=>{
@@ -561,7 +601,6 @@ function mapRow(r){
     factoryNumber: r.factoryNumber || '',
     garageNumber: r.garageNumber || '',
     color: r.color || '',
-    /* NEW: переносим флаги "серых" ячеек из JSON */
     gray: (r.gray && typeof r.gray === 'object') ? r.gray : {}
   };
 }
