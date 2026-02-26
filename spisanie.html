@@ -30,9 +30,9 @@
     .tableWrap{
       margin-top: 8px;
       overflow-x: auto;
-      overflow-y: auto;
+      overflow-y: visible; /* по умолчанию выключено, включаем JS-ом при необходимости */
       -webkit-overflow-scrolling: touch;
-      max-height: 60vh;
+      max-height: none;    /* включаем JS-ом при необходимости */
       border-radius: 8px;
       background: transparent;
     }
@@ -44,9 +44,8 @@
       overflow:hidden;
       font-size:13px;
 
-      /* ширину задаём colgroup-ом; таблицу не растягиваем на 100% */
       width: auto;
-      table-layout: fixed; /* ВАЖНО: после задания col widths, фиксируем layout */
+      table-layout: fixed; /* widths задаются через colgroup */
     }
 
     th, td{
@@ -59,14 +58,15 @@
       text-overflow: ellipsis;
     }
 
-    /* переносы только для "Номер" и "Примечание" */
+    /* Перенос ТОЛЬКО по пробелам (НЕ разрывать слова) */
     th.wrapNum, td.wrapNum,
     th.wrapNote, td.wrapNote{
-      white-space: normal;
+      white-space: normal;    /* перенос по пробелам */
+      word-break: normal;     /* НЕ ломать слова */
+      overflow-wrap: normal;  /* НЕ ломать слова даже если не влезают */
+      hyphens: none;          /* без переносов с дефисами */
       overflow: visible;
       text-overflow: clip;
-      word-break: break-word;
-      overflow-wrap: anywhere;
       line-height: 1.2;
     }
 
@@ -108,7 +108,7 @@
       outline: none;
       background: #fff;
       text-align: center;
-      min-width: 40px; /* реальная ширина будет учтена измерением */
+      min-width: 40px;
     }
     .colFilter:focus{ border-color:#2543a5; }
 
@@ -118,14 +118,14 @@
       font-weight: normal;
     }
 
-    /* вспомогательный “измеритель” */
+    /* измеритель */
     #measureBox{
       position: absolute;
       left: -99999px;
       top: -99999px;
       visibility: hidden;
       white-space: nowrap;
-      padding: 6px 6px; /* как у td/th */
+      padding: 6px 6px;
       font-size: 13px;
       font-family: 'Segoe UI', Arial, sans-serif;
     }
@@ -148,7 +148,6 @@
 
   <div class="tableWrap" id="tableWrap">
     <table id="tbl">
-      <!-- NEW: colgroup для управления ширинами -->
       <colgroup id="colgroup"></colgroup>
 
       <thead>
@@ -204,14 +203,15 @@ let hasCurrentMonth = false;
 
 function pad2(n){ return String(n).padStart(2,'0'); }
 
-/* ===== sticky sizes ===== */
+/* ===== sticky sizes + conditional Y scroll ===== */
 function updateStickyMetrics(){
   const wrap = document.getElementById('tableWrap');
   const stickyTop = document.getElementById('stickyTop');
-  if(wrap && stickyTop){
+  if(wrap && stickyTop && wrap.style.overflowY !== 'visible'){
     const topH = Math.max(0, Math.round(stickyTop.getBoundingClientRect().height));
     wrap.style.maxHeight = `calc(100vh - ${topH + 25}px)`;
   }
+
   const headRow = document.getElementById('headRow');
   if(headRow){
     const h = Math.max(0, Math.ceil(headRow.getBoundingClientRect().height));
@@ -480,6 +480,9 @@ function cellHTML(x){
   const s = cellText(x);
   return s ? escapeHTML(s) : '<span class="no">—</span>';
 }
+function hasSpace(x){
+  return /\s/.test((x||'').toString().trim());
+}
 function normVehicleNumberForSearch(s){
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/[\s\-]/g, '');
@@ -496,18 +499,18 @@ function tdClass(v, key, baseClass=''){
   return c.length ? ` class="${c.join(' ')}"` : '';
 }
 
-/* ===== hide empty columns ===== */
+/* columns */
 const COLS = [
-  {key:'type',        label:'Тип'},
-  {key:'model',       label:'Модель'},
-  {key:'year',        label:'Год'},
-  {key:'park',        label:'Парк'},
-  {key:'vehicleNumber', label:'Номер', wrap:true, maxWidth: 180},
-  {key:'exNumber',    label:'Экс-номер'},
-  {key:'garageNumber',label:'Гаражный №'},
-  {key:'factoryNumber',label:'Заводской №'},
-  {key:'writeoffDate',label:'Дата вывода'},
-  {key:'note',        label:'Примечание', wrap:true, maxWidth: 320}
+  {key:'type', label:'Тип'},
+  {key:'model', label:'Модель'},
+  {key:'year', label:'Год'},
+  {key:'park', label:'Парк'},
+  {key:'vehicleNumber', label:'Номер', wrap:true},
+  {key:'exNumber', label:'Экс-номер'},
+  {key:'garageNumber', label:'Гаражный №'},
+  {key:'factoryNumber', label:'Заводской №'},
+  {key:'writeoffDate', label:'Дата вывода'},
+  {key:'note', label:'Примечание', wrap:true}
 ];
 
 function isEmptyByKey(v, key){
@@ -540,7 +543,7 @@ function computeVisibleCols(){
   return visible;
 }
 
-/* ===== NEW: измерение и установка ширин колонок ===== */
+/* ===== width measuring ===== */
 function textWidthPx(txt){
   const box = document.getElementById('measureBox');
   box.textContent = txt || '';
@@ -556,73 +559,73 @@ function applyMeasuredColumnWidths(){
   const ths = Array.from(thRow.children);
   const fths = Array.from(filterRow.children);
 
-  // актуальные видимые колонки (по display)
-  const visibleIdx = [];
-  for(let i=0;i<COLS.length;i++){
-    if(ths[i] && ths[i].style.display !== 'none') visibleIdx.push(i);
-  }
-
-  // rebuild colgroup in original order, but set width 0 for hidden
-  colgroup.innerHTML = '';
   const widths = new Array(COLS.length).fill(0);
+  const PAD = 16;
+  const MIN_W = 40;
+  const MAX_W_DEFAULT = 260;
 
-  // базовые ограничения
-  const PAD = 16;                 // запас
-  const MIN_W = 40;               // минимальная ширина
-  const MAX_W_DEFAULT = 260;      // чтобы какие-то поля не раздувались бесконечно
+  // при запрете разрыва слов, для wrap-колонок max-width лучше держать умеренным,
+  // иначе таблица раздуется; но если есть длинное слово без пробелов — оно просто расширит колонку через X-скролл.
+  const MAX_W_NOTE = 360;
+  const MAX_W_NUM  = 200;
 
-  // меряем
-  visibleIdx.forEach(i=>{
+  for(let i=0;i<COLS.length;i++){
+    if(!ths[i] || ths[i].style.display === 'none') continue;
+
     const col = COLS[i];
-
-    // 1) заголовок
     let w = textWidthPx(col.label) + PAD;
 
-    // 2) значение фильтра (placeholder нет, но input имеет минимальную полезную ширину)
-    // берём текущий текст в инпуте, либо минимальную ширину по размеру поля
     const inp = fths[i] ? fths[i].querySelector('input') : null;
     if(inp){
       const val = (inp.value || '').trim();
       if(val) w = Math.max(w, textWidthPx(val) + PAD);
-      // чтобы инпут не был микроскопическим
       w = Math.max(w, 70);
     }
 
-    // 3) данные (по текущему VIEW!)
-    // берём максимум по нескольким первым N строкам (ускорение),
-    // но учитываем все для небольших таблиц
     const N = VIEW.length <= 400 ? VIEW.length : 400;
     for(let k=0;k<N;k++){
       const v = VIEW[k];
       let txt = '';
       if(col.key === 'type') txt = typeLabel(v.type);
       else txt = cellText(v[col.key]);
-
       if(!txt) continue;
-
-      // для wrap-колонок считаем ширину, но режем maxWidth (чтобы не раздували)
-      const tw = textWidthPx(txt) + PAD;
-      w = Math.max(w, tw);
+      w = Math.max(w, textWidthPx(txt) + PAD);
     }
 
-    // ограничения
     w = Math.max(w, MIN_W);
 
-    if(col.wrap && col.maxWidth){
-      w = Math.min(w, col.maxWidth);
-    } else {
-      w = Math.min(w, MAX_W_DEFAULT);
-    }
+    if(col.key === 'note') w = Math.min(w, MAX_W_NOTE);
+    else if(col.key === 'vehicleNumber') w = Math.min(w, MAX_W_NUM);
+    else w = Math.min(w, MAX_W_DEFAULT);
 
     widths[i] = w;
-  });
+  }
 
-  // применяем ширины через colgroup
+  colgroup.innerHTML = '';
   for(let i=0;i<COLS.length;i++){
     const colEl = document.createElement('col');
-    if(widths[i] > 0) colEl.style.width = widths[i] + 'px';
-    else colEl.style.width = '0px';
+    colEl.style.width = (widths[i] > 0 ? widths[i] : 0) + 'px';
     colgroup.appendChild(colEl);
+  }
+}
+
+/* ===== conditional Y scrolling (NEW) ===== */
+function updateVerticalScrollMode(){
+  const wrap = document.getElementById('tableWrap');
+  if(!wrap) return;
+
+  // включаем внутренний Y-скролл только если реально возможны переносы по пробелам
+  // (т.е. есть хотя бы одна ячейка с пробелом в note или vehicleNumber)
+  const needWrapBySpace =
+    VIEW.some(v => hasSpace(v.note) || hasSpace(v.vehicleNumber));
+
+  if(needWrapBySpace){
+    wrap.style.overflowY = 'auto';
+    // max-height выставим updateStickyMetrics()
+    updateStickyMetrics();
+  } else {
+    wrap.style.overflowY = 'visible';
+    wrap.style.maxHeight = 'none';
   }
 }
 
@@ -682,6 +685,7 @@ function render(){
     tbody.innerHTML = '';
     empty.style.display = '';
     setColumnVisibility(COLS.map(c=>c.key));
+    updateVerticalScrollMode();
     requestAnimationFrame(()=> {
       updateStickyMetrics();
       applyMeasuredColumnWidths();
@@ -717,6 +721,8 @@ function render(){
 
     return `<tr>${cells.join('')}</tr>`;
   }).join('');
+
+  updateVerticalScrollMode();
 
   requestAnimationFrame(()=> {
     updateStickyMetrics();
