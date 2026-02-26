@@ -26,56 +26,52 @@
     .tab.active{background:#2543a5; color:#fff; border-color:#2543a5;}
     .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
 
-    /* Контейнер таблицы: X/Y скроллы */
+    /* контейнер таблицы */
     .tableWrap{
       margin-top: 8px;
       overflow-x: auto;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-
-      /* вычислим через JS */
       max-height: 60vh;
-
-      /* важно: НЕ задаём белый фон контейнеру, чтобы не было ощущения "пустой белой простыни" */
-      background: transparent;
       border-radius: 8px;
+      background: transparent;
     }
 
-    table {
+    table{
       border-collapse: collapse;
       background:#fff;
       border-radius:8px;
       overflow:hidden;
       font-size:13px;
 
-      /* ключ: ширина по содержимому, без растягивания на весь экран */
-      width: max-content;
-      min-width: fit-content;
-
-      /* авто-раскладка по контенту */
-      table-layout: auto;
+      /* ширину задаём colgroup-ом; таблицу не растягиваем на 100% */
+      width: auto;
+      table-layout: fixed; /* ВАЖНО: после задания col widths, фиксируем layout */
     }
 
-    th, td {
+    th, td{
       padding: 6px 6px;
       text-align: center;
       vertical-align: middle;
 
-      /* по умолчанию не переносим */
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     /* переносы только для "Номер" и "Примечание" */
-    td.wrapNum, th.wrapNum,
-    td.wrapNote, th.wrapNote{
+    th.wrapNum, td.wrapNum,
+    th.wrapNote, td.wrapNote{
       white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
       word-break: break-word;
       overflow-wrap: anywhere;
       line-height: 1.2;
     }
 
     thead th{
-      position: sticky;   /* липкая шапка при Y-скролле внутри .tableWrap */
+      position: sticky;
       top: 0;
       z-index: 3;
       background:#ecf1fa;
@@ -84,7 +80,7 @@
 
     thead tr.filters th{
       position: sticky;
-      top: var(--filtersTop, 34px); /* выставляем динамически */
+      top: var(--filtersTop, 34px);
       z-index: 3;
       background:#ecf1fa;
       border-bottom: 1.5px solid #abc;
@@ -112,22 +108,26 @@
       outline: none;
       background: #fff;
       text-align: center;
-      min-width: 60px;
+      min-width: 40px; /* реальная ширина будет учтена измерением */
     }
     .colFilter:focus{ border-color:#2543a5; }
-
-    @media (max-width: 780px){
-      .cont{margin:10px auto;}
-      .counts{margin-left:0;}
-      th, td{padding:6px 5px;}
-      table{font-size:12px;}
-      .colFilter{ min-width: 55px; }
-    }
 
     td.muted{
       color:#8b95a7;
       font-style:italic;
       font-weight: normal;
+    }
+
+    /* вспомогательный “измеритель” */
+    #measureBox{
+      position: absolute;
+      left: -99999px;
+      top: -99999px;
+      visibility: hidden;
+      white-space: nowrap;
+      padding: 6px 6px; /* как у td/th */
+      font-size: 13px;
+      font-family: 'Segoe UI', Arial, sans-serif;
     }
   </style>
 </head>
@@ -135,9 +135,7 @@
 <div class="cont">
   <div class="stickyTop" id="stickyTop">
     <div class="topbar">
-      <div class="msg">
-        <span id="monthHint" style="color:#5b6b98;"></span>
-      </div>
+      <div class="msg"><span id="monthHint" style="color:#5b6b98;"></span></div>
       <div class="counts"><span id="countShown">0</span> / <span id="countAll">0</span></div>
     </div>
 
@@ -149,7 +147,10 @@
   </div>
 
   <div class="tableWrap" id="tableWrap">
-    <table>
+    <table id="tbl">
+      <!-- NEW: colgroup для управления ширинами -->
+      <colgroup id="colgroup"></colgroup>
+
       <thead>
         <tr id="headRow">
           <th data-f="type">Тип</th>
@@ -177,6 +178,7 @@
           <th><input class="colFilter" data-col="note"></th>
         </tr>
       </thead>
+
       <tbody id="data"></tbody>
     </table>
   </div>
@@ -184,6 +186,8 @@
   <div class="empty" id="empty" style="display:none;">Нет данных по фильтру</div>
   <div class="err" id="err" style="display:none;"></div>
 </div>
+
+<div id="measureBox"></div>
 
 <script>
 const JSON_URL = './spisanie.json';
@@ -208,14 +212,16 @@ function updateStickyMetrics(){
     const topH = Math.max(0, Math.round(stickyTop.getBoundingClientRect().height));
     wrap.style.maxHeight = `calc(100vh - ${topH + 25}px)`;
   }
-
   const headRow = document.getElementById('headRow');
   if(headRow){
     const h = Math.max(0, Math.ceil(headRow.getBoundingClientRect().height));
     document.documentElement.style.setProperty('--filtersTop', h + 'px');
   }
 }
-window.addEventListener('resize', () => updateStickyMetrics());
+window.addEventListener('resize', ()=> {
+  updateStickyMetrics();
+  requestAnimationFrame(applyMeasuredColumnWidths);
+});
 
 /* ===== NEW month ===== */
 function monthKeyFromWriteoffDate(s){
@@ -325,10 +331,7 @@ function renderTabs(){
    SORTING
    ========================= */
 function canonToRU(ch){
-  const map = {
-    'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У',
-    'I':'И','І':'И'
-  };
+  const map = {'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У','I':'И','І':'И'};
   const u = (ch||'').toString().toUpperCase();
   return map[u] || u;
 }
@@ -395,7 +398,6 @@ function numSortAlg(a, b){
     const bk = busPriorityKey(bRU);
     if(ak.w !== bk.w) return ak.w - bk.w;
     if(ak.d !== bk.d) return ak.d - bk.d;
-
     const r = comparePlateRU(aRU, bRU);
     if(r !== 0) return r;
   }
@@ -464,19 +466,18 @@ function generalSort(a, b){
 }
 
 /* =========================
-   RENDER
+   RENDER HELPERS
    ========================= */
 function escapeHTML(s){
   return String(s).replace(/[&<>"']/g, c => ({
-    '&':'&amp;',
-    '<':'&lt;',
-    '>':'&gt;',
-    '"':'&quot;',
-    "'":'&#39;'
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
   }[c]));
 }
-function cell(x){
-  const s = (x||'').toString().trim();
+function cellText(x){
+  return (x||'').toString().trim();
+}
+function cellHTML(x){
+  const s = cellText(x);
   return s ? escapeHTML(s) : '<span class="no">—</span>';
 }
 function normVehicleNumberForSearch(s){
@@ -485,7 +486,6 @@ function normVehicleNumberForSearch(s){
   s = s.replace(/[A-ZА-ЯІ]/g, ch => canonToRU(ch));
   return s;
 }
-
 function isMuted(v, key){
   return !!(v && v.gray && typeof v.gray === 'object' && v.gray[key]);
 }
@@ -496,19 +496,24 @@ function tdClass(v, key, baseClass=''){
   return c.length ? ` class="${c.join(' ')}"` : '';
 }
 
-/* hide empty columns */
+/* ===== hide empty columns ===== */
 const COLS = [
-  {key:'type', isEmpty:(v)=>!normType(v.type)},
-  {key:'model', isEmpty:(v)=>!(v.model||'').toString().trim()},
-  {key:'year', isEmpty:(v)=>!(v.year||'').toString().trim()},
-  {key:'park', isEmpty:(v)=>!(v.park||'').toString().trim()},
-  {key:'vehicleNumber', isEmpty:(v)=>!(v.vehicleNumber||'').toString().trim()},
-  {key:'exNumber', isEmpty:(v)=>!(v.exNumber||'').toString().trim()},
-  {key:'garageNumber', isEmpty:(v)=>!(v.garageNumber||'').toString().trim()},
-  {key:'factoryNumber', isEmpty:(v)=>!(v.factoryNumber||'').toString().trim()},
-  {key:'writeoffDate', isEmpty:(v)=>!(v.writeoffDate||'').toString().trim()},
-  {key:'note', isEmpty:(v)=>!(v.note||'').toString().trim()}
+  {key:'type',        label:'Тип'},
+  {key:'model',       label:'Модель'},
+  {key:'year',        label:'Год'},
+  {key:'park',        label:'Парк'},
+  {key:'vehicleNumber', label:'Номер', wrap:true, maxWidth: 180},
+  {key:'exNumber',    label:'Экс-номер'},
+  {key:'garageNumber',label:'Гаражный №'},
+  {key:'factoryNumber',label:'Заводской №'},
+  {key:'writeoffDate',label:'Дата вывода'},
+  {key:'note',        label:'Примечание', wrap:true, maxWidth: 320}
 ];
+
+function isEmptyByKey(v, key){
+  if(key === 'type') return !normType(v.type);
+  return !cellText(v[key]);
+}
 
 function setColumnVisibility(visibleKeys){
   const keys = new Set(visibleKeys);
@@ -529,12 +534,101 @@ function setColumnVisibility(visibleKeys){
 function computeVisibleCols(){
   const visible = [];
   for(const c of COLS){
-    const anyNonEmpty = VIEW.some(v => !c.isEmpty(v));
+    const anyNonEmpty = VIEW.some(v => !isEmptyByKey(v, c.key));
     if(anyNonEmpty) visible.push(c.key);
   }
   return visible;
 }
 
+/* ===== NEW: измерение и установка ширин колонок ===== */
+function textWidthPx(txt){
+  const box = document.getElementById('measureBox');
+  box.textContent = txt || '';
+  return Math.ceil(box.getBoundingClientRect().width);
+}
+
+function applyMeasuredColumnWidths(){
+  const thRow = document.getElementById('headRow');
+  const filterRow = document.getElementById('filterRow');
+  const colgroup = document.getElementById('colgroup');
+  if(!thRow || !filterRow || !colgroup) return;
+
+  const ths = Array.from(thRow.children);
+  const fths = Array.from(filterRow.children);
+
+  // актуальные видимые колонки (по display)
+  const visibleIdx = [];
+  for(let i=0;i<COLS.length;i++){
+    if(ths[i] && ths[i].style.display !== 'none') visibleIdx.push(i);
+  }
+
+  // rebuild colgroup in original order, but set width 0 for hidden
+  colgroup.innerHTML = '';
+  const widths = new Array(COLS.length).fill(0);
+
+  // базовые ограничения
+  const PAD = 16;                 // запас
+  const MIN_W = 40;               // минимальная ширина
+  const MAX_W_DEFAULT = 260;      // чтобы какие-то поля не раздувались бесконечно
+
+  // меряем
+  visibleIdx.forEach(i=>{
+    const col = COLS[i];
+
+    // 1) заголовок
+    let w = textWidthPx(col.label) + PAD;
+
+    // 2) значение фильтра (placeholder нет, но input имеет минимальную полезную ширину)
+    // берём текущий текст в инпуте, либо минимальную ширину по размеру поля
+    const inp = fths[i] ? fths[i].querySelector('input') : null;
+    if(inp){
+      const val = (inp.value || '').trim();
+      if(val) w = Math.max(w, textWidthPx(val) + PAD);
+      // чтобы инпут не был микроскопическим
+      w = Math.max(w, 70);
+    }
+
+    // 3) данные (по текущему VIEW!)
+    // берём максимум по нескольким первым N строкам (ускорение),
+    // но учитываем все для небольших таблиц
+    const N = VIEW.length <= 400 ? VIEW.length : 400;
+    for(let k=0;k<N;k++){
+      const v = VIEW[k];
+      let txt = '';
+      if(col.key === 'type') txt = typeLabel(v.type);
+      else txt = cellText(v[col.key]);
+
+      if(!txt) continue;
+
+      // для wrap-колонок считаем ширину, но режем maxWidth (чтобы не раздували)
+      const tw = textWidthPx(txt) + PAD;
+      w = Math.max(w, tw);
+    }
+
+    // ограничения
+    w = Math.max(w, MIN_W);
+
+    if(col.wrap && col.maxWidth){
+      w = Math.min(w, col.maxWidth);
+    } else {
+      w = Math.min(w, MAX_W_DEFAULT);
+    }
+
+    widths[i] = w;
+  });
+
+  // применяем ширины через colgroup
+  for(let i=0;i<COLS.length;i++){
+    const colEl = document.createElement('col');
+    if(widths[i] > 0) colEl.style.width = widths[i] + 'px';
+    else colEl.style.width = '0px';
+    colgroup.appendChild(colEl);
+  }
+}
+
+/* =========================
+   RENDER
+   ========================= */
 function render(){
   const colFilters = {};
   document.querySelectorAll('.colFilter').forEach(inp=>{
@@ -550,7 +644,6 @@ function render(){
         const mk = monthKeyFromWriteoffDate(v.writeoffDate);
         if(mk !== newMonthKey) return false;
       }
-
       if(activeTab !== '_new' && activeTab !== '_all'){
         if(normType(v.type) !== activeTab) return false;
       }
@@ -589,40 +682,46 @@ function render(){
     tbody.innerHTML = '';
     empty.style.display = '';
     setColumnVisibility(COLS.map(c=>c.key));
-    updateStickyMetrics();
+    requestAnimationFrame(()=> {
+      updateStickyMetrics();
+      applyMeasuredColumnWidths();
+    });
     return;
   }
   empty.style.display = 'none';
 
-  const visibleCols = computeVisibleCols();     // для NEW/типов/_all
+  const visibleCols = computeVisibleCols();
   setColumnVisibility(visibleCols);
   const visibleSet = new Set(visibleCols);
 
   tbody.innerHTML = VIEW.map(v=>{
-    const num = (v.vehicleNumber || '').toString().trim();
-    const exn = (v.exNumber || '').toString().trim();
-    const gar = (v.garageNumber || '').toString().trim();
-    const fac = (v.factoryNumber || '').toString().trim();
+    const num = cellText(v.vehicleNumber);
+    const exn = cellText(v.exNumber);
+    const gar = cellText(v.garageNumber);
+    const fac = cellText(v.factoryNumber);
 
     const cells = [];
 
     if(visibleSet.has('type')) cells.push(`<td${tdClass(v,'type')}>${escapeHTML(typeLabel(v.type))}</td>`);
-    if(visibleSet.has('model')) cells.push(`<td${tdClass(v,'model')}>${cell(v.model)}</td>`);
-    if(visibleSet.has('year')) cells.push(`<td${tdClass(v,'year')}>${cell(v.year)}</td>`);
-    if(visibleSet.has('park')) cells.push(`<td${tdClass(v,'park')}>${cell(v.park)}</td>`);
+    if(visibleSet.has('model')) cells.push(`<td${tdClass(v,'model')}>${cellHTML(v.model)}</td>`);
+    if(visibleSet.has('year')) cells.push(`<td${tdClass(v,'year')}>${cellHTML(v.year)}</td>`);
+    if(visibleSet.has('park')) cells.push(`<td${tdClass(v,'park')}>${cellHTML(v.park)}</td>`);
 
-    if(visibleSet.has('vehicleNumber')) cells.push(`<td${tdClass(v,'vehicleNumber','num wrapNum')} title="${escapeHTML(num)}">${cell(num)}</td>`);
-    if(visibleSet.has('exNumber')) cells.push(`<td${tdClass(v,'exNumber')} title="${escapeHTML(exn)}">${cell(exn)}</td>`);
-    if(visibleSet.has('garageNumber')) cells.push(`<td${tdClass(v,'garageNumber')} title="${escapeHTML(gar)}">${cell(gar)}</td>`);
-    if(visibleSet.has('factoryNumber')) cells.push(`<td${tdClass(v,'factoryNumber')} title="${escapeHTML(fac)}">${cell(fac)}</td>`);
+    if(visibleSet.has('vehicleNumber')) cells.push(`<td${tdClass(v,'vehicleNumber','num wrapNum')} title="${escapeHTML(num)}">${cellHTML(num)}</td>`);
+    if(visibleSet.has('exNumber')) cells.push(`<td${tdClass(v,'exNumber')} title="${escapeHTML(exn)}">${cellHTML(exn)}</td>`);
+    if(visibleSet.has('garageNumber')) cells.push(`<td${tdClass(v,'garageNumber')} title="${escapeHTML(gar)}">${cellHTML(gar)}</td>`);
+    if(visibleSet.has('factoryNumber')) cells.push(`<td${tdClass(v,'factoryNumber')} title="${escapeHTML(fac)}">${cellHTML(fac)}</td>`);
 
-    if(visibleSet.has('writeoffDate')) cells.push(`<td${tdClass(v,'writeoffDate')} title="${escapeHTML(v.writeoffDate||'')}">${cell(v.writeoffDate)}</td>`);
-    if(visibleSet.has('note')) cells.push(`<td${tdClass(v,'note','wrapNote')}>${cell(v.note)}</td>`);
+    if(visibleSet.has('writeoffDate')) cells.push(`<td${tdClass(v,'writeoffDate')} title="${escapeHTML(v.writeoffDate||'')}">${cellHTML(v.writeoffDate)}</td>`);
+    if(visibleSet.has('note')) cells.push(`<td${tdClass(v,'note','wrapNote')}>${cellHTML(v.note)}</td>`);
 
     return `<tr>${cells.join('')}</tr>`;
   }).join('');
 
-  requestAnimationFrame(updateStickyMetrics);
+  requestAnimationFrame(()=> {
+    updateStickyMetrics();
+    applyMeasuredColumnWidths();
+  });
 }
 
 /* clicks */
@@ -705,8 +804,6 @@ async function loadJson(){
 
     renderTabs();
     render();
-
-    requestAnimationFrame(updateStickyMetrics);
   } catch(err){
     DATA = [];
     renderTabs();
