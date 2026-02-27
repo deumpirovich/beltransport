@@ -200,7 +200,6 @@ let hasCurrentMonth = false;
 
 function pad2(n){ return String(n).padStart(2,'0'); }
 
-/* ===== sticky sizes + conditional Y scroll ===== */
 function updateStickyMetrics(){
   const wrap = document.getElementById('tableWrap');
   const stickyTop = document.getElementById('stickyTop');
@@ -220,7 +219,6 @@ window.addEventListener('resize', ()=> {
   requestAnimationFrame(applyMeasuredColumnWidths);
 });
 
-/* ===== NEW month ===== */
 function monthKeyFromWriteoffDate(s){
   const m = String(s||'').trim().match(/^(\d{1,2})\.(\d{4})$/);
   if(!m) return '';
@@ -260,7 +258,6 @@ function computeNewMonthKey(){
     newMonthKey ? `NEW: ${newMonthKey}${hasCurrentMonth ? '' : ' (последний месяц со списаниями)'}` : '';
 }
 
-/* ===== types ===== */
 function normType(t){ return (t||'').toString().trim().toLowerCase(); }
 function typeLabel(t){
   t = normType(t);
@@ -276,7 +273,6 @@ function typeWeight(t){
   return Object.prototype.hasOwnProperty.call(TYPE_ORDER, t) ? TYPE_ORDER[t] : 999;
 }
 
-/* ===== tabs ===== */
 const TAB_ORDER = [
   {key:'_new', label:'NEW'},
   {key:'автобус', label:'Автобус'},
@@ -327,8 +323,6 @@ function renderTabs(){
 /* =========================
    SORTING
    ========================= */
-
-/* Для номерных полей: нормализуем в КИРИЛЛИЦУ (как раньше) */
 function canonToRU(ch){
   const map = {
     'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У',
@@ -352,16 +346,10 @@ function getNum4(plateRU){
   return m ? parseInt(m[1], 10) : null;
 }
 
-/**
- * Автобусные серии + исключения.
- * Добавлено: КС0*** должны идти раньше КС1*** (и вообще раньше КС2..КС9),
- * т.е. внутри КС сортируем сначала по "тысячам", потом по числу.
- */
 function busPriorityKey(plateRU){
   const p2 = getPrefix2(plateRU);
   const n4 = getNum4(plateRU);
 
-  // спец-исключения
   if(plateRU.startsWith('КА0385')) return {w: 250, d: 385};
   if(plateRU.startsWith('КЕ0074')) return {w: 850, d: 74};
   if(plateRU.startsWith('КЕ0100')) return {w: 860, d: 100};
@@ -373,10 +361,9 @@ function busPriorityKey(plateRU){
 
   if(p2 === 'КЕ' && n4 !== null && n4 >= 0 && n4 <= 5999) return {w: 300, d: n4};
 
-  // КС: группируем по тысячам: 0xxx,1xxx,2xxx...9xxx
   if(p2 === 'КС' && n4 !== null && n4 >= 0 && n4 <= 9999){
-    const thousands = Math.floor(n4 / 1000); // 0..9
-    return {w: 400 + thousands, d: n4};      // КС0*** (400) раньше КС1*** (401) ...
+    const thousands = Math.floor(n4 / 1000);
+    return {w: 400 + thousands, d: n4};
   }
 
   if(p2 === 'КИ') return {w: 500, d: (n4 ?? 9999)};
@@ -445,12 +432,10 @@ function normWriteoffDateForSort(s){
   return m[2] + pad2(m[1]);
 }
 
-/* ===== Заводские номера: нормализуем в ЛАТИНИЦУ (чтобы C/С, X/Х и т.п. были одним кодом) ===== */
+/* заводские номера: нормализация в ЛАТИНИЦУ */
 function canonToLAT(ch){
-  // Кириллица -> латиница для похожих символов
   const map = {
     'А':'A','В':'B','С':'C','Е':'E','Н':'H','К':'K','М':'M','О':'O','Р':'P','Т':'T','Х':'X','У':'Y','І':'I','И':'I',
-    // также если вдруг уже латиница — оставляем
     'A':'A','B':'B','C':'C','E':'E','H':'H','K':'K','M':'M','O':'O','P':'P','T':'T','X':'X','Y':'Y','I':'I'
   };
   const u = (ch||'').toString().toUpperCase();
@@ -463,18 +448,10 @@ function normFactoryRawForCompare(s){
   return s;
 }
 
-/**
- * Спец-ключ сортировки заводских номеров ТОЛЬКО для троллейбусов.
- * Порядок:
- * 1) ровно 4 цифры
- * 2) длина 11
- * 3) длина 8, внутри: V, W, X, Y, [0-9], A, B, C, D, E, далее по алфавиту
- * 4) остальное
- */
 function trolleyFactoryKey(sNorm){
   const s = sNorm || '';
-  const is4digits = /^\d{4}$/.test(s);
-  if(is4digits) return {grp: 1, sub: 0, key: s};
+  const is3digits = /^\d{3}$/.test(s);
+  if(is3digits) return {grp: 1, sub: 0, key: s};
 
   if(s.length === 11) return {grp: 2, sub: 0, key: s};
 
@@ -483,16 +460,16 @@ function trolleyFactoryKey(sNorm){
     let sub = 999;
 
     const upper = ch0.toUpperCase();
-    const order = ['V','W','X','Y']; // сначала эти
+    const order = ['V','W','X','Y'];
     const idx = order.indexOf(upper);
-    if(idx !== -1) sub = idx;                 // 0..3
-    else if(/[0-9]/.test(upper)) sub = 4;     // затем цифры
+    if(idx !== -1) sub = idx;
+    else if(/[0-9]/.test(upper)) sub = 4;
     else if(upper === 'A') sub = 5;
     else if(upper === 'B') sub = 6;
     else if(upper === 'C') sub = 7;
     else if(upper === 'D') sub = 8;
     else if(upper === 'E') sub = 9;
-    else if(/[A-Z]/.test(upper)) sub = 10 + (upper.charCodeAt(0) - 65); // дальше по алфавиту
+    else if(/[A-Z]/.test(upper)) sub = 10 + (upper.charCodeAt(0) - 65);
 
     return {grp: 3, sub, key: s};
   }
@@ -507,12 +484,10 @@ function compareFactory(a, b){
   const aS = normFactoryRawForCompare(a.factoryNumber);
   const bS = normFactoryRawForCompare(b.factoryNumber);
 
-  // пустые вниз
   if(!aS && !bS) return 0;
   if(!aS) return 1;
   if(!bS) return -1;
 
-  // спец-сортировка только когда ОБА троллейбусы (как и раньше логика по типам)
   if(aT === 'троллейбус' && bT === 'троллейбус'){
     const ak = trolleyFactoryKey(aS);
     const bk = trolleyFactoryKey(bS);
@@ -525,7 +500,6 @@ function compareFactory(a, b){
     return 0;
   }
 
-  // иначе обычное сравнение нормализованной строки
   if(aS < bS) return -1;
   if(aS > bS) return 1;
   return 0;
@@ -579,24 +553,18 @@ function generalSort(a, b){
   return basePriorityCompare(a, b);
 }
 
-/* =========================
-   RENDER HELPERS
-   ========================= */
+/* ===== дальше код без изменений ===== */
 function escapeHTML(s){
   return String(s).replace(/[&<>"']/g, c => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
   }[c]));
 }
-function cellText(x){
-  return (x||'').toString().trim();
-}
+function cellText(x){ return (x||'').toString().trim(); }
 function cellHTML(x){
   const s = cellText(x);
   return s ? escapeHTML(s) : '<span class="no">—</span>';
 }
-function hasSpace(x){
-  return /\s/.test((x||'').toString().trim());
-}
+function hasSpace(x){ return /\s/.test((x||'').toString().trim()); }
 function normVehicleNumberForSearch(s){
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/[\s\-]/g, '');
@@ -613,7 +581,6 @@ function tdClass(v, key, baseClass=''){
   return c.length ? ` class="${c.join(' ')}"` : '';
 }
 
-/* columns */
 const COLS = [
   {key:'type', label:'Тип'},
   {key:'model', label:'Модель'},
@@ -657,7 +624,6 @@ function computeVisibleCols(){
   return visible;
 }
 
-/* ===== width measuring ===== */
 function textWidthPx(txt){
   const box = document.getElementById('measureBox');
   box.textContent = txt || '';
@@ -721,7 +687,6 @@ function applyMeasuredColumnWidths(){
   }
 }
 
-/* ===== conditional Y scrolling (NEW) ===== */
 function updateVerticalScrollMode(){
   const wrap = document.getElementById('tableWrap');
   if(!wrap) return;
@@ -738,9 +703,6 @@ function updateVerticalScrollMode(){
   }
 }
 
-/* =========================
-   RENDER
-   ========================= */
 function render(){
   const colFilters = {};
   document.querySelectorAll('.colFilter').forEach(inp=>{
@@ -839,7 +801,6 @@ function render(){
   });
 }
 
-/* clicks */
 document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick = ()=>{
     document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
@@ -855,14 +816,12 @@ document.querySelectorAll('th[data-f]').forEach(th=>{
   };
 });
 
-/* filters */
 document.addEventListener('input', (e) => {
   if(e.target && e.target.classList && e.target.classList.contains('colFilter')){
     render();
   }
 });
 
-/* errors */
 function showErr(msg){
   const e = document.getElementById('err');
   e.style.display = '';
@@ -874,7 +833,6 @@ function hideErr(){
   e.textContent = '';
 }
 
-/* json mapping */
 function pickArray(j){
   if(Array.isArray(j)) return j;
   if(j && Array.isArray(j.vehicles)) return j.vehicles;
