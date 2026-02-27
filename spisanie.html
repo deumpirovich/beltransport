@@ -26,13 +26,12 @@
     .tab.active{background:#2543a5; color:#fff; border-color:#2543a5;}
     .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
 
-    /* контейнер таблицы */
     .tableWrap{
       margin-top: 8px;
       overflow-x: auto;
-      overflow-y: visible; /* по умолчанию выключено, включаем JS-ом при необходимости */
+      overflow-y: visible;
       -webkit-overflow-scrolling: touch;
-      max-height: none;    /* включаем JS-ом при необходимости */
+      max-height: none;
       border-radius: 8px;
       background: transparent;
     }
@@ -45,7 +44,7 @@
       font-size:13px;
 
       width: auto;
-      table-layout: fixed; /* widths задаются через colgroup */
+      table-layout: fixed;
     }
 
     th, td{
@@ -58,13 +57,12 @@
       text-overflow: ellipsis;
     }
 
-    /* Перенос ТОЛЬКО по пробелам (НЕ разрывать слова) */
     th.wrapNum, td.wrapNum,
     th.wrapNote, td.wrapNote{
-      white-space: normal;    /* перенос по пробелам */
-      word-break: normal;     /* НЕ ломать слова */
-      overflow-wrap: normal;  /* НЕ ломать слова даже если не влезают */
-      hyphens: none;          /* без переносов с дефисами */
+      white-space: normal;
+      word-break: normal;
+      overflow-wrap: normal;
+      hyphens: none;
       overflow: visible;
       text-overflow: clip;
       line-height: 1.2;
@@ -118,7 +116,6 @@
       font-weight: normal;
     }
 
-    /* измеритель */
     #measureBox{
       position: absolute;
       left: -99999px;
@@ -330,8 +327,9 @@ function renderTabs(){
 /* =========================
    SORTING
    ========================= */
+
+/* Для номерных полей: нормализуем в КИРИЛЛИЦУ (как раньше) */
 function canonToRU(ch){
-  // Нормализация похожих латинских/кириллических букв в КИРИЛЛИЦУ
   const map = {
     'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У',
     'I':'И','І':'И'
@@ -355,44 +353,39 @@ function getNum4(plateRU){
 }
 
 /**
- * Ключ сортировки для "номерных" полей (vehicleNumber/exNumber) для автобусов.
- * Меньше w => раньше в сортировке по возрастанию.
- *
- * Новые правила:
- * - КМ перед КВ
- * - КА0385 после КВ (спец-исключение)
- * - МА после КА9***
- * - КЕ0074 и КЕ0100 после МА (спец-исключения)
+ * Автобусные серии + исключения.
+ * Добавлено: КС0*** должны идти раньше КС1*** (и вообще раньше КС2..КС9),
+ * т.е. внутри КС сортируем сначала по "тысячам", потом по числу.
  */
 function busPriorityKey(plateRU){
   const p2 = getPrefix2(plateRU);
   const n4 = getNum4(plateRU);
 
-  // спец-исключения (точечные номера)
-  if(plateRU.startsWith('КА0385')) return {w: 250, d: 385}; // после КВ (которая w=200)
-  if(plateRU.startsWith('КЕ0074')) return {w: 850, d: 74};  // после МА (которая w=800)
-  if(plateRU.startsWith('КЕ0100')) return {w: 860, d: 100}; // после МА
+  // спец-исключения
+  if(plateRU.startsWith('КА0385')) return {w: 250, d: 385};
+  if(plateRU.startsWith('КЕ0074')) return {w: 850, d: 74};
+  if(plateRU.startsWith('КЕ0100')) return {w: 860, d: 100};
 
-  // серии
   if(p2 === 'КА' && n4 !== null && n4 >= 0 && n4 <= 3999) return {w: 100, d: n4};
 
-  if(p2 === 'КМ') return {w: 150, d: (n4 ?? 9999)}; // КМ перед КВ
+  if(p2 === 'КМ') return {w: 150, d: (n4 ?? 9999)};
   if(p2 === 'КВ') return {w: 200, d: (n4 ?? 9999)};
 
   if(p2 === 'КЕ' && n4 !== null && n4 >= 0 && n4 <= 5999) return {w: 300, d: n4};
-  if(p2 === 'КС' && n4 !== null && n4 >= 1000 && n4 <= 9999) return {w: 400, d: n4};
+
+  // КС: группируем по тысячам: 0xxx,1xxx,2xxx...9xxx
+  if(p2 === 'КС' && n4 !== null && n4 >= 0 && n4 <= 9999){
+    const thousands = Math.floor(n4 / 1000); // 0..9
+    return {w: 400 + thousands, d: n4};      // КС0*** (400) раньше КС1*** (401) ...
+  }
+
   if(p2 === 'КИ') return {w: 500, d: (n4 ?? 9999)};
 
-  // КА4000..8999 (как раньше)
   if(p2 === 'КА' && n4 !== null && n4 >= 4000 && n4 <= 8999) return {w: 600, d: n4};
-
-  // КА9*** отдельно, чтобы МА шла ПОСЛЕ неё
   if(p2 === 'КА' && n4 !== null && n4 >= 9000 && n4 <= 9999) return {w: 700, d: n4};
 
-  // МА после КА9***
   if(p2 === 'МА') return {w: 800, d: (n4 ?? 9999)};
 
-  // КЕ6000..9999 (как раньше)
   if(p2 === 'КЕ' && n4 !== null && n4 >= 6000 && n4 <= 9999) return {w: 900, d: n4};
 
   if(p2 === 'КН') return {w: 1000, d: (n4 ?? 9999)};
@@ -410,10 +403,6 @@ function comparePlateRU(aRU, bRU){
   return 0;
 }
 
-/**
- * Универсальный номерной алгоритм: сортирует по "полю номера" (vehicleNumber/exNumber).
- * Для автобусов применяет busPriorityKey, для остальных — обычное сравнение нормализованных строк.
- */
 function numSortAlgByField(a, b, field){
   const aRaw = (a[field] || '').toString().trim();
   const bRaw = (b[field] || '').toString().trim();
@@ -440,7 +429,6 @@ function numSortAlgByField(a, b, field){
   const r2 = comparePlateRU(aRU, bRU);
   if(r2 !== 0) return r2;
 
-  // запасной вариант: исходные строки
   const aU = aRaw.toUpperCase();
   const bU = bRaw.toUpperCase();
   if(aU < bU) return -1;
@@ -448,24 +436,99 @@ function numSortAlgByField(a, b, field){
   return 0;
 }
 
-function numSortAlg(a, b){
-  return numSortAlgByField(a, b, 'vehicleNumber');
-}
-function exNumSortAlg(a, b){
-  return numSortAlgByField(a, b, 'exNumber');
-}
+function numSortAlg(a, b){ return numSortAlgByField(a, b, 'vehicleNumber'); }
+function exNumSortAlg(a, b){ return numSortAlgByField(a, b, 'exNumber'); }
 
 function normWriteoffDateForSort(s){
   const m = String(s || '').trim().match(/^(\d{1,2})\.(\d{4})$/);
   if(!m) return '';
   return m[2] + pad2(m[1]);
 }
-function normFactoryForSort(s){
-  // Нормализация латиница/кириллица + удаление пробелов/дефисов
+
+/* ===== Заводские номера: нормализуем в ЛАТИНИЦУ (чтобы C/С, X/Х и т.п. были одним кодом) ===== */
+function canonToLAT(ch){
+  // Кириллица -> латиница для похожих символов
+  const map = {
+    'А':'A','В':'B','С':'C','Е':'E','Н':'H','К':'K','М':'M','О':'O','Р':'P','Т':'T','Х':'X','У':'Y','І':'I','И':'I',
+    // также если вдруг уже латиница — оставляем
+    'A':'A','B':'B','C':'C','E':'E','H':'H','K':'K','M':'M','O':'O','P':'P','T':'T','X':'X','Y':'Y','I':'I'
+  };
+  const u = (ch||'').toString().toUpperCase();
+  return map[u] || u;
+}
+function normFactoryRawForCompare(s){
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/[\s\-]/g, '');
-  s = s.replace(/[A-ZА-ЯІ]/g, ch => canonToRU(ch));
+  s = s.replace(/[A-ZА-ЯІ]/g, ch => canonToLAT(ch));
   return s;
+}
+
+/**
+ * Спец-ключ сортировки заводских номеров ТОЛЬКО для троллейбусов.
+ * Порядок:
+ * 1) ровно 4 цифры
+ * 2) длина 11
+ * 3) длина 8, внутри: V, W, X, Y, [0-9], A, B, C, D, E, далее по алфавиту
+ * 4) остальное
+ */
+function trolleyFactoryKey(sNorm){
+  const s = sNorm || '';
+  const is4digits = /^\d{4}$/.test(s);
+  if(is4digits) return {grp: 1, sub: 0, key: s};
+
+  if(s.length === 11) return {grp: 2, sub: 0, key: s};
+
+  if(s.length === 8){
+    const ch0 = s[0] || '';
+    let sub = 999;
+
+    const upper = ch0.toUpperCase();
+    const order = ['V','W','X','Y']; // сначала эти
+    const idx = order.indexOf(upper);
+    if(idx !== -1) sub = idx;                 // 0..3
+    else if(/[0-9]/.test(upper)) sub = 4;     // затем цифры
+    else if(upper === 'A') sub = 5;
+    else if(upper === 'B') sub = 6;
+    else if(upper === 'C') sub = 7;
+    else if(upper === 'D') sub = 8;
+    else if(upper === 'E') sub = 9;
+    else if(/[A-Z]/.test(upper)) sub = 10 + (upper.charCodeAt(0) - 65); // дальше по алфавиту
+
+    return {grp: 3, sub, key: s};
+  }
+
+  return {grp: 9, sub: 0, key: s};
+}
+
+function compareFactory(a, b){
+  const aT = normType(a.type);
+  const bT = normType(b.type);
+
+  const aS = normFactoryRawForCompare(a.factoryNumber);
+  const bS = normFactoryRawForCompare(b.factoryNumber);
+
+  // пустые вниз
+  if(!aS && !bS) return 0;
+  if(!aS) return 1;
+  if(!bS) return -1;
+
+  // спец-сортировка только когда ОБА троллейбусы (как и раньше логика по типам)
+  if(aT === 'троллейбус' && bT === 'троллейбус'){
+    const ak = trolleyFactoryKey(aS);
+    const bk = trolleyFactoryKey(bS);
+
+    if(ak.grp !== bk.grp) return ak.grp - bk.grp;
+    if(ak.sub !== bk.sub) return ak.sub - bk.sub;
+
+    if(ak.key < bk.key) return -1;
+    if(ak.key > bk.key) return 1;
+    return 0;
+  }
+
+  // иначе обычное сравнение нормализованной строки
+  if(aS < bS) return -1;
+  if(aS > bS) return 1;
+  return 0;
 }
 
 function basePriorityCompare(a, b){
@@ -477,7 +540,6 @@ function basePriorityCompare(a, b){
   const bt = typeWeight(b.type);
   if(at !== bt) return at - bt;
 
-  // в качестве последнего tie-break оставляем обычный "номер"
   return numSortAlg(a, b);
 }
 
@@ -500,8 +562,9 @@ function generalSort(a, b){
     av = normWriteoffDateForSort(a.writeoffDate);
     bv = normWriteoffDateForSort(b.writeoffDate);
   } else if(sortF === "factoryNumber"){
-    av = normFactoryForSort(a.factoryNumber);
-    bv = normFactoryForSort(b.factoryNumber);
+    const r = compareFactory(a, b);
+    if(r !== 0) return sortDesc ? -r : r;
+    return basePriorityCompare(a, b);
   } else if(sortF === "type"){
     av = typeWeight(a.type);
     bv = typeWeight(b.type);
