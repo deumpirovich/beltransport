@@ -1,6 +1,18 @@
 {
-  "updatedAt": "26.02.2026 10:25",
+  "updatedAt": "27.02.2026 16:35",
   "vehicles": [
+    {
+      "type": "ТУАХ",
+      "model": "МАЗ-203Т70 (у/п)",
+      "year": "2026",
+      "deliveryDate": "02.2026",
+      "park": "",
+      "licensePlate": "",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {}
+    },
     {
       "type": "ТУАХ",
       "model": "МАЗ-203Т70 (у/п)",
@@ -17498,7 +17510,7 @@
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
-        "factoryNumber": true
+        "factoryNumber": false
       }
     },
     {
