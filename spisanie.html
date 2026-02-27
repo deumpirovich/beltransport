@@ -331,13 +331,17 @@ function renderTabs(){
    SORTING
    ========================= */
 function canonToRU(ch){
-  const map = {'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У','I':'И','І':'И'};
+  // Нормализация похожих латинских/кириллических букв в КИРИЛЛИЦУ
+  const map = {
+    'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У',
+    'I':'И','І':'И'
+  };
   const u = (ch||'').toString().toUpperCase();
   return map[u] || u;
 }
 function normPlateRU(s){
   s = (s || '').toString().trim().toUpperCase();
-  s = s.replace(/\s+/g, '');
+  s = s.replace(/[\s\-]/g, '');
   s = s.replace(/[A-ZА-ЯІ]/g, ch => canonToRU(ch));
   return s;
 }
@@ -349,23 +353,48 @@ function getNum4(plateRU){
   const m = plateRU.match(/^[А-Я]{2}(\d{4})/);
   return m ? parseInt(m[1], 10) : null;
 }
+
+/**
+ * Ключ сортировки для "номерных" полей (vehicleNumber/exNumber) для автобусов.
+ * Меньше w => раньше в сортировке по возрастанию.
+ *
+ * Новые правила:
+ * - КМ перед КВ
+ * - КА0385 после КВ (спец-исключение)
+ * - МА после КА9***
+ * - КЕ0074 и КЕ0100 после МА (спец-исключения)
+ */
 function busPriorityKey(plateRU){
   const p2 = getPrefix2(plateRU);
   const n4 = getNum4(plateRU);
 
-  if(plateRU.startsWith('КС0039')) return {w: 700, d: 39};
-  if(plateRU.startsWith('КС0040')) return {w: 710, d: 40};
-  if(plateRU.startsWith('КЕ0100')) return {w: 720, d: 100};
+  // спец-исключения (точечные номера)
+  if(plateRU.startsWith('КА0385')) return {w: 250, d: 385}; // после КВ (которая w=200)
+  if(plateRU.startsWith('КЕ0074')) return {w: 850, d: 74};  // после МА (которая w=800)
+  if(plateRU.startsWith('КЕ0100')) return {w: 860, d: 100}; // после МА
 
+  // серии
   if(p2 === 'КА' && n4 !== null && n4 >= 0 && n4 <= 3999) return {w: 100, d: n4};
+
+  if(p2 === 'КМ') return {w: 150, d: (n4 ?? 9999)}; // КМ перед КВ
   if(p2 === 'КВ') return {w: 200, d: (n4 ?? 9999)};
+
   if(p2 === 'КЕ' && n4 !== null && n4 >= 0 && n4 <= 5999) return {w: 300, d: n4};
   if(p2 === 'КС' && n4 !== null && n4 >= 1000 && n4 <= 9999) return {w: 400, d: n4};
   if(p2 === 'КИ') return {w: 500, d: (n4 ?? 9999)};
-  if(p2 === 'КА' && n4 !== null && n4 >= 4000 && n4 <= 9999) return {w: 600, d: n4};
 
+  // КА4000..8999 (как раньше)
+  if(p2 === 'КА' && n4 !== null && n4 >= 4000 && n4 <= 8999) return {w: 600, d: n4};
+
+  // КА9*** отдельно, чтобы МА шла ПОСЛЕ неё
+  if(p2 === 'КА' && n4 !== null && n4 >= 9000 && n4 <= 9999) return {w: 700, d: n4};
+
+  // МА после КА9***
   if(p2 === 'МА') return {w: 800, d: (n4 ?? 9999)};
+
+  // КЕ6000..9999 (как раньше)
   if(p2 === 'КЕ' && n4 !== null && n4 >= 6000 && n4 <= 9999) return {w: 900, d: n4};
+
   if(p2 === 'КН') return {w: 1000, d: (n4 ?? 9999)};
 
   const tailOrder = ['АА','АВ','АЕ','АИ','АК','АМ','АН','АО','АР','АС','АТ','АХ','ВА','ВВ'];
@@ -374,14 +403,20 @@ function busPriorityKey(plateRU){
 
   return {w: 9999, d: (n4 ?? 9999)};
 }
+
 function comparePlateRU(aRU, bRU){
   if(aRU < bRU) return -1;
   if(aRU > bRU) return 1;
   return 0;
 }
-function numSortAlg(a, b){
-  const aRaw = (a.vehicleNumber || '').toString().trim();
-  const bRaw = (b.vehicleNumber || '').toString().trim();
+
+/**
+ * Универсальный номерной алгоритм: сортирует по "полю номера" (vehicleNumber/exNumber).
+ * Для автобусов применяет busPriorityKey, для остальных — обычное сравнение нормализованных строк.
+ */
+function numSortAlgByField(a, b, field){
+  const aRaw = (a[field] || '').toString().trim();
+  const bRaw = (b[field] || '').toString().trim();
 
   if(!aRaw && !bRaw) return 0;
   if(!aRaw) return 1;
@@ -405,11 +440,19 @@ function numSortAlg(a, b){
   const r2 = comparePlateRU(aRU, bRU);
   if(r2 !== 0) return r2;
 
+  // запасной вариант: исходные строки
   const aU = aRaw.toUpperCase();
   const bU = bRaw.toUpperCase();
   if(aU < bU) return -1;
   if(aU > bU) return 1;
   return 0;
+}
+
+function numSortAlg(a, b){
+  return numSortAlgByField(a, b, 'vehicleNumber');
+}
+function exNumSortAlg(a, b){
+  return numSortAlgByField(a, b, 'exNumber');
 }
 
 function normWriteoffDateForSort(s){
@@ -418,6 +461,7 @@ function normWriteoffDateForSort(s){
   return m[2] + pad2(m[1]);
 }
 function normFactoryForSort(s){
+  // Нормализация латиница/кириллица + удаление пробелов/дефисов
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/[\s\-]/g, '');
   s = s.replace(/[A-ZА-ЯІ]/g, ch => canonToRU(ch));
@@ -433,12 +477,19 @@ function basePriorityCompare(a, b){
   const bt = typeWeight(b.type);
   if(at !== bt) return at - bt;
 
+  // в качестве последнего tie-break оставляем обычный "номер"
   return numSortAlg(a, b);
 }
 
 function generalSort(a, b){
   if(sortF === "vehicleNumber") {
     const r = numSortAlg(a, b);
+    if(r !== 0) return sortDesc ? -r : r;
+    return basePriorityCompare(a, b);
+  }
+
+  if(sortF === "exNumber") {
+    const r = exNumSortAlg(a, b);
     if(r !== 0) return sortDesc ? -r : r;
     return basePriorityCompare(a, b);
   }
@@ -564,8 +615,6 @@ function applyMeasuredColumnWidths(){
   const MIN_W = 40;
   const MAX_W_DEFAULT = 260;
 
-  // при запрете разрыва слов, для wrap-колонок max-width лучше держать умеренным,
-  // иначе таблица раздуется; но если есть длинное слово без пробелов — оно просто расширит колонку через X-скролл.
   const MAX_W_NOTE = 360;
   const MAX_W_NUM  = 200;
 
@@ -614,14 +663,11 @@ function updateVerticalScrollMode(){
   const wrap = document.getElementById('tableWrap');
   if(!wrap) return;
 
-  // включаем внутренний Y-скролл только если реально возможны переносы по пробелам
-  // (т.е. есть хотя бы одна ячейка с пробелом в note или vehicleNumber)
   const needWrapBySpace =
     VIEW.some(v => hasSpace(v.note) || hasSpace(v.vehicleNumber));
 
   if(needWrapBySpace){
     wrap.style.overflowY = 'auto';
-    // max-height выставим updateStickyMetrics()
     updateStickyMetrics();
   } else {
     wrap.style.overflowY = 'visible';
