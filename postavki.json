@@ -1,12 +1,12 @@
 {
-  "updatedAt": "02.03.2026 12:41",
+  "updatedAt": "02.03.2026 23:09",
   "vehicles": [
     {
       "type": "ТУАХ",
       "model": "МАЗ-203Т70 (у/п)",
       "year": "2026",
       "deliveryDate": "02.2026",
-      "park": "",
+      "park": "ТП3",
       "licensePlate": "",
       "factoryNumber": "",
       "garageNumber": "",
