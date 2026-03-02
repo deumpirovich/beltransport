@@ -1,6 +1,58 @@
 {
-  "updatedAt": "27.02.2026 19:36",
+  "updatedAt": "02.03.2026 23:26",
   "vehicles": [
+    {
+      "type": "Автобус",
+      "model": "МАЗ-203",
+      "year": "2008",
+      "park": "ТП1",
+      "licensePlate": "АК1059-7",
+      "exNumber": "",
+      "garageNumber": "25798",
+      "factoryNumber": "",
+      "writeoffDate": "02.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Автобус",
+      "model": "МАЗ-203",
+      "year": "2008",
+      "park": "ТП1",
+      "licensePlate": "АК0714-7",
+      "exNumber": "",
+      "garageNumber": "38238",
+      "factoryNumber": "",
+      "writeoffDate": "02.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Автобус",
+      "model": "МАЗ-203",
+      "year": "2010",
+      "park": "ТП2",
+      "licensePlate": "АК4306-7",
+      "exNumber": "",
+      "garageNumber": "40967",
+      "factoryNumber": "",
+      "writeoffDate": "02.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Автобус",
+      "model": "МАЗ-107",
+      "year": "2011",
+      "park": "АП5",
+      "licensePlate": "АК3922-7",
+      "exNumber": "",
+      "garageNumber": "33332",
+      "factoryNumber": "",
+      "writeoffDate": "02.2026",
+      "note": "",
+      "gray": {}
+    },
     {
       "type": "Трамвай",
       "model": "Татра Т6Б5",
