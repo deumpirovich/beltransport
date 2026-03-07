@@ -5,12 +5,12 @@
       "type": "Автобус",
       "vehicleNumber": "АЕ3749-7",
       "year": "2008",
-      "model": "МАЗ-103",
+      "model": "МАЗ-103 (у/п)",
       "park": "АП5",
       "garageNumber": "13617",
       "factoryNumber": "",
       "livery": "жёлтый",
-      "noteHtml": "учебно-пассажирский",
+      "noteHtml": "",
       "gray": {}
     },
     {
@@ -6641,12 +6641,12 @@
       "type": "Автобус",
       "vehicleNumber": "АЕ9573-7",
       "year": "2009",
-      "model": "МАЗ-105",
+      "model": "МАЗ-105 (у/п)",
       "park": "АП6",
       "garageNumber": "23558",
       "factoryNumber": "",
       "livery": "жёлтый",
-      "noteHtml": "учебно-пассажирский",
+      "noteHtml": "",
       "gray": {}
     },
     {
