@@ -70,6 +70,11 @@ color:#2543a5;
 font-weight:bold;
 }
 
+.noteBtn{
+cursor:pointer;
+color:#2543a5;
+}
+
 </style>
 </head>
 
@@ -125,6 +130,8 @@ const TAB_ORDER=[
 {key:"_all",label:"All"}
 ]
 
+/* тип транспорта */
+
 function normType(t){
 return (t||"").toLowerCase().trim()
 }
@@ -171,6 +178,8 @@ return 9
 
 }
 
+/* номер */
+
 function normalizePlate(s){
 
 return (s||"")
@@ -208,10 +217,14 @@ let secB=transportSection(b)
 
 if(secA!==secB)return sectionOrder(secA)-sectionOrder(secB)
 
+/* 2 буквы раньше 3 */
+
 let la=prefixLen(pa)
 let lb=prefixLen(pb)
 
 if(la!==lb)return la-lb
+
+/* буквы */
 
 let ma=pa.match(/^([А-Я]{2,3})/)
 let mb=pb.match(/^([А-Я]{2,3})/)
@@ -222,6 +235,8 @@ if(ma[1]<mb[1])return-1
 if(ma[1]>mb[1])return 1
 
 }
+
+/* цифры */
 
 let na=pa.match(/\d+/)
 let nb=pb.match(/\d+/)
@@ -238,6 +253,8 @@ if(n1!==n2)return n1-n2
 return pa.localeCompare(pb)
 
 }
+
+/* гаражный */
 
 function garageColumn(s){
 
@@ -267,6 +284,8 @@ if(pa!==pb)return pa?1:-1
 return ak.localeCompare(bk)
 
 }
+
+/* бренд модели */
 
 function brandOrder(m){
 
@@ -299,6 +318,8 @@ return ma.localeCompare(mb,"ru")
 
 }
 
+/* заводской */
+
 function factorySort(a,b){
 
 let r=modelSort(a,b)
@@ -324,6 +345,8 @@ return fa.localeCompare(fb)
 
 }
 
+/* общий компаратор */
+
 function sortCompare(a,b){
 
 if(sortF==="vehicleNumber")return numberSort(a,b)
@@ -334,6 +357,28 @@ if(sortF==="model")return modelSort(a,b)
 return numberSort(a,b)
 
 }
+
+/* группировка */
+
+function groupBy(arr,fn){
+
+let m={}
+
+for(let v of arr){
+
+let k=fn(v)
+
+if(!m[k])m[k]=[]
+
+m[k].push(v)
+
+}
+
+return m
+
+}
+
+/* табы */
 
 function renderTabs(){
 
@@ -366,6 +411,8 @@ wrap.appendChild(div)
 }
 
 }
+
+/* рендер */
 
 function render(){
 
@@ -426,6 +473,8 @@ tbody.appendChild(row)
 
 }
 
+/* загрузка */
+
 async function load(){
 
 try{
@@ -445,6 +494,8 @@ console.error(e)
 }
 
 }
+
+/* сортировка по клику */
 
 document.querySelectorAll("th[data-f]").forEach(th=>{
 
