@@ -24,7 +24,7 @@
     .tab{padding:3px 10px; border-radius:10px; border:1px solid #cfd7ea; background:#eef3ff; cursor:pointer; user-select:none; font-size:12px; white-space:nowrap; font-family: Arial, sans-serif;}
     .tab.active{background:#2543a5; color:#fff; border-color:#2543a5;}
     .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
-    .search {margin:6px 0 7px 0; display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+    .search {margin:6px 0 7px 0;}
 
     .tableWrap{
       margin-top: 8px;
@@ -145,23 +145,38 @@
       height: 30px;
     }
 
+    /* modal note */
     .modalBack{
       position:fixed; inset:0; background:rgba(0,0,0,.25);
       display:none; align-items:center; justify-content:center; padding:16px;
       z-index:9999;
     }
     .modal{
-      width:min(820px, 98vw);
+      width:min(560px, 96vw); /* narrower */
       background:#fff; border-radius:10px; box-shadow:0 6px 26px rgba(30,40,90,.2);
       padding:12px 12px 10px 12px;
       font-family: Arial, sans-serif;
     }
-    .modal h3{margin:0 0 6px 0; font-size:14px; color:#1c3789;}
-    .modal .meta{font-size:12px; color:#5b6b98; margin-bottom:8px; line-height:1.25;}
-    .modal .noteBody{
+    .noteTitleLine{
+      font-weight:700;
+      color:#2543a5;
+      font-size:13px; /* same as base */
+      margin:0 0 6px 0;
+    }
+    .noteInfoLine{
+      font-weight:700;
+      color:#2543a5;
+      font-size:11px; /* -2 пункта от 13 */
+      margin:0 0 10px 0;
+      line-height:1.25;
+    }
+    .noteBody{
       border:1px solid #d9e2f7; border-radius:8px; padding:10px 10px;
       max-height: 60vh; overflow:auto; background:#fbfcff;
       text-align:left;
+      color:#2543a5;
+      font-size:11px; /* same as info line */
+      line-height:1.35;
     }
     .modalActions{display:flex; gap:8px; justify-content:flex-end; margin-top:10px;}
     .btn{padding:4px 11px;border-radius:6px;border:none;background:#e3ecfb;color:#2543a5;cursor:pointer;font-size:12px; font-family: Arial, sans-serif;}
@@ -188,7 +203,6 @@
     </div>
 
     <div class="tabs" id="tabs"></div>
-
     <div class="search"></div>
   </div>
 
@@ -234,8 +248,8 @@
 
 <div class="modalBack" id="noteModalBack" onclick="if(event.target.id==='noteModalBack') closeNote()">
   <div class="modal">
-    <h3 id="noteTitle">Примечание</h3>
-    <div class="meta" id="noteMeta"></div>
+    <div class="noteTitleLine" id="noteTitleLine">Примечание</div>
+    <div class="noteInfoLine" id="noteInfoLine"></div>
     <div class="noteBody" id="noteBody"></div>
     <div class="modalActions">
       <button class="btn" onclick="closeNote()">Закрыть</button>
@@ -301,7 +315,7 @@ window.addEventListener('resize', ()=> {
   requestAnimationFrame(applyMeasuredColumnWidths);
 });
 
-/* ===== latin -> cyr lookalikes ===== */
+/* ===== latin/cyr maps ===== */
 function canonToRU(ch){
   const map = {
     'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У',
@@ -310,6 +324,16 @@ function canonToRU(ch){
   const u = (ch||'').toString().toUpperCase();
   return map[u] || u;
 }
+function canonToLAT(ch){
+  // cyr -> lat lookalikes for factory normalization requirement
+  const map = {
+    'А':'A','В':'B','С':'C','Е':'E','Н':'H','К':'K','М':'M','О':'O','Р':'P','Т':'T','Х':'X','У':'Y','І':'I','И':'I',
+    'A':'A','B':'B','C':'C','E':'E','H':'H','K':'K','M':'M','O':'O','P':'P','T':'T','X':'X','Y':'Y','I':'I'
+  };
+  const u = (ch||'').toString().toUpperCase();
+  return map[u] || u;
+}
+
 function normPlateRU(s){
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/[\s\-]/g, '');
@@ -320,6 +344,12 @@ function normAlnumRU(s){
   s = (s||'').toString().trim().toUpperCase();
   s = s.replace(/\s+/g,'');
   s = s.replace(/[A-ZА-ЯІ]/g, ch => canonToRU(ch));
+  return s;
+}
+function normAlnumLAT(s){
+  s = (s||'').toString().trim().toUpperCase();
+  s = s.replace(/\s+/g,'');
+  s = s.replace(/[A-ZА-ЯІ]/g, ch => canonToLAT(ch));
   return s;
 }
 
@@ -419,9 +449,6 @@ function transportSectionKey(v){
   if(t === 'трамвай') return 'tram';
   return 'other';
 }
-function headerLabelWithCount(label, count){
-  return `${label} (${count})`;
-}
 
 /* ===== html ===== */
 function escapeHTML(s){
@@ -444,6 +471,37 @@ function tdClass(v, key, baseClass=''){
   if(baseClass) c.push(baseClass);
   if(isMuted(v, key)) c.push('muted');
   return c.length ? ` class="${c.join(' ')}"` : '';
+}
+
+/* ===== normalize livery ===== */
+function normalizeQuotesToGuillemets(s){
+  s = (s||'').toString();
+  s = s.replace(/[“”„"]/g, '"');
+  s = s.replace(/"([^"]+)"/g, '«$1»');
+  return s;
+}
+function normalizeDashes(s){
+  s = (s||'').toString();
+  s = s.replace(/[—–−]/g, '–');
+  s = s.replace(/\s-\s/g, ' – ');
+  s = s.replace(/\s*–\s*/g, ' – ');
+  return s;
+}
+function normalizeSpaces(s){
+  return (s||'').toString().replace(/\s+/g, ' ').trim();
+}
+function normalizeLivery(s){
+  return normalizeSpaces(normalizeDashes(normalizeQuotesToGuillemets(s)));
+}
+
+/* ===== model normalize ===== */
+function normalizeModel(s){
+  let m = (s||'').toString().trim();
+  if(!m) return '';
+  m = m.replace(/[–—−]/g,'-').replace(/\s+/g,' ');
+  m = m.replace(/^(МАЗ|MAZ)\s*-\s*103\s*[cс]$/i, 'МАЗ-103с');
+  m = m.replace(/^(МАЗ|MAZ)\s*-\s*203\s*[cс]$/i, 'МАЗ-203с');
+  return m;
 }
 
 /* ===== NOTE HTML whitelist ===== */
@@ -503,37 +561,6 @@ function sanitizeNoteHTML(html){
   });
 
   return wrap.innerHTML;
-}
-
-/* ===== normalize livery ===== */
-function normalizeQuotesToGuillemets(s){
-  s = (s||'').toString();
-  s = s.replace(/[“”„"]/g, '"');
-  s = s.replace(/"([^"]+)"/g, '«$1»');
-  return s;
-}
-function normalizeDashes(s){
-  s = (s||'').toString();
-  s = s.replace(/[—–−]/g, '–');
-  s = s.replace(/\s-\s/g, ' – ');
-  s = s.replace(/\s*–\s*/g, ' – ');
-  return s;
-}
-function normalizeSpaces(s){
-  return (s||'').toString().replace(/\s+/g, ' ').trim();
-}
-function normalizeLivery(s){
-  return normalizeSpaces(normalizeDashes(normalizeQuotesToGuillemets(s)));
-}
-
-/* ===== model normalize ===== */
-function normalizeModel(s){
-  let m = (s||'').toString().trim();
-  if(!m) return '';
-  m = m.replace(/[–—−]/g,'-').replace(/\s+/g,' ');
-  m = m.replace(/^(МАЗ|MAZ)\s*-\s*103\s*[cс]$/i, 'МАЗ-103с');
-  m = m.replace(/^(МАЗ|MAZ)\s*-\s*203\s*[cс]$/i, 'МАЗ-203с');
-  return m;
 }
 
 /* ===== number sorting ===== */
@@ -631,7 +658,6 @@ function numSortAlg(a, b){
 
 /* ===== garage sort + grouping ===== */
 function garageGroupDigit(s){
-  // returns integer column digit if starts with digit or (digit)
   s = (s||'').toString().trim();
   const m1 = s.match(/^$(\d)$/);
   if(m1) return parseInt(m1[1],10);
@@ -668,25 +694,78 @@ function compareGarage(a, b){
   if(ak.tail > bk.tail) return 1;
   return 0;
 }
-
-/* ===== factory sort (per model) ===== */
-function factorySortKey(s){
-  const raw = (s||'').toString().trim();
-  if(!raw) return {kind: 9, headNum: null, tail:''};
-  const norm = normAlnumRU(raw);
-  const m = norm.match(/^(\d+)(.*)$/);
-  if(m) return {kind: 0, headNum: parseInt(m[1],10), tail: m[2] || ''};
-  return {kind: 1, headNum: null, tail: norm};
+function sortByGarage(list){
+  list.sort((a,b)=>{
+    const rg = compareGarage(a.garageNumber, b.garageNumber);
+    if(rg !== 0) return rg;
+    return numSortAlg(a,b);
+  });
 }
-function compareFactory(a, b){
-  const ak = factorySortKey(a);
-  const bk = factorySortKey(b);
-  if(ak.kind !== bk.kind) return ak.kind - bk.kind;
-  if(ak.kind === 0 && ak.headNum !== bk.headNum) return (ak.headNum||0) - (bk.headNum||0);
+function groupByGarageColumnDigit(list){
+  const groups = new Map(); // digit -> array
+  const other = [];
+  for(const v of list){
+    const d = garageGroupDigit(v.garageNumber);
+    if(d === null) other.push(v);
+    else {
+      if(!groups.has(d)) groups.set(d, []);
+      groups.get(d).push(v);
+    }
+  }
+  const digits = Array.from(groups.keys()).sort((a,b)=>a-b);
+  return {digits, groups, other};
+}
+
+/* ===== factory sort: digits first, then letters; Cyrillic->Latin normalization ===== */
+function factorySortKeyLatinized(s){
+  const raw = (s||'').toString().trim();
+  if(!raw) return {empty:1, kind:9, headNum:null, tail:''};
+
+  const norm = normAlnumLAT(raw); // normalize to LAT lookalikes
+  // digits first
+  const m = norm.match(/^(\d+)(.*)$/);
+  if(m){
+    return {empty:0, kind:0, headNum: parseInt(m[1],10), tail: (m[2]||'')};
+  }
+  return {empty:0, kind:1, headNum:null, tail: norm};
+}
+function compareFactoryLatinized(a, b){
+  const ak = factorySortKeyLatinized(a);
+  const bk = factorySortKeyLatinized(b);
+
+  if(ak.empty !== bk.empty) return ak.empty - bk.empty; // empty last
+  if(ak.kind !== bk.kind) return ak.kind - bk.kind;     // digits first
+  if(ak.kind === 0){
+    if(ak.headNum !== bk.headNum) return (ak.headNum||0) - (bk.headNum||0);
+  }
   if(ak.tail < bk.tail) return -1;
   if(ak.tail > bk.tail) return 1;
   return 0;
 }
+
+/* ===== NOTE modal open ===== */
+function openNote(v){
+  const back = document.getElementById('noteModalBack');
+  const info = document.getElementById('noteInfoLine');
+  const body = document.getElementById('noteBody');
+
+  const parts = [];
+  parts.push(typeLabel(v.type));
+  parts.push(cellText(v.vehicleNumber) || '—');
+  if(cellText(v.year)) parts.push(cellText(v.year));
+  if(cellText(v.model)) parts.push(normalizeModel(v.model));
+  if(cellText(v.park)) parts.push(parkFullLabelFromKey(parkKey(v.park)));
+  if(cellText(v.garageNumber)) parts.push('гар. ' + cellText(v.garageNumber));
+  if(cellText(v.livery)) parts.push(normalizeLivery(v.livery));
+
+  info.textContent = parts.filter(Boolean).join(' • ');
+
+  const safe = sanitizeNoteHTML(v.noteHtml || v.note || '');
+  body.innerHTML = safe || '<span class="no">—</span>';
+
+  back.style.display = 'flex';
+}
+function closeNote(){ document.getElementById('noteModalBack').style.display = 'none'; }
 
 /* ===== general sort (All) ===== */
 function generalSort(a, b){
@@ -914,281 +993,16 @@ function renderTabs(){
   });
 }
 
-/* ===== note modal ===== */
-function openNote(v){
-  const back = document.getElementById('noteModalBack');
-  const title = document.getElementById('noteTitle');
-  const meta = document.getElementById('noteMeta');
-  const body = document.getElementById('noteBody');
-
-  const partsTitle = [];
-  partsTitle.push(typeLabel(v.type));
-  if(cellText(v.vehicleNumber)) partsTitle.push(cellText(v.vehicleNumber));
-  if(cellText(v.year)) partsTitle.push(cellText(v.year));
-  if(cellText(v.model)) partsTitle.push(normalizeModel(v.model));
-  if(cellText(v.park)) partsTitle.push(parkFullLabelFromKey(parkKey(v.park)));
-  if(cellText(v.garageNumber)) partsTitle.push('гар. ' + cellText(v.garageNumber));
-  if(cellText(v.factoryNumber)) partsTitle.push('зав. ' + cellText(v.factoryNumber));
-  if(cellText(v.livery)) partsTitle.push(normalizeLivery(v.livery));
-
-  title.textContent = 'Примечание — ' + partsTitle.filter(Boolean).join(' • ');
-
-  const metaParts = [];
-  metaParts.push('Тип: ' + typeLabel(v.type));
-  metaParts.push('Номер: ' + (cellText(v.vehicleNumber) || '—'));
-  metaParts.push('Год: ' + (cellText(v.year) || '—'));
-  metaParts.push('Модель: ' + (cellText(normalizeModel(v.model)) || '—'));
-  metaParts.push('Парк: ' + parkFullLabelFromKey(parkKey(v.park)));
-  metaParts.push('Гаражный: ' + (cellText(v.garageNumber) || '—'));
-  metaParts.push('Заводской: ' + (cellText(v.factoryNumber) || '—'));
-  metaParts.push('Цвет/оформление: ' + (cellText(normalizeLivery(v.livery)) || '—'));
-  meta.textContent = metaParts.join(' | ');
-
-  const safe = sanitizeNoteHTML(v.noteHtml || v.note || '');
-  body.innerHTML = safe || '<span class="no">—</span>';
-
-  back.style.display = 'flex';
-}
-function closeNote(){ document.getElementById('noteModalBack').style.display = 'none'; }
-
-/* ===== filtering helper ===== */
-function normVehicleNumberForSearch(s){
-  return normPlateRU(s);
-}
-
-/* ===== park-mode sort functions (garage/factory) ===== */
-function sortByGarage(list){
-  list.sort((a,b)=>{
-    const rg = compareGarage(a.garageNumber, b.garageNumber);
-    if(rg !== 0) return rg;
-    // inside same garage key: number
-    return numSortAlg(a,b);
-  });
-}
-function groupByGarageColumnDigit(list){
-  const groups = new Map(); // digit -> array
-  const other = [];
-  for(const v of list){
-    const d = garageGroupDigit(v.garageNumber);
-    if(d === null) other.push(v);
-    else {
-      if(!groups.has(d)) groups.set(d, []);
-      groups.get(d).push(v);
-    }
-  }
-  const digits = Array.from(groups.keys()).sort((a,b)=>a-b);
-  return {digits, groups, other};
-}
-
-function sortByFactoryPerModel(list){
-  // Group by normalized model; sort each by factory; models order alpha
-  const byModel = new Map();
-  for(const v of list){
-    const m = normalizeModel(v.model) || '—';
-    if(!byModel.has(m)) byModel.set(m, []);
-    byModel.get(m).push(v);
-  }
-  const models = Array.from(byModel.keys()).sort((a,b)=>{
-    const aa = a.toLowerCase(), bb = b.toLowerCase();
-    if(aa < bb) return -1;
-    if(aa > bb) return 1;
-    return 0;
-  });
-  return {byModel, models};
-}
-
-/* ===== rendering ===== */
-function render(){
-  VIEW_RENDERED = [];
-
-  const colFilters = {};
-  document.querySelectorAll('.colFilter').forEach(inp=>{
-    const col = inp.getAttribute('data-col');
-    const val = (inp.value || '').toString().trim();
-    if(val) colFilters[col] = val;
-  });
-
-  VIEW = DATA.filter(v=>{
-    if(activeTab !== '_all'){
-      if(parkKey(v.park) !== activeTab) return false;
-    }
-
-    for(const [col, rawNeedle] of Object.entries(colFilters)){
-      const needle = rawNeedle.toString().toLowerCase();
-
-      if(col === 'type'){
-        const hay = typeLabel(v.type).toLowerCase();
-        if(!hay.includes(needle)) return false;
-        continue;
-      }
-
-      if(col === 'vehicleNumber' || col === 'garageNumber' || col === 'factoryNumber'){
-        const hay = normVehicleNumberForSearch(v[col]);
-        const n = normVehicleNumberForSearch(rawNeedle);
-        if(!hay.includes(n)) return false;
-        continue;
-      }
-
-      if(col === 'park'){
-        const hay = parkShortLabel(v.park).toLowerCase();
-        const hay2 = parkKey(v.park);
-        if(!hay.includes(needle) && !hay2.includes(needle.replace(/[.\s\-]/g,''))) return false;
-        continue;
-      }
-
-      if(col === 'livery'){
-        const hay = normalizeLivery(v.livery).toLowerCase();
-        if(!hay.includes(needle)) return false;
-        continue;
-      }
-
-      if(col === 'model'){
-        const hay = normalizeModel(v.model).toLowerCase();
-        if(!hay.includes(needle)) return false;
-        continue;
-      }
-
-      const hay = (v[col] || '').toString().toLowerCase();
-      if(!hay.includes(needle)) return false;
-    }
-
-    return true;
-  });
-
-  // base sort (for All and non-park modes)
-  VIEW.sort(generalSort);
-
-  document.getElementById('countShown').textContent = VIEW.length;
-  document.getElementById('countAll').textContent = DATA.length;
-
-  const tbody = document.getElementById('data');
-  const empty = document.getElementById('empty');
-
-  if(!VIEW.length){
-    tbody.innerHTML = '';
-    empty.style.display = '';
-    setColumnVisibility(COLS.map(c=>c.key));
-    requestAnimationFrame(()=> {
-      updateStickyMetrics();
-      applyMeasuredColumnWidths();
-    });
-    return;
-  }
-  empty.style.display = 'none';
-
-  const visibleCols = computeVisibleCols();
-  setColumnVisibility(visibleCols);
-  const visibleSet = new Set(visibleCols);
-
-  const rows = [];
-
-  function pushDataRow(v){
-    VIEW_RENDERED.push(v);
-
-    const num = cellText(v.vehicleNumber);
-    const hasNote = !!cellText(v.noteHtml || v.note);
-    const cells = [];
-
-    if(visibleSet.has('type')) cells.push(`<td${tdClass(v,'type')}>${escapeHTML(typeLabel(v.type))}</td>`);
-    if(visibleSet.has('vehicleNumber')) cells.push(`<td${tdClass(v,'vehicleNumber','num numCell')} title="${escapeHTML(num)}">${cellHTMLText(num)}</td>`);
-    if(visibleSet.has('_note')){
-      cells.push(`<td${tdClass(v,'noteHtml','')} style="padding:6px 4px;">
-        ${hasNote ? `<span class="noteBtn" title="Примечание">&#10148;</span>` : ``}
-      </td>`);
-    }
-    if(visibleSet.has('year')) cells.push(`<td${tdClass(v,'year')}>${cellHTMLText(v.year)}</td>`);
-    if(visibleSet.has('model')) cells.push(`<td${tdClass(v,'model')}>${cellHTMLText(normalizeModel(v.model))}</td>`);
-    if(visibleSet.has('park')) cells.push(`<td${tdClass(v,'park')}>${cellHTMLText(parkShortLabel(v.park))}</td>`);
-    if(visibleSet.has('garageNumber')) cells.push(`<td${tdClass(v,'garageNumber')}>${cellHTMLText(v.garageNumber)}</td>`);
-    if(visibleSet.has('factoryNumber')) cells.push(`<td${tdClass(v,'factoryNumber')}>${cellHTMLText(v.factoryNumber)}</td>`);
-    if(visibleSet.has('livery')) cells.push(`<td${tdClass(v,'livery','liveryCell')}>${cellHTMLText(normalizeLivery(v.livery))}</td>`);
-
-    rows.push(`<tr class="dataRow">${cells.join('')}</tr>`);
-  }
-
-  const isAll = (activeTab === '_all');
-  const isGarageTab = GARAGE_TABS.has(activeTab);
-  const isFactoryTab = FACTORY_TABS.has(activeTab);
-
-  // ===== PARK TABS: Garage mode (АП5/АП6/АП7/ТП1/ТП2/ТП4) =====
-  if(!isAll && isGarageTab){
-    // sort by garage
-    const list = VIEW.slice();
-    sortByGarage(list);
-
-    const {digits, groups, other} = groupByGarageColumnDigit(list);
-
-    for(const d of digits){
-      const arr = groups.get(d) || [];
-      rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
-        ${escapeHTML(headerLabelWithCount(`${d} колонна`, arr.length))}
-      </td></tr>`);
-      for(const v of arr) pushDataRow(v);
-    }
-
-    if(other.length){
-      rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
-        ${escapeHTML(headerLabelWithCount(`Прочее`, other.length))}
-      </td></tr>`);
-      for(const v of other) pushDataRow(v);
-    }
-  }
-  // ===== PARK TABS: Factory mode (all park tabs) when sorting by factory explicitly =====
-  else if(!isAll && isFactoryTab && sortF === 'factoryNumber'){
-    // per model factory sort, with model headers
-    const list = VIEW.slice();
-    const {byModel, models} = sortByFactoryPerModel(list);
-
-    for(const mk of models){
-      const arr = byModel.get(mk) || [];
-      arr.sort((a,b)=>{
-        const rF = compareFactory(a.factoryNumber, b.factoryNumber);
-        if(rF !== 0) return rF;
-        return numSortAlg(a,b);
-      });
-
-      rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
-        ${escapeHTML(headerLabelWithCount(mk, arr.length))}
-      </td></tr>`);
-      for(const v of arr) pushDataRow(v);
-    }
-  }
-  // ===== default rendering (All or other sorts) =====
-  else {
-    for(const v of VIEW) pushDataRow(v);
-  }
-
-  tbody.innerHTML = rows.join('');
-
-  tbody.querySelectorAll('.noteBtn').forEach(btn=>{
-    btn.onclick = (e)=>{
-      e.preventDefault();
-      const tr = btn.closest('tr.dataRow');
-      if(!tr) return;
-      const dataRows = Array.from(tbody.querySelectorAll('tr.dataRow'));
-      const idx = dataRows.indexOf(tr);
-      if(idx >= 0 && VIEW_RENDERED[idx]) openNote(VIEW_RENDERED[idx]);
-    };
-  });
-
-  requestAnimationFrame(()=> {
-    updateStickyMetrics();
-    applyMeasuredColumnWidths();
-  });
-}
-
 /* ===== sorting ui ===== */
 document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick = ()=>{
     const f = th.getAttribute('data-f');
 
-    // no sorting for note column and livery
     if(f === '_note' || f === 'livery') return;
 
     // In All: disallow garage/factory sort
     if(activeTab === '_all' && (f === 'garageNumber' || f === 'factoryNumber')) return;
 
-    // In park tabs: allow clicking garage/factory (as requested)
     document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
     th.classList.add('active');
 
@@ -1269,6 +1083,208 @@ async function loadJson(){
   }
 }
 
+/* ===== render ===== */
+function render(){
+  VIEW_RENDERED = [];
+
+  const colFilters = {};
+  document.querySelectorAll('.colFilter').forEach(inp=>{
+    const col = inp.getAttribute('data-col');
+    const val = (inp.value || '').toString().trim();
+    if(val) colFilters[col] = val;
+  });
+
+  VIEW = DATA.filter(v=>{
+    if(activeTab !== '_all'){
+      if(parkKey(v.park) !== activeTab) return false;
+    }
+
+    for(const [col, rawNeedle] of Object.entries(colFilters)){
+      const needle = rawNeedle.toString().toLowerCase();
+
+      if(col === 'type'){
+        const hay = typeLabel(v.type).toLowerCase();
+        if(!hay.includes(needle)) return false;
+        continue;
+      }
+
+      if(col === 'vehicleNumber' || col === 'garageNumber' || col === 'factoryNumber'){
+        const hay = normPlateRU(v[col]);
+        const n = normPlateRU(rawNeedle);
+        if(!hay.includes(n)) return false;
+        continue;
+      }
+
+      if(col === 'park'){
+        const hay = parkShortLabel(v.park).toLowerCase();
+        const hay2 = parkKey(v.park);
+        if(!hay.includes(needle) && !hay2.includes(needle.replace(/[.\s\-]/g,''))) return false;
+        continue;
+      }
+
+      if(col === 'livery'){
+        const hay = normalizeLivery(v.livery).toLowerCase();
+        if(!hay.includes(needle)) return false;
+        continue;
+      }
+
+      if(col === 'model'){
+        const hay = normalizeModel(v.model).toLowerCase();
+        if(!hay.includes(needle)) return false;
+        continue;
+      }
+
+      const hay = (v[col] || '').toString().toLowerCase();
+      if(!hay.includes(needle)) return false;
+    }
+
+    return true;
+  });
+
+  // base sort
+  VIEW.sort(generalSort);
+
+  document.getElementById('countShown').textContent = VIEW.length;
+  document.getElementById('countAll').textContent = DATA.length;
+
+  const tbody = document.getElementById('data');
+  const empty = document.getElementById('empty');
+
+  if(!VIEW.length){
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    setColumnVisibility(COLS.map(c=>c.key));
+    requestAnimationFrame(()=> {
+      updateStickyMetrics();
+      applyMeasuredColumnWidths();
+    });
+    return;
+  }
+  empty.style.display = 'none';
+
+  const visibleCols = computeVisibleCols();
+  setColumnVisibility(visibleCols);
+  const visibleSet = new Set(visibleCols);
+
+  const rows = [];
+
+  function pushDataRow(v){
+    VIEW_RENDERED.push(v);
+
+    const num = cellText(v.vehicleNumber);
+    const hasNote = !!cellText(v.noteHtml || v.note);
+    const cells = [];
+
+    if(visibleSet.has('type')) cells.push(`<td${tdClass(v,'type')}>${escapeHTML(typeLabel(v.type))}</td>`);
+    if(visibleSet.has('vehicleNumber')) cells.push(`<td${tdClass(v,'vehicleNumber','num numCell')} title="${escapeHTML(num)}">${cellHTMLText(num)}</td>`);
+    if(visibleSet.has('_note')){
+      cells.push(`<td${tdClass(v,'noteHtml','')} style="padding:6px 4px;">
+        ${hasNote ? `<span class="noteBtn" title="Примечание">&#10148;</span>` : ``}
+      </td>`);
+    }
+    if(visibleSet.has('year')) cells.push(`<td${tdClass(v,'year')}>${cellHTMLText(v.year)}</td>`);
+    if(visibleSet.has('model')) cells.push(`<td${tdClass(v,'model')}>${cellHTMLText(normalizeModel(v.model))}</td>`);
+    if(visibleSet.has('park')) cells.push(`<td${tdClass(v,'park')}>${cellHTMLText(parkShortLabel(v.park))}</td>`);
+    if(visibleSet.has('garageNumber')) cells.push(`<td${tdClass(v,'garageNumber')}>${cellHTMLText(v.garageNumber)}</td>`);
+    if(visibleSet.has('factoryNumber')) cells.push(`<td${tdClass(v,'factoryNumber')}>${cellHTMLText(v.factoryNumber)}</td>`);
+    if(visibleSet.has('livery')) cells.push(`<td${tdClass(v,'livery','liveryCell')}>${cellHTMLText(normalizeLivery(v.livery))}</td>`);
+
+    rows.push(`<tr class="dataRow">${cells.join('')}</tr>`);
+  }
+
+  const isAll = (activeTab === '_all');
+  const isGarageTab = GARAGE_TABS.has(activeTab);
+  const isFactoryTab = FACTORY_TABS.has(activeTab);
+
+  // PARK: garage mode (АП/ТП... subset)
+  if(!isAll && isGarageTab && sortF === 'garageNumber'){
+    const list = VIEW.slice();
+    sortByGarage(list);
+
+    const {digits, groups, other} = groupByGarageColumnDigit(list);
+
+    for(const d of digits){
+      const arr = groups.get(d) || [];
+      rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
+        ${escapeHTML(headerLabelWithCount(`${d} колонна`, arr.length))}
+      </td></tr>`);
+      for(const v of arr) pushDataRow(v);
+    }
+
+    if(other.length){
+      rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
+        ${escapeHTML(headerLabelWithCount(`Прочее`, other.length))}
+      </td></tr>`);
+      for(const v of other) pushDataRow(v);
+    }
+  }
+  // PARK: factory mode per model (ALL park tabs) when sorting by factoryNumber
+  else if(!isAll && isFactoryTab && sortF === 'factoryNumber'){
+    const list = VIEW.slice();
+
+    // group by model, sort models alpha; inside model sort by factory (latinized), then by number
+    const byModel = new Map();
+    for(const v of list){
+      const m = normalizeModel(v.model) || '—';
+      if(!byModel.has(m)) byModel.set(m, []);
+      byModel.get(m).push(v);
+    }
+    const models = Array.from(byModel.keys()).sort((a,b)=>{
+      const aa = a.toLowerCase(), bb = b.toLowerCase();
+      if(aa < bb) return -1;
+      if(aa > bb) return 1;
+      return 0;
+    });
+
+    for(const mk of models){
+      const arr = byModel.get(mk) || [];
+      arr.sort((a,b)=>{
+        const rF = compareFactoryLatinized(a.factoryNumber, b.factoryNumber);
+        if(rF !== 0) return rF;
+        return numSortAlg(a,b);
+      });
+
+      rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
+        ${escapeHTML(headerLabelWithCount(mk, arr.length))}
+      </td></tr>`);
+      for(const v of arr) pushDataRow(v);
+    }
+  }
+  // Default
+  else {
+    for(const v of VIEW) pushDataRow(v);
+  }
+
+  tbody.innerHTML = rows.join('');
+
+  tbody.querySelectorAll('.noteBtn').forEach(btn=>{
+    btn.onclick = (e)=>{
+      e.preventDefault();
+      const tr = btn.closest('tr.dataRow');
+      if(!tr) return;
+      const dataRows = Array.from(tbody.querySelectorAll('tr.dataRow'));
+      const idx = dataRows.indexOf(tr);
+      if(idx >= 0 && VIEW_RENDERED[idx]) openNote(VIEW_RENDERED[idx]);
+    };
+  });
+
+  requestAnimationFrame(()=> {
+    updateStickyMetrics();
+    applyMeasuredColumnWidths();
+  });
+}
+
+/* ===== column visibility ===== */
+function isEmptyByKey(v, key){
+  if(key === '_note') return !cellText(v.noteHtml || v.note);
+  if(key === 'type') return !normType(v.type);
+  if(key === 'park') return !cellText(parkShortLabel(v.park));
+  if(key === 'livery') return !cellText(normalizeLivery(v.livery));
+  if(key === 'model') return !cellText(normalizeModel(v.model));
+  return !cellText(v[key]);
+}
+
+/* ===== init ===== */
 renderTabs();
 loadJson();
 </script>
