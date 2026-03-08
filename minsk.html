@@ -47,7 +47,6 @@
       font-family: Arial, sans-serif;
     }
 
-    /* unify row height */
     th, td{
       padding: 6px 6px;
       text-align: center;
@@ -107,7 +106,6 @@
 
     td.muted{ color:#8b95a7; font-style:italic; font-weight: normal; }
 
-    /* note icon in separate narrow cell */
     .noteBtn{
       display:inline-flex;
       align-items:center;
@@ -125,7 +123,6 @@
     }
     .noteBtn:hover{ background:#dbe8ff; }
 
-    /* vehicleNumber: strictly one line */
     td.numCell{
       white-space: nowrap;
       overflow: hidden;
@@ -133,7 +130,6 @@
       line-height: 18px;
     }
 
-    /* livery: left align */
     td.liveryCell{
       text-align: left;
       padding-left: 10px;
@@ -149,7 +145,6 @@
       height: 30px;
     }
 
-    /* modal note */
     .modalBack{
       position:fixed; inset:0; background:rgba(0,0,0,.25);
       display:none; align-items:center; justify-content:center; padding:16px;
@@ -209,8 +204,8 @@
           <th data-f="year">Год</th>
           <th data-f="model">Модель</th>
           <th data-f="park">Парк</th>
-          <th data-f="garageNumber" style="cursor:default;">Гаражный</th>
-          <th data-f="factoryNumber" style="cursor:default;">Заводской</th>
+          <th data-f="garageNumber">Гаражный</th>
+          <th data-f="factoryNumber">Заводской</th>
           <th data-f="livery" style="cursor:default;">Цвет / реклама / оформление</th>
         </tr>
 
@@ -259,6 +254,33 @@ let sortF = "vehicleNumber";
 let sortDesc = false;
 
 let activeTab = "_all";
+
+/* ===== tabs (fixed order, renamed, with counts) ===== */
+const TAB_ORDER = [
+  {key:'автобусныйпарк5', label:'АП5'},
+  {key:'автобусныйпарк6', label:'АП6'},
+  {key:'автобусныйпарк7', label:'АП7'},
+  {key:'транспортныйпарк1', label:'ТП1'},
+  {key:'транспортныйпарк2', label:'ТП2'},
+  {key:'троллейбусныйпарк3', label:'ТП3'},
+  {key:'транспортныйпарк4', label:'ТП4'},
+  {key:'троллейбусныйпарк5', label:'ТП5'},
+  {key:'трамвайныйпарк', label:'ТрамП'},
+  {key:'_all', label:'All'}
+];
+
+// tabs where garage grouping/sort is required
+const GARAGE_TABS = new Set([
+  'автобусныйпарк5','автобусныйпарк6','автобусныйпарк7',
+  'транспортныйпарк1','транспортныйпарк2','транспортныйпарк4'
+]);
+
+// tabs where factory grouping/sort is required (all park tabs)
+const FACTORY_TABS = new Set([
+  'автобусныйпарк5','автобусныйпарк6','автобусныйпарк7',
+  'транспортныйпарк1','транспортныйпарк2','троллейбусныйпарк3',
+  'транспортныйпарк4','троллейбусныйпарк5','трамвайныйпарк'
+]);
 
 function updateStickyMetrics(){
   const wrap = document.getElementById('tableWrap');
@@ -309,15 +331,6 @@ function typeLabel(t){
   if(nt === 'туах') return 'ТУАХ';
   return nt[0].toUpperCase() + nt.slice(1);
 }
-function typePluralLabel(t){
-  const nt = normType(t);
-  if(nt === 'автобус') return 'Автобусы';
-  if(nt === 'электробус') return 'Электробусы';
-  if(nt === 'троллейбус') return 'Троллейбусы';
-  if(nt === 'туах') return 'ТУАХ';
-  if(nt === 'трамвай') return 'Трамваи';
-  return 'Другое';
-}
 function typeOrderKey(t){
   const nt = normType(t);
   if(nt === 'автобус') return 1;
@@ -328,25 +341,7 @@ function typeOrderKey(t){
   return 99;
 }
 
-/* ===== sections ===== */
-function transportSectionKey(v){
-  const t = normType(v.type);
-  if(t === 'автобус' || t === 'электробус') return 'bus';
-  if(t === 'троллейбус' || t === 'туах') return 'troll';
-  if(t === 'трамвай') return 'tram';
-  return 'other';
-}
-function transportSectionLabel(k){
-  if(k === 'bus') return 'Автобусы и электробусы';
-  if(k === 'troll') return 'Троллейбусы и ТУАХ';
-  if(k === 'tram') return 'Трамваи';
-  return 'Другое';
-}
-function headerLabelWithCount(label, count){
-  return `${label} (${count})`;
-}
-
-/* ===== parks: key + labels ===== */
+/* ===== parks ===== */
 function cleanParkRaw(s){
   return (s||'').toString().trim().toLowerCase()
     .replace(/[()]/g,'')
@@ -394,6 +389,11 @@ function parkKey(s){
 
   return raw;
 }
+function parkShortLabel(s){
+  const k = parkKey(s);
+  const tab = TAB_ORDER.find(x=>x.key===k);
+  return tab ? tab.label : ((s||'').toString().trim() || '—');
+}
 function parkFullLabelFromKey(k){
   if(k === 'автобусныйпарк5') return 'Автобусный парк №5';
   if(k === 'автобусныйпарк6') return 'Автобусный парк №6';
@@ -410,51 +410,17 @@ function parkFullLabelFromKey(k){
 
   return k || '—';
 }
-function parkShortLabel(s){
-  const k = parkKey(s);
-  if(k === 'автобусныйпарк5') return 'АП5';
-  if(k === 'автобусныйпарк6') return 'АП6';
-  if(k === 'автобусныйпарк7') return 'АП7';
-  if(k === 'транспортныйпарк1') return 'ТП1';
-  if(k === 'транспортныйпарк2') return 'ТП2';
-  if(k === 'транспортныйпарк4') return 'ТП4';
-  if(k === 'троллейбусныйпарк3') return 'ТП3';
-  if(k === 'троллейбусныйпарк5') return 'ТП5';
-  if(k === 'трамвайныйпарк') return 'ТрамП';
-  return (s||'').toString().trim() || '—';
-}
 
-/* ===== tabs (short labels + fixed order) ===== */
-const TAB_ORDER = [
-  {key:'автобусныйпарк5', label:'АП5'},
-  {key:'автобусныйпарк6', label:'АП6'},
-  {key:'автобусныйпарк7', label:'АП7'},
-  {key:'транспортныйпарк1', label:'ТП1'},
-  {key:'транспортныйпарк2', label:'ТП2'},
-  {key:'троллейбусныйпарк3', label:'ТП3'},
-  {key:'транспортныйпарк4', label:'ТП4'},
-  {key:'троллейбусныйпарк5', label:'ТП5'},
-  {key:'трамвайныйпарк', label:'ТрамП'},
-  {key:'_all', label:'Транспорт Минска'}
-];
-
-function currentTabKey(){
-  return activeTab;
+/* ===== sections ===== */
+function transportSectionKey(v){
+  const t = normType(v.type);
+  if(t === 'автобус' || t === 'электробус') return 'bus';
+  if(t === 'троллейбус' || t === 'туах') return 'troll';
+  if(t === 'трамвай') return 'tram';
+  return 'other';
 }
-function tabLabelByKey(k){
-  const x = TAB_ORDER.find(t=>t.key===k);
-  return x ? x.label : k;
-}
-
-/* ===== muted ===== */
-function isMuted(v, key){
-  return !!(v && v.gray && typeof v.gray === 'object' && v.gray[key]);
-}
-function tdClass(v, key, baseClass=''){
-  const c = [];
-  if(baseClass) c.push(baseClass);
-  if(isMuted(v, key)) c.push('muted');
-  return c.length ? ` class="${c.join(' ')}"` : '';
+function headerLabelWithCount(label, count){
+  return `${label} (${count})`;
 }
 
 /* ===== html ===== */
@@ -467,6 +433,17 @@ function cellText(x){ return (x||'').toString().trim(); }
 function cellHTMLText(x){
   const s = cellText(x);
   return s ? escapeHTML(s) : '<span class="no">—</span>';
+}
+
+/* ===== muted ===== */
+function isMuted(v, key){
+  return !!(v && v.gray && typeof v.gray === 'object' && v.gray[key]);
+}
+function tdClass(v, key, baseClass=''){
+  const c = [];
+  if(baseClass) c.push(baseClass);
+  if(isMuted(v, key)) c.push('muted');
+  return c.length ? ` class="${c.join(' ')}"` : '';
 }
 
 /* ===== NOTE HTML whitelist ===== */
@@ -558,20 +535,8 @@ function normalizeModel(s){
   m = m.replace(/^(МАЗ|MAZ)\s*-\s*203\s*[cс]$/i, 'МАЗ-203с');
   return m;
 }
-function modelBrandKey(model){
-  const m = (model||'').toString().trim().toLowerCase();
-  if(!m) return {w: 99, t: ''};
-  const mm = m.replace(/\s+/g,' ');
-  const isMAZ = mm.includes('маз') || mm.startsWith('maz');
-  const isNeman = mm.includes('неман') || mm.includes('neman');
-  const isBKM = mm.includes('бкм') || mm.includes('bkm');
-  if(isMAZ) return {w: 1, t: mm};
-  if(isNeman) return {w: 2, t: mm};
-  if(isBKM) return {w: 3, t: mm};
-  return {w: 4, t: mm};
-}
 
-/* ===== number sorting (RU-normalized) ===== */
+/* ===== number sorting ===== */
 function comparePlateRU(aRU, bRU){
   if(aRU < bRU) return -1;
   if(aRU > bRU) return 1;
@@ -586,7 +551,6 @@ function prefixLen23RU(plateRU){
   if(!p) return 0;
   return Math.min(3, p.length);
 }
-
 function getPrefix2RU(plateRU){
   const m = plateRU.match(/^([А-Я]{2})/);
   return m ? m[1] : '';
@@ -626,7 +590,6 @@ function busPriorityKeyRU(plateRU){
 
   return {w: 9999, d: (n4 ?? 9999)};
 }
-
 function numSortAlg(a, b){
   const aRaw = (a.vehicleNumber || '').toString().trim();
   const bRaw = (b.vehicleNumber || '').toString().trim();
@@ -648,7 +611,7 @@ function numSortAlg(a, b){
     if(la !== lb) return la - lb;
   }
 
-  // автобусный приоритет — только если оба автобус
+  // bus priority only for автобус+автобус
   if(normType(a.type) === 'автобус' && normType(b.type) === 'автобус'){
     const ak = busPriorityKeyRU(aRU);
     const bk = busPriorityKeyRU(bRU);
@@ -666,23 +629,15 @@ function numSortAlg(a, b){
   return 0;
 }
 
-/* ===== garage/factory ===== */
-function factorySortKey(s){
-  const raw = (s||'').toString().trim();
-  if(!raw) return {kind: 9, headNum: null, tail:''};
-  const norm = normAlnumRU(raw);
-  const m = norm.match(/^(\d+)(.*)$/);
-  if(m) return {kind: 0, headNum: parseInt(m[1],10), tail: m[2] || ''};
-  return {kind: 1, headNum: null, tail: norm};
-}
-function compareFactory(a, b){
-  const ak = factorySortKey(a);
-  const bk = factorySortKey(b);
-  if(ak.kind !== bk.kind) return ak.kind - bk.kind;
-  if(ak.kind === 0 && ak.headNum !== bk.headNum) return (ak.headNum||0) - (bk.headNum||0);
-  if(ak.tail < bk.tail) return -1;
-  if(ak.tail > bk.tail) return 1;
-  return 0;
+/* ===== garage sort + grouping ===== */
+function garageGroupDigit(s){
+  // returns integer column digit if starts with digit or (digit)
+  s = (s||'').toString().trim();
+  const m1 = s.match(/^$(\d)$/);
+  if(m1) return parseInt(m1[1],10);
+  const m2 = s.match(/^(\d)/);
+  if(m2) return parseInt(m2[1],10);
+  return null;
 }
 function garageSortKey(s){
   const raw = (s||'').toString().trim();
@@ -714,9 +669,29 @@ function compareGarage(a, b){
   return 0;
 }
 
-/* ===== main sort ===== */
+/* ===== factory sort (per model) ===== */
+function factorySortKey(s){
+  const raw = (s||'').toString().trim();
+  if(!raw) return {kind: 9, headNum: null, tail:''};
+  const norm = normAlnumRU(raw);
+  const m = norm.match(/^(\d+)(.*)$/);
+  if(m) return {kind: 0, headNum: parseInt(m[1],10), tail: m[2] || ''};
+  return {kind: 1, headNum: null, tail: norm};
+}
+function compareFactory(a, b){
+  const ak = factorySortKey(a);
+  const bk = factorySortKey(b);
+  if(ak.kind !== bk.kind) return ak.kind - bk.kind;
+  if(ak.kind === 0 && ak.headNum !== bk.headNum) return (ak.headNum||0) - (bk.headNum||0);
+  if(ak.tail < bk.tail) return -1;
+  if(ak.tail > bk.tail) return 1;
+  return 0;
+}
+
+/* ===== general sort (All) ===== */
 function generalSort(a, b){
-  if(sortF === 'garageNumber' || sortF === 'factoryNumber' || sortF === 'livery' || sortF === '_note'){
+  // In All: do not sort by garage/factory/livery via header
+  if(activeTab === '_all' && (sortF === 'garageNumber' || sortF === 'factoryNumber' || sortF === 'livery' || sortF === '_note')){
     sortF = 'vehicleNumber';
     sortDesc = false;
   }
@@ -754,18 +729,14 @@ function generalSort(a, b){
   }
 
   if(sortF === "model"){
-    const ta = typeOrderKey(a.type);
-    const tb = typeOrderKey(b.type);
-    if(ta !== tb) return ta - tb;
-
-    const ba = modelBrandKey(normalizeModel(a.model));
-    const bb = modelBrandKey(normalizeModel(b.model));
-    if(ba.w !== bb.w) return ba.w - bb.w;
-
     const ma = normalizeModel(a.model).toLowerCase();
     const mb = normalizeModel(b.model).toLowerCase();
     if(ma < mb) return -1;
     if(ma > mb) return 1;
+
+    const ta = typeOrderKey(a.type);
+    const tb = typeOrderKey(b.type);
+    if(ta !== tb) return ta - tb;
 
     return numSortAlg(a,b);
   }
@@ -806,7 +777,6 @@ function isEmptyByKey(v, key){
   if(key === 'model') return !cellText(normalizeModel(v.model));
   return !cellText(v[key]);
 }
-
 function setColumnVisibility(visibleKeys){
   const keys = new Set(visibleKeys);
   const thRow = document.getElementById('headRow');
@@ -914,7 +884,7 @@ function applyMeasuredColumnWidths(){
   }
 }
 
-/* ===== tabs ===== */
+/* ===== tabs render ===== */
 function calcParkCounts(){
   const m = {};
   DATA.forEach(v=>{
@@ -931,7 +901,7 @@ function renderTabs(){
   wrap.innerHTML = TAB_ORDER.map(t => {
     const c = (t.key === '_all') ? DATA.length : (parkCounts[t.key] || 0);
     return `<div class="tab ${activeTab===t.key?'active':''}" data-tab="${escapeHTML(t.key)}">
-      ${escapeHTML(t.label)} <span style="opacity:.75;">${c}</span>
+      ${escapeHTML(t.label)} <span style="opacity:.75;">(${c})</span>
     </div>`;
   }).join('');
 
@@ -951,7 +921,6 @@ function openNote(v){
   const meta = document.getElementById('noteMeta');
   const body = document.getElementById('noteBody');
 
-  // Title: note + full info
   const partsTitle = [];
   partsTitle.push(typeLabel(v.type));
   if(cellText(v.vehicleNumber)) partsTitle.push(cellText(v.vehicleNumber));
@@ -964,7 +933,6 @@ function openNote(v){
 
   title.textContent = 'Примечание — ' + partsTitle.filter(Boolean).join(' • ');
 
-  // Meta: full info as well (duplicate but easier to read/wrap)
   const metaParts = [];
   metaParts.push('Тип: ' + typeLabel(v.type));
   metaParts.push('Номер: ' + (cellText(v.vehicleNumber) || '—'));
@@ -983,9 +951,50 @@ function openNote(v){
 }
 function closeNote(){ document.getElementById('noteModalBack').style.display = 'none'; }
 
-/* ===== filters/search helper ===== */
+/* ===== filtering helper ===== */
 function normVehicleNumberForSearch(s){
   return normPlateRU(s);
+}
+
+/* ===== park-mode sort functions (garage/factory) ===== */
+function sortByGarage(list){
+  list.sort((a,b)=>{
+    const rg = compareGarage(a.garageNumber, b.garageNumber);
+    if(rg !== 0) return rg;
+    // inside same garage key: number
+    return numSortAlg(a,b);
+  });
+}
+function groupByGarageColumnDigit(list){
+  const groups = new Map(); // digit -> array
+  const other = [];
+  for(const v of list){
+    const d = garageGroupDigit(v.garageNumber);
+    if(d === null) other.push(v);
+    else {
+      if(!groups.has(d)) groups.set(d, []);
+      groups.get(d).push(v);
+    }
+  }
+  const digits = Array.from(groups.keys()).sort((a,b)=>a-b);
+  return {digits, groups, other};
+}
+
+function sortByFactoryPerModel(list){
+  // Group by normalized model; sort each by factory; models order alpha
+  const byModel = new Map();
+  for(const v of list){
+    const m = normalizeModel(v.model) || '—';
+    if(!byModel.has(m)) byModel.set(m, []);
+    byModel.get(m).push(v);
+  }
+  const models = Array.from(byModel.keys()).sort((a,b)=>{
+    const aa = a.toLowerCase(), bb = b.toLowerCase();
+    if(aa < bb) return -1;
+    if(aa > bb) return 1;
+    return 0;
+  });
+  return {byModel, models};
 }
 
 /* ===== rendering ===== */
@@ -999,55 +1008,54 @@ function render(){
     if(val) colFilters[col] = val;
   });
 
-  VIEW = DATA
-    .filter(v=>{
-      if(activeTab !== '_all'){
-        if(parkKey(v.park) !== activeTab) return false;
-      }
+  VIEW = DATA.filter(v=>{
+    if(activeTab !== '_all'){
+      if(parkKey(v.park) !== activeTab) return false;
+    }
 
-      for(const [col, rawNeedle] of Object.entries(colFilters)){
-        const needle = rawNeedle.toString().toLowerCase();
+    for(const [col, rawNeedle] of Object.entries(colFilters)){
+      const needle = rawNeedle.toString().toLowerCase();
 
-        if(col === 'type'){
-          const hay = typeLabel(v.type).toLowerCase();
-          if(!hay.includes(needle)) return false;
-          continue;
-        }
-
-        if(col === 'vehicleNumber' || col === 'garageNumber' || col === 'factoryNumber'){
-          const hay = normVehicleNumberForSearch(v[col]);
-          const n = normVehicleNumberForSearch(rawNeedle);
-          if(!hay.includes(n)) return false;
-          continue;
-        }
-
-        if(col === 'park'){
-          const hay = parkShortLabel(v.park).toLowerCase();
-          const hay2 = parkKey(v.park);
-          if(!hay.includes(needle) && !hay2.includes(needle.replace(/[.\s\-]/g,''))) return false;
-          continue;
-        }
-
-        if(col === 'livery'){
-          const hay = normalizeLivery(v.livery).toLowerCase();
-          if(!hay.includes(needle)) return false;
-          continue;
-        }
-
-        if(col === 'model'){
-          const hay = normalizeModel(v.model).toLowerCase();
-          if(!hay.includes(needle)) return false;
-          continue;
-        }
-
-        const hay = (v[col] || '').toString().toLowerCase();
+      if(col === 'type'){
+        const hay = typeLabel(v.type).toLowerCase();
         if(!hay.includes(needle)) return false;
+        continue;
       }
 
-      return true;
-    });
+      if(col === 'vehicleNumber' || col === 'garageNumber' || col === 'factoryNumber'){
+        const hay = normVehicleNumberForSearch(v[col]);
+        const n = normVehicleNumberForSearch(rawNeedle);
+        if(!hay.includes(n)) return false;
+        continue;
+      }
 
-  // base sort
+      if(col === 'park'){
+        const hay = parkShortLabel(v.park).toLowerCase();
+        const hay2 = parkKey(v.park);
+        if(!hay.includes(needle) && !hay2.includes(needle.replace(/[.\s\-]/g,''))) return false;
+        continue;
+      }
+
+      if(col === 'livery'){
+        const hay = normalizeLivery(v.livery).toLowerCase();
+        if(!hay.includes(needle)) return false;
+        continue;
+      }
+
+      if(col === 'model'){
+        const hay = normalizeModel(v.model).toLowerCase();
+        if(!hay.includes(needle)) return false;
+        continue;
+      }
+
+      const hay = (v[col] || '').toString().toLowerCase();
+      if(!hay.includes(needle)) return false;
+    }
+
+    return true;
+  });
+
+  // base sort (for All and non-park modes)
   VIEW.sort(generalSort);
 
   document.getElementById('countShown').textContent = VIEW.length;
@@ -1099,259 +1107,55 @@ function render(){
   }
 
   const isAll = (activeTab === '_all');
+  const isGarageTab = GARAGE_TABS.has(activeTab);
+  const isFactoryTab = FACTORY_TABS.has(activeTab);
 
-  // Helper: park-mode sorting (only for park tabs, not for _all)
-  function sortForParkTabs(list){
-    // buses/e-buses: number -> garage
-    // troll/tuah + tram: number -> model -> factory (within each model)
-    list.sort((a,b)=>{
-      const secA = transportSectionKey(a);
-      const secB = transportSectionKey(b);
-      if(secA !== secB){
-        // keep same section order as UI sections (bus, troll, tram) when needed
-        const order = {bus:1, troll:2, tram:3, other:9};
-        return order[secA] - order[secB];
-      }
+  // ===== PARK TABS: Garage mode (АП5/АП6/АП7/ТП1/ТП2/ТП4) =====
+  if(!isAll && isGarageTab){
+    // sort by garage
+    const list = VIEW.slice();
+    sortByGarage(list);
 
-      // always number first
-      const rN = numSortAlg(a,b);
-      if(rN !== 0) return rN;
+    const {digits, groups, other} = groupByGarageColumnDigit(list);
 
-      if(secA === 'bus'){
-        const rG = compareGarage(a.garageNumber, b.garageNumber);
-        if(rG !== 0) return rG;
-        return 0;
-      }
-
-      // troll or tram => model then factory (per each concrete model)
-      const ma = normalizeModel(a.model).toLowerCase();
-      const mb = normalizeModel(b.model).toLowerCase();
-      if(ma < mb) return -1;
-      if(ma > mb) return 1;
-
-      const rF = compareFactory(a.factoryNumber, b.factoryNumber);
-      if(rF !== 0) return rF;
-
-      return 0;
-    });
-  }
-
-  // Sorting by number: show 3 sections. In park tabs, apply park-mode sorting too (except _all).
-  if(sortF === 'vehicleNumber' && !sortDesc){
-    const sections = [{k:'bus'},{k:'troll'},{k:'tram'}];
-
-    for(const s of sections){
-      const subset = VIEW.filter(v => transportSectionKey(v) === s.k);
-      if(!subset.length) continue;
-
-      if(!isAll){
-        // full park sorting in all park tabs
-        sortForParkTabs(subset);
-      } else {
-        subset.sort((a,b)=>numSortAlg(a,b));
-      }
-
+    for(const d of digits){
+      const arr = groups.get(d) || [];
       rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
-        ${escapeHTML(headerLabelWithCount(transportSectionLabel(s.k), subset.length))}
+        ${escapeHTML(headerLabelWithCount(`${d} колонна`, arr.length))}
       </td></tr>`);
-
-      // additionally: in park tabs, for troll+tram show per-model factory sort headers (requested)
-      if(!isAll && (s.k === 'troll' || s.k === 'tram')){
-        const byModel = new Map();
-        for(const v of subset){
-          const m = normalizeModel(v.model) || '—';
-          if(!byModel.has(m)) byModel.set(m, []);
-          byModel.get(m).push(v);
-        }
-        const modelKeys = Array.from(byModel.keys()).sort((a,b)=>{
-          const aa = a.toLowerCase(), bb = b.toLowerCase();
-          if(aa < bb) return -1;
-          if(aa > bb) return 1;
-          return 0;
-        });
-
-        for(const mk of modelKeys){
-          const arr = byModel.get(mk);
-          arr.sort((a,b)=>{
-            const rF = compareFactory(a.factoryNumber, b.factoryNumber);
-            if(rF !== 0) return rF;
-            return numSortAlg(a,b);
-          });
-
-          rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
-            ${escapeHTML(headerLabelWithCount(mk, arr.length))}
-          </td></tr>`);
-          for(const v of arr) pushDataRow(v);
-        }
-      } else {
-        for(const v of subset) pushDataRow(v);
-      }
+      for(const v of arr) pushDataRow(v);
     }
-  }
-  else if(sortF === 'type'){
-    const order = ['автобус','электробус','троллейбус','туах','трамвай'];
-    for(const t of order){
-      const subset = VIEW.filter(v => normType(v.type) === t);
-      if(!subset.length) continue;
 
+    if(other.length){
       rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
-        ${escapeHTML(headerLabelWithCount(typePluralLabel(t), subset.length))}
+        ${escapeHTML(headerLabelWithCount(`Прочее`, other.length))}
       </td></tr>`);
-
-      // in park tabs add garage/factory sorting (not in _all)
-      if(!isAll){
-        sortForParkTabs(subset);
-      }
-      for(const v of subset) pushDataRow(v);
+      for(const v of other) pushDataRow(v);
     }
   }
-  else if(sortF === 'year'){
-    const groups = new Map();
-    for(const v of VIEW){
-      const y = cellText(v.year) || '—';
-      if(!groups.has(y)) groups.set(y, []);
-      groups.get(y).push(v);
-    }
-    const keys = Array.from(groups.keys());
-    keys.sort((a,b)=>{
-      const an = a.match(/^\d{4}$/) ? parseInt(a,10) : null;
-      const bn = b.match(/^\d{4}$/) ? parseInt(b,10) : null;
-      if(an !== null && bn !== null) return sortDesc ? (bn-an) : (an-bn);
-      if(a < b) return sortDesc ? 1 : -1;
-      if(a > b) return sortDesc ? -1 : 1;
-      return 0;
-    });
+  // ===== PARK TABS: Factory mode (all park tabs) when sorting by factory explicitly =====
+  else if(!isAll && isFactoryTab && sortF === 'factoryNumber'){
+    // per model factory sort, with model headers
+    const list = VIEW.slice();
+    const {byModel, models} = sortByFactoryPerModel(list);
 
-    for(const y of keys){
-      const arr = groups.get(y);
-
-      // inside year: type order -> number
+    for(const mk of models){
+      const arr = byModel.get(mk) || [];
       arr.sort((a,b)=>{
-        const ta = typeOrderKey(a.type);
-        const tb = typeOrderKey(b.type);
-        if(ta !== tb) return ta - tb;
+        const rF = compareFactory(a.factoryNumber, b.factoryNumber);
+        if(rF !== 0) return rF;
         return numSortAlg(a,b);
       });
 
-      // park tabs: apply garage/factory additionally (not _all)
-      if(!isAll){
-        // stable enrichment: after primary order, add garage/factory within same type+number tie
-        arr.sort((a,b)=>{
-          const r0 = (()=>{
-            const ta = typeOrderKey(a.type), tb = typeOrderKey(b.type);
-            if(ta !== tb) return ta - tb;
-            const rn = numSortAlg(a,b);
-            if(rn !== 0) return rn;
-            return 0;
-          })();
-          if(r0 !== 0) return r0;
-
-          const sec = transportSectionKey(a);
-          if(sec === 'bus') return compareGarage(a.garageNumber, b.garageNumber);
-          return compareFactory(a.factoryNumber, b.factoryNumber);
-        });
-      }
-
       rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
-        ${escapeHTML(headerLabelWithCount(y, arr.length))}
+        ${escapeHTML(headerLabelWithCount(mk, arr.length))}
       </td></tr>`);
       for(const v of arr) pushDataRow(v);
     }
   }
-  else if(sortF === 'model'){
-    const sections = [{k:'bus'},{k:'troll'},{k:'tram'}];
-
-    for(const s of sections){
-      const subset = VIEW.filter(v => transportSectionKey(v) === s.k);
-      if(!subset.length) continue;
-
-      rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
-        ${escapeHTML(headerLabelWithCount(transportSectionLabel(s.k), subset.length))}
-      </td></tr>`);
-
-      const groups = new Map();
-      for(const v of subset){
-        const m = normalizeModel(v.model) || '—';
-        if(!groups.has(m)) groups.set(m, []);
-        groups.get(m).push(v);
-      }
-
-      const keys = Array.from(groups.keys());
-      keys.sort((m1,m2)=>{
-        const b1 = modelBrandKey(m1);
-        const b2 = modelBrandKey(m2);
-        if(b1.w !== b2.w) return b1.w - b2.w;
-        const t1 = m1.toLowerCase(), t2 = m2.toLowerCase();
-        if(t1 < t2) return -1;
-        if(t1 > t2) return 1;
-        return 0;
-      });
-
-      for(const mk of keys){
-        const arr = groups.get(mk);
-
-        // inside model: type -> number
-        arr.sort((a,b)=>{
-          const ta = typeOrderKey(a.type);
-          const tb = typeOrderKey(b.type);
-          if(ta !== tb) return ta - tb;
-          return numSortAlg(a,b);
-        });
-
-        // park tabs: if troll/tram, inside this model sort by factory too (for each concrete model)
-        if(!isAll && (s.k === 'troll' || s.k === 'tram')){
-          arr.sort((a,b)=>{
-            const rf = compareFactory(a.factoryNumber, b.factoryNumber);
-            if(rf !== 0) return rf;
-            return numSortAlg(a,b);
-          });
-        }
-
-        rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
-          ${escapeHTML(headerLabelWithCount(mk, arr.length))}
-        </td></tr>`);
-        for(const v of arr) pushDataRow(v);
-      }
-    }
-  }
-  else if(sortF === 'park'){
-    const groups = new Map();
-    for(const v of VIEW){
-      const pk = parkKey(v.park) || '—';
-      if(!groups.has(pk)) groups.set(pk, []);
-      groups.get(pk).push(v);
-    }
-    const keys = Array.from(groups.keys());
-    keys.sort((a,b)=>{
-      if(a < b) return sortDesc ? 1 : -1;
-      if(a > b) return sortDesc ? -1 : 1;
-      return 0;
-    });
-
-    for(const pk of keys){
-      const arr = groups.get(pk);
-
-      // priority: number (buses/e-buses and troll/tuah can mix)
-      arr.sort((a,b)=>numSortAlg(a,b));
-
-      // park tabs: apply garage/factory as well (not _all)
-      if(!isAll){
-        sortForParkTabs(arr);
-      }
-
-      rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
-        ${escapeHTML(headerLabelWithCount(parkFullLabelFromKey(pk), arr.length))}
-      </td></tr>`);
-      for(const v of arr) pushDataRow(v);
-    }
-  }
+  // ===== default rendering (All or other sorts) =====
   else {
-    // default
-    let arr = VIEW.slice();
-    if(!isAll){
-      sortForParkTabs(arr);
-    }
-    for(const v of arr) pushDataRow(v);
+    for(const v of VIEW) pushDataRow(v);
   }
 
   tbody.innerHTML = rows.join('');
@@ -1378,11 +1182,13 @@ document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick = ()=>{
     const f = th.getAttribute('data-f');
 
-    // keep UI disable for these (sorting still happens automatically in park tabs)
-    if(f === 'garageNumber' || f === 'factoryNumber' || f === 'livery' || f === '_note'){
-      return;
-    }
+    // no sorting for note column and livery
+    if(f === '_note' || f === 'livery') return;
 
+    // In All: disallow garage/factory sort
+    if(activeTab === '_all' && (f === 'garageNumber' || f === 'factoryNumber')) return;
+
+    // In park tabs: allow clicking garage/factory (as requested)
     document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
     th.classList.add('active');
 
