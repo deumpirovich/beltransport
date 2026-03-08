@@ -1,286 +1,432 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Реестр транспорта</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Viewer</title>
 
 <style>
-body{font-family:Arial;background:#f5f7fa;margin:0}
+:root{--blue:#2543a5;--bg:#f5f7fa;--line:#eee;--head:#ecf1fa}
+body{font-family:Arial,system-ui,sans-serif;background:var(--bg);margin:0}
 .container{max-width:1200px;margin:auto;padding:10px}
-
-.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
 .tab{padding:4px 10px;border-radius:10px;border:1px solid #cfd7ea;background:#eef3ff;cursor:pointer;font-size:12px}
-.tab.active{background:#2543a5;color:#fff}
-
+.tab.active{background:var(--blue);color:#fff}
 table{border-collapse:collapse;background:#fff;width:100%;font-size:13px}
-th,td{border-bottom:1px solid #eee;padding:6px;text-align:center;white-space:nowrap}
-th{background:#ecf1fa;color:#2543a5;cursor:pointer}
-
-.filters input{width:100%;box-sizing:border-box}
-
-.groupRow td{background:#f4f7fc;font-weight:bold;color:#1c3789}
-.num{color:#2543a5;font-weight:bold}
+th,td{border-bottom:1px solid var(--line);padding:6px;text-align:center;white-space:nowrap}
+th{background:var(--head);cursor:pointer;color:var(--blue)}
+.filters input{width:100%;box-sizing:border-box;padding:4px;border:1px solid #d7deef;border-radius:6px}
+.groupRow td{background:#f4f7fc;font-weight:bold;color:#1c3789;text-align:left}
+.num{color:var(--blue);font-weight:bold}
+.small{font-size:12px;color:#6b7280}
 </style>
 </head>
 
 <body>
 <div class="container">
 
-<div class="tabs" id="tabs"></div>
+  <div class="tabs" id="tabs"></div>
 
-<table>
+  <table>
+    <thead>
+      <tr>
+        <th data-f="type">Тип</th>
+        <th data-f="vehicleNumber">Номер</th>
+        <th></th>
+        <th data-f="year">Год</th>
+        <th data-f="model">Модель</th>
+        <th data-f="park">Парк</th>
+        <th data-f="garageNumber">Гаражный</th>
+        <th data-f="factoryNumber">Заводской</th>
+        <th data-f="livery">Цвет</th>
+      </tr>
+      <tr class="filters">
+        <th><input data-col="type" placeholder="фильтр"></th>
+        <th><input data-col="vehicleNumber" placeholder="фильтр"></th>
+        <th></th>
+        <th><input data-col="year" placeholder="фильтр"></th>
+        <th><input data-col="model" placeholder="фильтр"></th>
+        <th><input data-col="park" placeholder="фильтр"></th>
+        <th><input data-col="garageNumber" placeholder="фильтр"></th>
+        <th><input data-col="factoryNumber" placeholder="фильтр"></th>
+        <th><input data-col="livery" placeholder="фильтр"></th>
+      </tr>
+    </thead>
+    <tbody id="data"></tbody>
+  </table>
 
-<thead>
-<tr>
-<th data-f="type">Тип</th>
-<th data-f="vehicleNumber">Номер</th>
-<th></th>
-<th data-f="year">Год</th>
-<th data-f="model">Модель</th>
-<th data-f="park">Парк</th>
-<th data-f="garageNumber">Гаражный</th>
-<th data-f="factoryNumber">Заводской</th>
-<th data-f="livery">Цвет</th>
-</tr>
-
-<tr class="filters">
-<th><input data-col="type"></th>
-<th><input data-col="vehicleNumber"></th>
-<th></th>
-<th><input data-col="year"></th>
-<th><input data-col="model"></th>
-<th><input data-col="park"></th>
-<th><input data-col="garageNumber"></th>
-<th><input data-col="factoryNumber"></th>
-<th><input data-col="livery"></th>
-</tr>
-</thead>
-
-<tbody id="data"></tbody>
-</table>
+  <div class="small" id="status"></div>
 
 </div>
 
 <script>
+/* =========================
+   Конфиг
+========================= */
+const JSON_URL = "./minsk.json";
 
-const JSON_URL="./minsk.json"
+const TAB_ORDER = [
+  {key:"автобусныйпарк5",label:"АП5"},
+  {key:"автобусныйпарк6",label:"АП6"},
+  {key:"автобусныйпарк7",label:"АП7"},
+  {key:"транспортныйпарк1",label:"ТП1"},
+  {key:"транспортныйпарк2",label:"ТП2"},
+  {key:"троллейбусныйпарк3",label:"ТП3"},
+  {key:"транспортныйпарк4",label:"ТП4"},
+  {key:"троллейбусныйпарк5",label:"ТП5"},
+  {key:"трамвайныйпарк",label:"ТрамП"},
+  {key:"_all",label:"All"}
+];
 
-let DATA=[]
-let VIEW=[]
-let sortF="vehicleNumber"
-let sortDesc=false
-let activeTab="_all"
+let DATA = [];
+let VIEW = [];
 
-const TAB_ORDER=[
-{key:"автобусныйпарк5",label:"АП5"},
-{key:"автобусныйпарк6",label:"АП6"},
-{key:"автобусныйпарк7",label:"АП7"},
-{key:"транспортныйпарк1",label:"ТП1"},
-{key:"транспортныйпарк2",label:"ТП2"},
-{key:"троллейбусныйпарк3",label:"ТП3"},
-{key:"транспортныйпарк4",label:"ТП4"},
-{key:"троллейбусныйпарк5",label:"ТП5"},
-{key:"трамвайныйпарк",label:"ТрамП"},
-{key:"_all",label:"All"}
-]
+let sortF = "vehicleNumber";
+let sortDesc = false;
+let activeTab = "_all";
 
-/* латиница → кириллица */
-function normalizeLetters(s){
-return (s||"").toUpperCase()
-.replace(/A/g,"А")
-.replace(/B/g,"В")
-.replace(/C/g,"С")
-.replace(/E/g,"Е")
-.replace(/H/g,"Н")
-.replace(/K/g,"К")
-.replace(/M/g,"М")
-.replace(/O/g,"О")
-.replace(/P/g,"Р")
-.replace(/T/g,"Т")
-.replace(/X/g,"Х")
-.replace(/Y/g,"У")
+/* =========================
+   Утилиты
+========================= */
+function normType(t){
+  return (t || "").toString().trim().toLowerCase();
 }
 
-/* секции транспорта */
-function section(v){
-let t=(v.type||"").toLowerCase()
-if(t==="автобус"||t==="электробус")return 1
-if(t==="троллейбус"||t==="туах")return 2
-if(t==="трамвай")return 3
-return 9
+/* латиница → кириллица + чистка */
+function normPlateRU(s){
+  return (s || "")
+    .toString()
+    .trim()
+    .toUpperCase()
+    .replace(/[\s\-]/g,"")
+    .replace(/A/g,"А")
+    .replace(/B/g,"В")
+    .replace(/C/g,"С")
+    .replace(/E/g,"Е")
+    .replace(/H/g,"Н")
+    .replace(/K/g,"К")
+    .replace(/M/g,"М")
+    .replace(/O/g,"О")
+    .replace(/P/g,"Р")
+    .replace(/T/g,"Т")
+    .replace(/X/g,"Х")
+    .replace(/Y/g,"У");
 }
 
-/* длина буквенного префикса */
-function prefixLen(s){
-let m=s.match(/^([А-Я]{2,3})/)
-return m?m[1].length:0
+function transportSectionKey(v){
+  const t = normType(v.type);
+  if(t === "автобус" || t === "электробус") return "bus";
+  if(t === "троллейбус" || t === "туах") return "troll";
+  if(t === "трамвай") return "tram";
+  return "other";
 }
 
-/* сортировка номера */
-function numberSort(a,b){
-
-let pa=normalizeLetters(a.vehicleNumber)
-let pb=normalizeLetters(b.vehicleNumber)
-
-let la=prefixLen(pa)
-let lb=prefixLen(pb)
-
-if(la!==lb)return la-lb
-
-if(pa<pb)return -1
-if(pa>pb)return 1
-return 0
+function sectionOrderKey(sec){
+  if(sec === "bus") return 1;
+  if(sec === "troll") return 2;
+  if(sec === "tram") return 3;
+  return 9;
 }
 
-/* центральная сортировка */
+/* Приоритет автобусных серий (расширяйте при необходимости) */
+function busPriorityKeyRU(plate){
+  const pref = plate.match(/^([А-Я]{2,3})/);
+  const p = pref ? pref[1] : "";
+  if(p === "КА") return {w:1,d:0};
+  if(p === "КЕ") return {w:2,d:0};
+  if(p === "КС") return {w:3,d:0};
+  return {w:9,d:0};
+}
+
+/* =========================
+   Сортировка номеров (ТОЛЬКО номер)
+========================= */
+function numSortAlg(a, b){
+  const aRaw = (a.vehicleNumber || "").toString().trim();
+  const bRaw = (b.vehicleNumber || "").toString().trim();
+
+  if(!aRaw && !bRaw) return 0;
+  if(!aRaw) return 1;
+  if(!bRaw) return -1;
+
+  const aRU = normPlateRU(aRaw);
+  const bRU = normPlateRU(bRaw);
+
+  /* 1 — длина префикса (2 раньше 3) */
+  const prefA = aRU.match(/^([А-Я]{2,3})/);
+  const prefB = bRU.match(/^([А-Я]{2,3})/);
+
+  const lenA = prefA ? prefA[1].length : 0;
+  const lenB = prefB ? prefB[1].length : 0;
+
+  if(lenA !== lenB) return lenA - lenB;
+
+  /* 2 — сравнение букв */
+  if(prefA && prefB){
+    if(prefA[1] < prefB[1]) return -1;
+    if(prefA[1] > prefB[1]) return 1;
+  }
+
+  /* 3 — автобусный приоритет */
+  if(normType(a.type) === "автобус" && normType(b.type) === "автобус"){
+    const ak = busPriorityKeyRU(aRU);
+    const bk = busPriorityKeyRU(bRU);
+    if(ak.w !== bk.w) return ak.w - bk.w;
+    if(ak.d !== bk.d) return ak.d - bk.d;
+  }
+
+  /* 4 — числовая часть */
+  const numA = aRU.match(/\d+/);
+  const numB = bRU.match(/\d+/);
+
+  if(numA && numB){
+    const nA = parseInt(numA[0],10);
+    const nB = parseInt(numB[0],10);
+    if(nA !== nB) return nA - nB;
+  }
+
+  /* fallback */
+  if(aRU < bRU) return -1;
+  if(aRU > bRU) return 1;
+  return 0;
+}
+
+/* =========================
+   Гаражные: колонна по ПЕРВОЙ цифре, (x) после x
+========================= */
+function garageColumnDigitFromValue(s){
+  s = (s||"").toString().trim();
+  const m1 = s.match(/^$(\d)$/);
+  if(m1) return parseInt(m1[1],10);
+  const m2 = s.match(/^(\d)/);
+  if(m2) return parseInt(m2[1],10);
+  return null;
+}
+
+function garageSortAlg(a,b){
+  const ak = (a.garageNumber||"").toString().trim();
+  const bk = (b.garageNumber||"").toString().trim();
+
+  const ca = garageColumnDigitFromValue(ak);
+  const cb = garageColumnDigitFromValue(bk);
+
+  // null уводим вниз
+  if(ca == null && cb != null) return 1;
+  if(ca != null && cb == null) return -1;
+
+  if(ca !== cb) return ca - cb;
+
+  const pa = ak.startsWith("(");
+  const pb = bk.startsWith("(");
+  if(pa !== pb) return pa ? 1 : -1;
+
+  return ak.localeCompare(bk, "ru");
+}
+
+/* =========================
+   Central sort
+========================= */
 function generalSort(a,b){
 
-let sa=section(a)
-let sb=section(b)
+  // 0) общий порядок секций транспорта всегда
+  const secA = transportSectionKey(a);
+  const secB = transportSectionKey(b);
+  if(secA !== secB) return sectionOrderKey(secA) - sectionOrderKey(secB);
 
-if(sa!==sb)return sa-sb
+  // 1) поле сортировки
+  let r = 0;
 
-if(sortF==="vehicleNumber"){
-let r=numberSort(a,b)
-return sortDesc?-r:r
+  if(sortF === "vehicleNumber"){
+    r = numSortAlg(a,b);
+  }else if(sortF === "garageNumber"){
+    r = garageSortAlg(a,b);
+  }else{
+    const av = (a[sortF] ?? "").toString();
+    const bv = (b[sortF] ?? "").toString();
+    r = av.localeCompare(bv, "ru", {numeric:true, sensitivity:"base"});
+    if(r === 0) r = numSortAlg(a,b); // fallback стабильности
+  }
+
+  return sortDesc ? -r : r;
 }
 
-let va=(a[sortF]||"")+""
-let vb=(b[sortF]||"")+""
+/* =========================
+   Tabs (парки)
+========================= */
+function parkMatchesTab(parkValue, tabKey){
+  const p = (parkValue || "").toString().toLowerCase();
 
-if(va<vb)return sortDesc?1:-1
-if(va>vb)return sortDesc?-1:1
+  if(tabKey === "_all") return true;
 
-return numberSort(a,b)
+  // Примитивно: ищем "парк5" / "парк 5" / "5" для АП/ТП и т.п.
+  // Если у вас были строгие ключи — скажите, подстрою под ваш формат.
+  const k = tabKey.toLowerCase();
+
+  if(k.includes("автобусныйпарк")){
+    const n = k.match(/автобусныйпарк(\d+)/)?.[1];
+    if(!n) return false;
+    return p.includes("автобус") && p.includes(n);
+  }
+
+  if(k.includes("троллейбусныйпарк")){
+    const n = k.match(/троллейбусныйпарк(\d+)/)?.[1];
+    if(!n) return false;
+    return p.includes("троллейбус") && p.includes(n);
+  }
+
+  if(k.includes("транспортныйпарк")){
+    const n = k.match(/транспортныйпарк(\d+)/)?.[1];
+    if(!n) return false;
+    return p.includes("транспорт") && p.includes(n);
+  }
+
+  if(k.includes("трамвайныйпарк")){
+    return p.includes("трамвай");
+  }
+
+  return p.includes(k);
 }
 
-/* фильтры */
+/* =========================
+   Filters
+========================= */
 function applyFilters(arr){
 
-let filters={}
-document.querySelectorAll(".filters input").forEach(i=>{
-if(i.value)filters[i.dataset.col]=normalizeLetters(i.value).toLowerCase()
-})
+  const filters = {};
+  document.querySelectorAll(".filters input").forEach(i=>{
+    const v = (i.value || "").trim();
+    if(v) filters[i.dataset.col] = v;
+  });
 
-return arr.filter(v=>{
+  const keys = Object.keys(filters);
+  if(!keys.length) return arr;
 
-for(let k in filters){
-
-let val=normalizeLetters((v[k]||"")+"").toLowerCase()
-
-if(!val.includes(filters[k]))return false
+  return arr.filter(obj=>{
+    for(const k of keys){
+      const needle = normPlateRU(filters[k]).toLowerCase();
+      const hay = normPlateRU((obj[k] ?? "").toString()).toLowerCase();
+      if(!hay.includes(needle)) return false;
+    }
+    return true;
+  });
 
 }
 
-return true
-})
-
-}
-
-/* вкладки */
+/* =========================
+   Render
+========================= */
 function renderTabs(){
+  const wrap = document.getElementById("tabs");
+  wrap.innerHTML = "";
 
-let wrap=document.getElementById("tabs")
-wrap.innerHTML=""
-
-TAB_ORDER.forEach(t=>{
-
-let d=document.createElement("div")
-d.className="tab"+(activeTab===t.key?" active":"")
-d.textContent=t.label
-
-d.onclick=()=>{
-activeTab=t.key
-renderTabs()
-render()
+  TAB_ORDER.forEach(t=>{
+    const d = document.createElement("div");
+    d.className = "tab" + (activeTab === t.key ? " active" : "");
+    d.textContent = t.label;
+    d.onclick = ()=>{
+      activeTab = t.key;
+      renderTabs();
+      render();
+    };
+    wrap.appendChild(d);
+  });
 }
 
-wrap.appendChild(d)
-
-})
-
-}
-
-/* рендер */
 function render(){
 
-VIEW=DATA.slice()
+  let arr = DATA.slice();
 
-if(activeTab!=="_all"){
-VIEW=VIEW.filter(v=>(v.park||"").toLowerCase().includes(activeTab.replace("парк","")))
+  // tab park filter
+  if(activeTab !== "_all"){
+    arr = arr.filter(v=>parkMatchesTab(v.park, activeTab));
+  }
+
+  // column filters
+  arr = applyFilters(arr);
+
+  // sort
+  arr.sort(generalSort);
+
+  VIEW = arr;
+
+  const tbody = document.getElementById("data");
+  tbody.innerHTML = "";
+
+  const labels = {
+    bus: "Автобусы и электробусы",
+    troll: "Троллейбусы и ТУАХ",
+    tram: "Трамваи",
+    other: "Другое"
+  };
+
+  const order = ["bus","troll","tram","other"];
+
+  for(const sec of order){
+
+    const part = VIEW.filter(v=>transportSectionKey(v) === sec);
+    if(!part.length) continue;
+
+    const tr = document.createElement("tr");
+    tr.className = "groupRow";
+    tr.innerHTML = `<td colspan="9">${labels[sec]} (${part.length})</td>`;
+    tbody.appendChild(tr);
+
+    const frag = document.createDocumentFragment();
+
+    for(const v of part){
+      const row = document.createElement("tr");
+      row.innerHTML =
+        `<td>${v.type ?? ""}</td>` +
+        `<td class="num">${v.vehicleNumber ?? ""}</td>` +
+        `<td>${v.note ? "➜" : ""}</td>` +
+        `<td>${v.year ?? ""}</td>` +
+        `<td>${v.model ?? ""}</td>` +
+        `<td>${v.park ?? ""}</td>` +
+        `<td>${v.garageNumber ?? ""}</td>` +
+        `<td>${v.factoryNumber ?? ""}</td>` +
+        `<td>${v.livery ?? ""}</td>`;
+      frag.appendChild(row);
+    }
+
+    tbody.appendChild(frag);
+  }
+
+  document.getElementById("status").textContent =
+    `Записей: ${VIEW.length}. Сортировка: ${sortF}${sortDesc ? " (desc)" : ""}. Вкладка: ${activeTab}`;
 }
 
-VIEW=applyFilters(VIEW)
-
-VIEW.sort(generalSort)
-
-let tbody=document.getElementById("data")
-tbody.innerHTML=""
-
-let labels={
-1:"Автобусы и электробусы",
-2:"Троллейбусы и ТУАХ",
-3:"Трамваи"
-}
-
-for(let s=1;s<=3;s++){
-
-let part=VIEW.filter(v=>section(v)===s)
-
-if(!part.length)continue
-
-let tr=document.createElement("tr")
-tr.className="groupRow"
-tr.innerHTML="<td colspan=9>"+labels[s]+" ("+part.length+")</td>"
-tbody.appendChild(tr)
-
-part.forEach(v=>{
-
-let row=document.createElement("tr")
-
-row.innerHTML=
-"<td>"+(v.type||"")+"</td>"+
-"<td class=num>"+(v.vehicleNumber||"")+"</td>"+
-"<td>"+(v.note?"➜":"")+"</td>"+
-"<td>"+(v.year||"")+"</td>"+
-"<td>"+(v.model||"")+"</td>"+
-"<td>"+(v.park||"")+"</td>"+
-"<td>"+(v.garageNumber||"")+"</td>"+
-"<td>"+(v.factoryNumber||"")+"</td>"+
-"<td>"+(v.livery||"")+"</td>"
-
-tbody.appendChild(row)
-
-})
-
-}
-
-}
-
-/* сортировка кликом */
+/* =========================
+   Events
+========================= */
 document.querySelectorAll("th[data-f]").forEach(th=>{
-th.onclick=()=>{
-let f=th.dataset.f
-if(sortF===f)sortDesc=!sortDesc
-else sortF=f
-render()
-}
-})
+  th.onclick = ()=>{
+    const f = th.dataset.f;
+    if(sortF === f) sortDesc = !sortDesc;
+    else { sortF = f; sortDesc = false; }
+    render();
+  };
+});
 
 document.querySelectorAll(".filters input").forEach(i=>{
-i.oninput=render
-})
+  i.addEventListener("input", ()=>render());
+});
 
-/* загрузка */
+/* =========================
+   Load
+========================= */
 async function load(){
-let r=await fetch(JSON_URL)
-let j=await r.json()
-DATA=Array.isArray(j)?j:(j.data||j.vehicles||j.items||[])
-renderTabs()
-render()
+  try{
+    const r = await fetch(JSON_URL, {cache:"no-store"});
+    const j = await r.json();
+    DATA = Array.isArray(j) ? j : (j.data || j.vehicles || j.items || []);
+    renderTabs();
+    render();
+  }catch(e){
+    console.error(e);
+    document.getElementById("status").textContent = "Ошибка загрузки JSON. См. консоль.";
+  }
 }
-
-load()
+load();
 
 </script>
 </body>
