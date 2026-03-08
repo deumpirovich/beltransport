@@ -5,34 +5,25 @@
 <title>Реестр транспорта</title>
 
 <style>
-
 body{font-family:Arial;background:#f5f7fa;margin:0}
-
 .container{max-width:1200px;margin:auto;padding:10px}
 
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
-
 .tab{padding:4px 10px;border-radius:10px;border:1px solid #cfd7ea;background:#eef3ff;cursor:pointer;font-size:12px}
-
 .tab.active{background:#2543a5;color:#fff}
 
 table{border-collapse:collapse;background:#fff;width:100%;font-size:13px}
-
 th,td{border-bottom:1px solid #eee;padding:6px;text-align:center;white-space:nowrap}
-
 th{background:#ecf1fa;color:#2543a5;cursor:pointer}
 
 .filters input{width:100%;box-sizing:border-box}
 
 .groupRow td{background:#f4f7fc;font-weight:bold;color:#1c3789}
-
 .num{color:#2543a5;font-weight:bold}
-
 </style>
 </head>
 
 <body>
-
 <div class="container">
 
 <div class="tabs" id="tabs"></div>
@@ -40,7 +31,6 @@ th{background:#ecf1fa;color:#2543a5;cursor:pointer}
 <table>
 
 <thead>
-
 <tr>
 <th data-f="type">Тип</th>
 <th data-f="vehicleNumber">Номер</th>
@@ -64,11 +54,9 @@ th{background:#ecf1fa;color:#2543a5;cursor:pointer}
 <th><input data-col="factoryNumber"></th>
 <th><input data-col="livery"></th>
 </tr>
-
 </thead>
 
 <tbody id="data"></tbody>
-
 </table>
 
 </div>
@@ -79,7 +67,6 @@ const JSON_URL="./minsk.json"
 
 let DATA=[]
 let VIEW=[]
-
 let sortF="vehicleNumber"
 let sortDesc=false
 let activeTab="_all"
@@ -98,9 +85,7 @@ const TAB_ORDER=[
 ]
 
 /* латиница → кириллица */
-
-function normLetters(s){
-
+function normalizeLetters(s){
 return (s||"").toUpperCase()
 .replace(/A/g,"А")
 .replace(/B/g,"В")
@@ -114,38 +99,28 @@ return (s||"").toUpperCase()
 .replace(/T/g,"Т")
 .replace(/X/g,"Х")
 .replace(/Y/g,"У")
-
 }
 
-/* тип */
-
-function normType(t){return (t||"").toLowerCase()}
-
-function transportSection(v){
-
-let t=normType(v.type)
-
+/* секции транспорта */
+function section(v){
+let t=(v.type||"").toLowerCase()
 if(t==="автобус"||t==="электробус")return 1
 if(t==="троллейбус"||t==="туах")return 2
 if(t==="трамвай")return 3
-
 return 9
+}
 
+/* длина буквенного префикса */
+function prefixLen(s){
+let m=s.match(/^([А-Я]{2,3})/)
+return m?m[1].length:0
 }
 
 /* сортировка номера */
-
-function prefixLen(p){
-
-let m=p.match(/^([А-Я]{2,3})/)
-return m?m[1].length:0
-
-}
-
 function numberSort(a,b){
 
-let pa=normLetters(a.vehicleNumber)
-let pb=normLetters(b.vehicleNumber)
+let pa=normalizeLetters(a.vehicleNumber)
+let pb=normalizeLetters(b.vehicleNumber)
 
 let la=prefixLen(pa)
 let lb=prefixLen(pb)
@@ -154,63 +129,55 @@ if(la!==lb)return la-lb
 
 if(pa<pb)return -1
 if(pa>pb)return 1
-
 return 0
-
 }
 
-/* гаражный */
-
-function garageColumn(s){
-
-let m=(s||"").match(/^\(?(\d)/)
-return m?parseInt(m[1]):null
-
-}
-
-function garageSort(a,b){
-
-let ak=a.garageNumber||""
-let bk=b.garageNumber||""
-
-let ca=garageColumn(ak)
-let cb=garageColumn(bk)
-
-if(ca!==cb)return ca-cb
-
-let pa=ak.startsWith("(")
-let pb=bk.startsWith("(")
-
-if(pa!==pb)return pa?1:-1
-
-return ak.localeCompare(bk)
-
-}
-
-/* общий компаратор */
-
+/* центральная сортировка */
 function generalSort(a,b){
 
-let sa=transportSection(a)
-let sb=transportSection(b)
+let sa=section(a)
+let sb=section(b)
 
 if(sa!==sb)return sa-sb
 
-if(sortF==="vehicleNumber")return numberSort(a,b)
-if(sortF==="garageNumber")return garageSort(a,b)
+if(sortF==="vehicleNumber"){
+let r=numberSort(a,b)
+return sortDesc?-r:r
+}
 
 let va=(a[sortF]||"")+""
 let vb=(b[sortF]||"")+""
 
-if(va<vb)return -1
-if(va>vb)return 1
+if(va<vb)return sortDesc?1:-1
+if(va>vb)return sortDesc?-1:1
 
 return numberSort(a,b)
+}
+
+/* фильтры */
+function applyFilters(arr){
+
+let filters={}
+document.querySelectorAll(".filters input").forEach(i=>{
+if(i.value)filters[i.dataset.col]=normalizeLetters(i.value).toLowerCase()
+})
+
+return arr.filter(v=>{
+
+for(let k in filters){
+
+let val=normalizeLetters((v[k]||"")+"").toLowerCase()
+
+if(!val.includes(filters[k]))return false
 
 }
 
-/* табы */
+return true
+})
 
+}
+
+/* вкладки */
 function renderTabs(){
 
 let wrap=document.getElementById("tabs")
@@ -219,17 +186,13 @@ wrap.innerHTML=""
 TAB_ORDER.forEach(t=>{
 
 let d=document.createElement("div")
-
 d.className="tab"+(activeTab===t.key?" active":"")
-
 d.textContent=t.label
 
 d.onclick=()=>{
-
 activeTab=t.key
 renderTabs()
 render()
-
 }
 
 wrap.appendChild(d)
@@ -238,34 +201,7 @@ wrap.appendChild(d)
 
 }
 
-/* фильтры */
-
-function applyFilters(arr){
-
-let filters={}
-
-document.querySelectorAll(".filters input").forEach(i=>{
-if(i.value)filters[i.dataset.col]=i.value.toLowerCase()
-})
-
-return arr.filter(v=>{
-
-for(let k in filters){
-
-let val=(v[k]||"")+""
-
-if(!normLetters(val).toLowerCase().includes(filters[k]))return false
-
-}
-
-return true
-
-})
-
-}
-
-/* render */
-
+/* рендер */
 function render(){
 
 VIEW=DATA.slice()
@@ -279,10 +215,7 @@ VIEW=applyFilters(VIEW)
 VIEW.sort(generalSort)
 
 let tbody=document.getElementById("data")
-
 tbody.innerHTML=""
-
-let sec=["bus","troll","tram"]
 
 let labels={
 1:"Автобусы и электробусы",
@@ -292,7 +225,7 @@ let labels={
 
 for(let s=1;s<=3;s++){
 
-let part=VIEW.filter(v=>transportSection(v)===s)
+let part=VIEW.filter(v=>section(v)===s)
 
 if(!part.length)continue
 
@@ -325,20 +258,13 @@ tbody.appendChild(row)
 }
 
 /* сортировка кликом */
-
 document.querySelectorAll("th[data-f]").forEach(th=>{
-
 th.onclick=()=>{
-
 let f=th.dataset.f
-
 if(sortF===f)sortDesc=!sortDesc
 else sortF=f
-
 render()
-
 }
-
 })
 
 document.querySelectorAll(".filters input").forEach(i=>{
@@ -346,22 +272,16 @@ i.oninput=render
 })
 
 /* загрузка */
-
 async function load(){
-
 let r=await fetch(JSON_URL)
 let j=await r.json()
-
 DATA=Array.isArray(j)?j:(j.data||j.vehicles||j.items||[])
-
 renderTabs()
 render()
-
 }
 
 load()
 
 </script>
-
 </body>
 </html>
