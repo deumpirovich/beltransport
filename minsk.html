@@ -459,17 +459,6 @@ function cellHTMLText(x){
   return s ? escapeHTML(s) : '<span class="no">—</span>';
 }
 
-/* ===== muted ===== */
-function isMuted(v, key){
-  return !!(v && v.gray && typeof v.gray === 'object' && v.gray[key]);
-}
-function tdClass(v, key, baseClass=''){
-  const c = [];
-  if(baseClass) c.push(baseClass);
-  if(isMuted(v, key)) c.push('muted');
-  return c.length ? ` class="${c.join(' ')}"` : '';
-}
-
 /* ===== normalize livery/model ===== */
 function normalizeQuotesToGuillemets(s){
   s = (s||'').toString();
@@ -558,7 +547,7 @@ function sanitizeNoteHTML(html){
   return wrap.innerHTML;
 }
 
-/* ===== number sort (plates) ===== */
+/* ===== number sort ===== */
 function comparePlateRU(aRU, bRU){
   if(aRU < bRU) return -1;
   if(aRU > bRU) return 1;
@@ -757,7 +746,7 @@ function openNote(v){
 }
 function closeNote(){ document.getElementById('noteModalBack').style.display = 'none'; }
 
-/* ===== general sorting (default is number everywhere) ===== */
+/* ===== general sort ===== */
 function generalSort(a, b){
   if(activeTab === '_all' && (sortF === 'garageNumber' || sortF === 'factoryNumber')){
     sortF = 'vehicleNumber';
@@ -770,7 +759,6 @@ function generalSort(a, b){
   }
 
   if(sortF === "garageNumber"){
-    // allowed only for GARAGE_TABS
     const rg = compareGarage(a.garageNumber, b.garageNumber);
     if(rg !== 0) return sortDesc ? -rg : rg;
     const rn = numSortAlg(a,b);
@@ -778,7 +766,7 @@ function generalSort(a, b){
   }
 
   if(sortF === "factoryNumber"){
-    // allowed only for FACTORY_TABS; per-model grouping happens in render()
+    // we still group by model in render when sorting by factory, but keep stable base ordering:
     const ma = normalizeModel(a.model).toLowerCase();
     const mb = normalizeModel(b.model).toLowerCase();
     if(ma < mb) return sortDesc ? 1 : -1;
@@ -859,14 +847,6 @@ const COLS = [
   {key:'livery', label:'Цвет / реклама / оформление'}
 ];
 
-function isEmptyByKey(v, key){
-  if(key === '_note') return !cellText(v.noteHtml || v.note);
-  if(key === 'type') return !normType(v.type);
-  if(key === 'park') return !cellText(parkShortLabel(v.park));
-  if(key === 'livery') return !cellText(normalizeLivery(v.livery));
-  if(key === 'model') return !cellText(normalizeModel(v.model));
-  return !cellText(v[key]);
-}
 function setColumnVisibility(visibleKeys){
   const keys = new Set(visibleKeys);
   const thRow = document.getElementById('headRow');
@@ -883,7 +863,13 @@ function setColumnVisibility(visibleKeys){
 function computeVisibleCols(){
   const visible = [];
   for(const c of COLS){
-    const anyNonEmpty = VIEW.some(v => !isEmptyByKey(v, c.key));
+    const anyNonEmpty = VIEW.some(v => {
+      if(c.key === '_note') return !!cellText(v.noteHtml || v.note);
+      if(c.key === 'model') return !!cellText(normalizeModel(v.model));
+      if(c.key === 'park') return !!cellText(parkShortLabel(v.park));
+      if(c.key === 'livery') return !!cellText(normalizeLivery(v.livery));
+      return !!cellText(v[c.key]);
+    });
     if(anyNonEmpty) visible.push(c.key);
   }
   return visible;
@@ -999,7 +985,7 @@ function renderTabs(){
     el.onclick = ()=>{
       activeTab = el.getAttribute('data-tab');
 
-      // IMPORTANT: default sort is always number on tab switch
+      // default sort ALWAYS number on tab switch
       sortF = 'vehicleNumber';
       sortDesc = false;
       document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
@@ -1019,10 +1005,8 @@ document.querySelectorAll('th[data-f]').forEach(th=>{
 
     if(f === '_note' || f === 'livery') return;
 
-    // All: disallow garage/factory
     if(activeTab === '_all' && (f === 'garageNumber' || f === 'factoryNumber')) return;
 
-    // Park tabs: allow garage only in specific tabs; factory in all park tabs
     if(f === 'garageNumber' && !GARAGE_TABS.has(activeTab)) return;
     if(f === 'factoryNumber' && !FACTORY_TABS.has(activeTab)) return;
 
@@ -1164,7 +1148,6 @@ function render(){
     return true;
   });
 
-  // Sort according to selected mode
   VIEW.sort(generalSort);
 
   document.getElementById('countShown').textContent = VIEW.length;
@@ -1217,8 +1200,28 @@ function render(){
 
   const isAll = (activeTab === '_all');
 
-  // If user selected garage sort: show колонны headers (only in allowed tabs)
-  if(!isAll && sortF === 'garageNumber' && GARAGE_TABS.has(activeTab)){
+  // RESTORED: group headers with counters for default "number" in ALL (and park tabs) — 3 sections
+  if(sortF === 'vehicleNumber' && !sortDesc){
+    const order = ['bus','troll','tram','other'];
+    const labels = {
+      bus: 'Автобусы и электробусы',
+      troll: 'Троллейбусы и ТУАХ',
+      tram: 'Трамваи',
+      other: 'Другое'
+    };
+
+    for(const sec of order){
+      const subset = VIEW.filter(v => transportSectionKey(v) === sec);
+      if(!subset.length) continue;
+
+      rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
+        ${escapeHTML(`${labels[sec]} (${subset.length})`)}
+      </td></tr>`);
+      for(const v of subset) pushDataRow(v);
+    }
+  }
+  // Garage sort in allowed tabs: group headers with counters
+  else if(!isAll && sortF === 'garageNumber' && GARAGE_TABS.has(activeTab)){
     const list = VIEW.slice();
     sortByGarage(list);
     const {digits, groups, other} = groupByGarageColumnDigit(list);
@@ -1226,7 +1229,7 @@ function render(){
     for(const d of digits){
       const arr = groups.get(d) || [];
       rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
-        ${escapeHTML(`Первая цифра (${d} колонна) (${arr.length})`)}
+        ${escapeHTML(`${d} колонна (${arr.length})`)}
       </td></tr>`);
       for(const v of arr) pushDataRow(v);
     }
@@ -1238,7 +1241,7 @@ function render(){
       for(const v of other) pushDataRow(v);
     }
   }
-  // If user selected factory sort: group by model with headers in all park tabs
+  // Factory sort in park tabs: group by model + headers + counters
   else if(!isAll && sortF === 'factoryNumber' && FACTORY_TABS.has(activeTab)){
     const byModel = new Map();
     for(const v of VIEW){
@@ -1269,7 +1272,7 @@ function render(){
       for(const v of arr) pushDataRow(v);
     }
   }
-  // Default: render sorted VIEW without extra headers
+  // Other sorts: keep plain list (no extra group headers)
   else {
     for(const v of VIEW) pushDataRow(v);
   }
@@ -1291,16 +1294,6 @@ function render(){
     updateStickyMetrics();
     applyMeasuredColumnWidths();
   });
-}
-
-/* ===== column widths/visibility ===== */
-function isEmptyByKey(v, key){
-  if(key === '_note') return !cellText(v.noteHtml || v.note);
-  if(key === 'type') return !normType(v.type);
-  if(key === 'park') return !cellText(parkShortLabel(v.park));
-  if(key === 'livery') return !cellText(normalizeLivery(v.livery));
-  if(key === 'model') return !cellText(normalizeModel(v.model));
-  return !cellText(v[key]);
 }
 
 /* ===== init ===== */
