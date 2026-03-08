@@ -267,7 +267,7 @@ function platePrefixLenRU(plateRU){
   return m ? m[1].length : 0;
 }
 
-/* bus priority (kept, simplified) */
+/* bus priority (kept) */
 function getPrefix2RU(plateRU){ const m=plateRU.match(/^([А-Я]{2})/); return m?m[1]:''; }
 function getNum4RU(plateRU){ const m=plateRU.match(/^[А-Я]{2}(\d{4})/); return m?parseInt(m[1],10):null; }
 function busPriorityKeyRU(plateRU){
@@ -289,7 +289,7 @@ function busPriorityKeyRU(plateRU){
   return {w:9999,d:(n4??9999)};
 }
 
-/* num compare with your 2-letter-before-3-letter rule */
+/* FIXED: number sort = prefix -> digits -> tail; normalization kept (I -> И) */
 function numSortAlg(a,b){
   const aRaw=(a.vehicleNumber||'').toString().trim();
   const bRaw=(b.vehicleNumber||'').toString().trim();
@@ -303,45 +303,54 @@ function numSortAlg(a,b){
   const secA=transportSectionKey(a);
   const secB=transportSectionKey(b);
 
-  // keep global section order if different sections
   if(secA!==secB){
     return sectionOrderKey(secA) - sectionOrderKey(secB);
   }
 
-  // RULE: in bus + troll sections, 2-letter prefix before 3-letter prefix
+  // 2 before 3 for bus+troll (as you had)
   if(secA==='bus' || secA==='troll'){
     const la=platePrefixLenRU(aRU);
     const lb=platePrefixLenRU(bRU);
-    const aa = (la===3?1:(la===2?0:2));
-    const bb = (lb===3?1:(lb===2?0:2));
+    const aa = (la===2?0:(la===3?1:2));
+    const bb = (lb===2?0:(lb===3?1:2));
     if(aa!==bb) return aa-bb;
   }
 
-  // bus-specific priority if both are автобусы
+  // prefix compare
+  const prefA = (aRU.match(/^([А-Я]{2,3})/)||[])[1] || '';
+  const prefB = (bRU.match(/^([А-Я]{2,3})/)||[])[1] || '';
+  if(prefA !== prefB) return prefA.localeCompare(prefB,'ru');
+
+  // bus priority (your rules)
   if(normType(a.type)==='автобус' && normType(b.type)==='автобус'){
     const ak=busPriorityKeyRU(aRU), bk=busPriorityKeyRU(bRU);
     if(ak.w!==bk.w) return ak.w-bk.w;
     if(ak.d!==bk.d) return ak.d-bk.d;
   }
 
-  // fallback lexicographic
-  if(aRU<bRU) return -1;
-  if(aRU>bRU) return 1;
-  return 0;
+  // digits compare
+  const nA = (aRU.match(/\d+/)||[])[0];
+  const nB = (bRU.match(/\d+/)||[])[0];
+  if(nA && nB){
+    const iA=parseInt(nA,10), iB=parseInt(nB,10);
+    if(iA!==iB) return iA-iB;
+  }else if(nA && !nB) return -1;
+  else if(!nA && nB) return 1;
+
+  // fallback tail
+  return aRU.localeCompare(bRU,'ru');
 }
 
 /* -------------- RULE 2: (x) after x in same column -------------- */
-/* FIXED: column is only first digit; parentheses variant goes AFTER */
+/* FIXED: column by first digit; (x) after x */
 function garageColumnDigitFromValue(s){
   s=(s||'').toString().trim();
-  const m1 = s.match(/^$(\d)$/);  // (3)....
+  const m1 = s.match(/^$(\d)$/);
   if(m1) return parseInt(m1[1],10);
-  const m2 = s.match(/^(\d)/);     // 3....
+  const m2 = s.match(/^(\d)/);
   if(m2) return parseInt(m2[1],10);
   return null;
 }
-
-/* FIXED: correct regex + only first digit; (x) after x */
 function garageSortKey(s){
   const raw=(s||'').toString().trim();
   if(!raw) return {col: 999999, inParen: 9, rest:''};
@@ -356,12 +365,10 @@ function garageSortKey(s){
   }
   return {col: 999999, inParen: 9, rest: normAlnumRU(raw)};
 }
-
 function compareGarage(a,b){
   const ak=garageSortKey(a), bk=garageSortKey(b);
   if(ak.col!==bk.col) return ak.col-bk.col;
-  // RULE: inParen 0 (без скобок) раньше inParen 1 (в скобках)
-  if(ak.inParen!==bk.inParen) return ak.inParen-bk.inParen;
+  if(ak.inParen!==bk.inParen) return ak.inParen-bk.inParen; // (x) after x
   if(ak.rest<bk.rest) return -1;
   if(ak.rest>bk.rest) return 1;
   return 0;
@@ -387,13 +394,27 @@ function compareFactoryLatinized(a,b){
 }
 
 function generalSort(a,b){
-  // always enforce top-level section order (bus/troll/tram) as primary grouping feel
+  // always enforce top-level section order
   const sa=transportSectionKey(a), sb=transportSectionKey(b);
   if(sa!==sb) return sectionOrderKey(sa)-sectionOrderKey(sb);
 
   if(sortF==='vehicleNumber'){
     const r=numSortAlg(a,b);
     return sortDesc ? -r : r;
+  }
+  if(sortF==='year'){
+    const ya = parseInt((a.year||'').toString().trim(),10);
+    const yb = parseInt((b.year||'').toString().trim(),10);
+
+    const aEmpty = Number.isNaN(ya);
+    const bEmpty = Number.isNaN(yb);
+
+    if(aEmpty && !bEmpty) return sortDesc ? -1 : 1;
+    if(!aEmpty && bEmpty) return sortDesc ? 1 : -1;
+    if(!aEmpty && !bEmpty && ya!==yb) return sortDesc ? (yb-ya) : (ya-yb);
+
+    const rn=numSortAlg(a,b);
+    return sortDesc ? -rn : rn;
   }
   if(sortF==='garageNumber'){
     const r=compareGarage(a.garageNumber, b.garageNumber);
@@ -643,7 +664,6 @@ function render(){
     </tr>`);
   }
 
-  // Always top-level grouping by sections in required order
   const secOrder=['bus','troll','tram','other'];
   const secLabel={bus:'Автобусы и электробусы', troll:'Троллейбусы и ТУАХ', tram:'Трамваи', other:'Другое'};
 
@@ -653,7 +673,6 @@ function render(){
 
     groupRow(`${secLabel[sec]} (${secArr.length})`);
 
-    // inside section: do per-sort grouping (simple)
     if(sortF==='garageNumber'){
       if(activeTab==='_all'){
         const byPark=groupBy(secArr, v=>parkKey(v.park)||'—');
@@ -698,7 +717,6 @@ function render(){
       }
     }
     else if(sortF==='factoryNumber' || sortF==='model'){
-      // Type->brand->model groups inside section
       const typeBuckets=groupBy(secArr, v=>typeLabel(v.type)||'—');
       const typeNames=['Автобус','Электробус','Троллейбус','ТУАХ','Трамвай','—'];
       const tkeys=Array.from(typeBuckets.keys()).sort((a,b)=>{
@@ -723,7 +741,6 @@ function render(){
       }
     }
     else {
-      // default: no extra nested groups
       for(const v of secArr) dataRow(v);
     }
   }
