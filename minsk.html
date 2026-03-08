@@ -156,13 +156,13 @@
       z-index:9999;
     }
     .modal{
-      width:min(760px, 98vw);
+      width:min(820px, 98vw);
       background:#fff; border-radius:10px; box-shadow:0 6px 26px rgba(30,40,90,.2);
       padding:12px 12px 10px 12px;
       font-family: Arial, sans-serif;
     }
-    .modal h3{margin:0 0 8px 0; font-size:14px; color:#1c3789;}
-    .modal .meta{font-size:12px; color:#5b6b98; margin-bottom:8px;}
+    .modal h3{margin:0 0 6px 0; font-size:14px; color:#1c3789;}
+    .modal .meta{font-size:12px; color:#5b6b98; margin-bottom:8px; line-height:1.25;}
     .modal .noteBody{
       border:1px solid #d9e2f7; border-radius:8px; padding:10px 10px;
       max-height: 60vh; overflow:auto; background:#fbfcff;
@@ -194,9 +194,7 @@
 
     <div class="tabs" id="tabs"></div>
 
-    <div class="search">
-      <!-- текст-подсказка удалён по вашей просьбе -->
-    </div>
+    <div class="search"></div>
   </div>
 
   <div class="tableWrap" id="tableWrap">
@@ -262,19 +260,6 @@ let sortDesc = false;
 
 let activeTab = "_all";
 
-const PARK_TABS = [
-  "Автобусный парк №5",
-  "Автобусный парк №6",
-  "Автобусный парк №7",
-  "Транспортный парк №1",
-  "Транспортный парк №2",
-  "Троллейбусный парк №3",
-  "Транспортный парк №4",
-  "Троллейбусный парк №5",
-  "Трамвайный парк",
-  "_all"
-];
-
 function updateStickyMetrics(){
   const wrap = document.getElementById('tableWrap');
   const stickyTop = document.getElementById('stickyTop');
@@ -294,7 +279,7 @@ window.addEventListener('resize', ()=> {
   requestAnimationFrame(applyMeasuredColumnWidths);
 });
 
-/* ===== latin -> cyr "lookalikes" (sorting normalization) ===== */
+/* ===== latin -> cyr lookalikes ===== */
 function canonToRU(ch){
   const map = {
     'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У',
@@ -306,7 +291,6 @@ function canonToRU(ch){
 function normPlateRU(s){
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/[\s\-]/g, '');
-  // Convert latin letters to corresponding cyr (lookalikes)
   s = s.replace(/[A-ZА-ЯІ]/g, ch => canonToRU(ch));
   return s;
 }
@@ -317,7 +301,7 @@ function normAlnumRU(s){
   return s;
 }
 
-/* ===== basic ===== */
+/* ===== base ===== */
 function normType(t){ return (t||'').toString().trim().toLowerCase(); }
 function typeLabel(t){
   const nt = normType(t);
@@ -344,7 +328,7 @@ function typeOrderKey(t){
   return 99;
 }
 
-/* ===== transport sections ===== */
+/* ===== sections ===== */
 function transportSectionKey(v){
   const t = normType(v.type);
   if(t === 'автобус' || t === 'электробус') return 'bus';
@@ -362,7 +346,7 @@ function headerLabelWithCount(label, count){
   return `${label} (${count})`;
 }
 
-/* ===== park normalize ===== */
+/* ===== parks: key + labels ===== */
 function cleanParkRaw(s){
   return (s||'').toString().trim().toLowerCase()
     .replace(/[()]/g,'')
@@ -440,12 +424,26 @@ function parkShortLabel(s){
   return (s||'').toString().trim() || '—';
 }
 
-function parkLabel(tabKey){
-  return tabKey === '_all' ? 'Транспорт Минска' : tabKey;
+/* ===== tabs (short labels + fixed order) ===== */
+const TAB_ORDER = [
+  {key:'автобусныйпарк5', label:'АП5'},
+  {key:'автобусныйпарк6', label:'АП6'},
+  {key:'автобусныйпарк7', label:'АП7'},
+  {key:'транспортныйпарк1', label:'ТП1'},
+  {key:'транспортныйпарк2', label:'ТП2'},
+  {key:'троллейбусныйпарк3', label:'ТП3'},
+  {key:'транспортныйпарк4', label:'ТП4'},
+  {key:'троллейбусныйпарк5', label:'ТП5'},
+  {key:'трамвайныйпарк', label:'ТрамП'},
+  {key:'_all', label:'Транспорт Минска'}
+];
+
+function currentTabKey(){
+  return activeTab;
 }
-function tabParkKey(tabLabel){
-  if(tabLabel === '_all') return '_all';
-  return parkKey(tabLabel);
+function tabLabelByKey(k){
+  const x = TAB_ORDER.find(t=>t.key===k);
+  return x ? x.label : k;
 }
 
 /* ===== muted ===== */
@@ -459,7 +457,7 @@ function tdClass(v, key, baseClass=''){
   return c.length ? ` class="${c.join(' ')}"` : '';
 }
 
-/* ===== html utils ===== */
+/* ===== html ===== */
 function escapeHTML(s){
   return String(s ?? '').replace(/[&<>"']/g, c => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
@@ -551,7 +549,7 @@ function normalizeLivery(s){
   return normalizeSpaces(normalizeDashes(normalizeQuotesToGuillemets(s)));
 }
 
-/* ===== model normalize (MAZ-103c/с etc) ===== */
+/* ===== model normalize ===== */
 function normalizeModel(s){
   let m = (s||'').toString().trim();
   if(!m) return '';
@@ -573,7 +571,7 @@ function modelBrandKey(model){
   return {w: 4, t: mm};
 }
 
-/* ===== number sorting in RU domain ===== */
+/* ===== number sorting (RU-normalized) ===== */
 function comparePlateRU(aRU, bRU){
   if(aRU < bRU) return -1;
   if(aRU > bRU) return 1;
@@ -589,7 +587,6 @@ function prefixLen23RU(plateRU){
   return Math.min(3, p.length);
 }
 
-/* ===== your bus priority algo in RU domain ===== */
 function getPrefix2RU(plateRU){
   const m = plateRU.match(/^([А-Я]{2})/);
   return m ? m[1] : '';
@@ -644,14 +641,14 @@ function numSortAlg(a, b){
   const secA = transportSectionKey(a);
   const secB = transportSectionKey(b);
 
-  // 2-letter prefixes before 3-letter (for bus and troll sections)
+  // 2-letter prefixes before 3-letter for bus and troll sections
   if(secA === secB && (secA === 'bus' || secA === 'troll')){
     const la = prefixLen23RU(aRU);
     const lb = prefixLen23RU(bRU);
     if(la !== lb) return la - lb;
   }
 
-  // автобусный приоритет — только для автобусов
+  // автобусный приоритет — только если оба автобус
   if(normType(a.type) === 'автобус' && normType(b.type) === 'автобус'){
     const ak = busPriorityKeyRU(aRU);
     const bk = busPriorityKeyRU(bRU);
@@ -669,7 +666,7 @@ function numSortAlg(a, b){
   return 0;
 }
 
-/* ===== garage/factory sort (RU-normalized letters) ===== */
+/* ===== garage/factory ===== */
 function factorySortKey(s){
   const raw = (s||'').toString().trim();
   if(!raw) return {kind: 9, headNum: null, tail:''};
@@ -832,7 +829,7 @@ function computeVisibleCols(){
   return visible;
 }
 
-/* column width measuring */
+/* ===== width measuring ===== */
 function textWidthPx(txt){
   const box = document.getElementById('measureBox');
   box.textContent = txt || '';
@@ -931,12 +928,10 @@ function renderTabs(){
   const wrap = document.getElementById('tabs');
   const parkCounts = calcParkCounts();
 
-  wrap.innerHTML = PARK_TABS.map(t => {
-    const key = (t === '_all') ? '_all' : t;
-    const k2 = (t === '_all') ? '_all' : tabParkKey(t);
-    const c = (t === '_all') ? DATA.length : (parkCounts[k2] || 0);
-    return `<div class="tab ${activeTab===key?'active':''}" data-tab="${escapeHTML(key)}">
-      ${escapeHTML(parkLabel(key))} <span style="opacity:.75;">${c}</span>
+  wrap.innerHTML = TAB_ORDER.map(t => {
+    const c = (t.key === '_all') ? DATA.length : (parkCounts[t.key] || 0);
+    return `<div class="tab ${activeTab===t.key?'active':''}" data-tab="${escapeHTML(t.key)}">
+      ${escapeHTML(t.label)} <span style="opacity:.75;">${c}</span>
     </div>`;
   }).join('');
 
@@ -956,14 +951,30 @@ function openNote(v){
   const meta = document.getElementById('noteMeta');
   const body = document.getElementById('noteBody');
 
-  const num = cellText(v.vehicleNumber) || '—';
-  title.textContent = `Примечание — ${num}`;
+  // Title: note + full info
+  const partsTitle = [];
+  partsTitle.push(typeLabel(v.type));
+  if(cellText(v.vehicleNumber)) partsTitle.push(cellText(v.vehicleNumber));
+  if(cellText(v.year)) partsTitle.push(cellText(v.year));
+  if(cellText(v.model)) partsTitle.push(normalizeModel(v.model));
+  if(cellText(v.park)) partsTitle.push(parkFullLabelFromKey(parkKey(v.park)));
+  if(cellText(v.garageNumber)) partsTitle.push('гар. ' + cellText(v.garageNumber));
+  if(cellText(v.factoryNumber)) partsTitle.push('зав. ' + cellText(v.factoryNumber));
+  if(cellText(v.livery)) partsTitle.push(normalizeLivery(v.livery));
 
-  const pieces = [];
-  if(cellText(v.type)) pieces.push(typeLabel(v.type));
-  if(cellText(v.model)) pieces.push(normalizeModel(v.model));
-  if(cellText(v.park)) pieces.push(parkFullLabelFromKey(parkKey(v.park)));
-  meta.textContent = pieces.join(' • ');
+  title.textContent = 'Примечание — ' + partsTitle.filter(Boolean).join(' • ');
+
+  // Meta: full info as well (duplicate but easier to read/wrap)
+  const metaParts = [];
+  metaParts.push('Тип: ' + typeLabel(v.type));
+  metaParts.push('Номер: ' + (cellText(v.vehicleNumber) || '—'));
+  metaParts.push('Год: ' + (cellText(v.year) || '—'));
+  metaParts.push('Модель: ' + (cellText(normalizeModel(v.model)) || '—'));
+  metaParts.push('Парк: ' + parkFullLabelFromKey(parkKey(v.park)));
+  metaParts.push('Гаражный: ' + (cellText(v.garageNumber) || '—'));
+  metaParts.push('Заводской: ' + (cellText(v.factoryNumber) || '—'));
+  metaParts.push('Цвет/оформление: ' + (cellText(normalizeLivery(v.livery)) || '—'));
+  meta.textContent = metaParts.join(' | ');
 
   const safe = sanitizeNoteHTML(v.noteHtml || v.note || '');
   body.innerHTML = safe || '<span class="no">—</span>';
@@ -972,11 +983,12 @@ function openNote(v){
 }
 function closeNote(){ document.getElementById('noteModalBack').style.display = 'none'; }
 
-/* ===== render ===== */
+/* ===== filters/search helper ===== */
 function normVehicleNumberForSearch(s){
   return normPlateRU(s);
 }
 
+/* ===== rendering ===== */
 function render(){
   VIEW_RENDERED = [];
 
@@ -990,7 +1002,7 @@ function render(){
   VIEW = DATA
     .filter(v=>{
       if(activeTab !== '_all'){
-        if(parkKey(v.park) !== tabParkKey(activeTab)) return false;
+        if(parkKey(v.park) !== activeTab) return false;
       }
 
       for(const [col, rawNeedle] of Object.entries(colFilters)){
@@ -1035,6 +1047,7 @@ function render(){
       return true;
     });
 
+  // base sort
   VIEW.sort(generalSort);
 
   document.getElementById('countShown').textContent = VIEW.length;
@@ -1085,37 +1098,97 @@ function render(){
     rows.push(`<tr class="dataRow">${cells.join('')}</tr>`);
   }
 
-  // Sort by number: 3 sections; within bus and troll sections types can mix
+  const isAll = (activeTab === '_all');
+
+  // Helper: park-mode sorting (only for park tabs, not for _all)
+  function sortForParkTabs(list){
+    // buses/e-buses: number -> garage
+    // troll/tuah + tram: number -> model -> factory (within each model)
+    list.sort((a,b)=>{
+      const secA = transportSectionKey(a);
+      const secB = transportSectionKey(b);
+      if(secA !== secB){
+        // keep same section order as UI sections (bus, troll, tram) when needed
+        const order = {bus:1, troll:2, tram:3, other:9};
+        return order[secA] - order[secB];
+      }
+
+      // always number first
+      const rN = numSortAlg(a,b);
+      if(rN !== 0) return rN;
+
+      if(secA === 'bus'){
+        const rG = compareGarage(a.garageNumber, b.garageNumber);
+        if(rG !== 0) return rG;
+        return 0;
+      }
+
+      // troll or tram => model then factory (per each concrete model)
+      const ma = normalizeModel(a.model).toLowerCase();
+      const mb = normalizeModel(b.model).toLowerCase();
+      if(ma < mb) return -1;
+      if(ma > mb) return 1;
+
+      const rF = compareFactory(a.factoryNumber, b.factoryNumber);
+      if(rF !== 0) return rF;
+
+      return 0;
+    });
+  }
+
+  // Sorting by number: show 3 sections. In park tabs, apply park-mode sorting too (except _all).
   if(sortF === 'vehicleNumber' && !sortDesc){
     const sections = [{k:'bus'},{k:'troll'},{k:'tram'}];
+
     for(const s of sections){
       const subset = VIEW.filter(v => transportSectionKey(v) === s.k);
       if(!subset.length) continue;
+
+      if(!isAll){
+        // full park sorting in all park tabs
+        sortForParkTabs(subset);
+      } else {
+        subset.sort((a,b)=>numSortAlg(a,b));
+      }
 
       rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
         ${escapeHTML(headerLabelWithCount(transportSectionLabel(s.k), subset.length))}
       </td></tr>`);
 
-      // number first; then garage/factory inside park tabs
-      subset.sort((a,b)=>{
-        const rN = numSortAlg(a,b);
-        if(rN !== 0) return rN;
+      // additionally: in park tabs, for troll+tram show per-model factory sort headers (requested)
+      if(!isAll && (s.k === 'troll' || s.k === 'tram')){
+        const byModel = new Map();
+        for(const v of subset){
+          const m = normalizeModel(v.model) || '—';
+          if(!byModel.has(m)) byModel.set(m, []);
+          byModel.get(m).push(v);
+        }
+        const modelKeys = Array.from(byModel.keys()).sort((a,b)=>{
+          const aa = a.toLowerCase(), bb = b.toLowerCase();
+          if(aa < bb) return -1;
+          if(aa > bb) return 1;
+          return 0;
+        });
 
-        if(activeTab !== '_all'){
-          if(s.k === 'bus'){
-            const rG = compareGarage(a.garageNumber, b.garageNumber);
-            if(rG !== 0) return rG;
-          } else if(s.k === 'troll' || s.k === 'tram'){
+        for(const mk of modelKeys){
+          const arr = byModel.get(mk);
+          arr.sort((a,b)=>{
             const rF = compareFactory(a.factoryNumber, b.factoryNumber);
             if(rF !== 0) return rF;
-          }
-        }
-        return 0;
-      });
+            return numSortAlg(a,b);
+          });
 
-      for(const v of subset) pushDataRow(v);
+          rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
+            ${escapeHTML(headerLabelWithCount(mk, arr.length))}
+          </td></tr>`);
+          for(const v of arr) pushDataRow(v);
+        }
+      } else {
+        for(const v of subset) pushDataRow(v);
+      }
     }
-  } else if(sortF === 'type'){
+  }
+  else if(sortF === 'type'){
     const order = ['автобус','электробус','троллейбус','туах','трамвай'];
     for(const t of order){
       const subset = VIEW.filter(v => normType(v.type) === t);
@@ -1124,9 +1197,15 @@ function render(){
       rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
         ${escapeHTML(headerLabelWithCount(typePluralLabel(t), subset.length))}
       </td></tr>`);
+
+      // in park tabs add garage/factory sorting (not in _all)
+      if(!isAll){
+        sortForParkTabs(subset);
+      }
       for(const v of subset) pushDataRow(v);
     }
-  } else if(sortF === 'year'){
+  }
+  else if(sortF === 'year'){
     const groups = new Map();
     for(const v of VIEW){
       const y = cellText(v.year) || '—';
@@ -1145,6 +1224,8 @@ function render(){
 
     for(const y of keys){
       const arr = groups.get(y);
+
+      // inside year: type order -> number
       arr.sort((a,b)=>{
         const ta = typeOrderKey(a.type);
         const tb = typeOrderKey(b.type);
@@ -1152,12 +1233,32 @@ function render(){
         return numSortAlg(a,b);
       });
 
+      // park tabs: apply garage/factory additionally (not _all)
+      if(!isAll){
+        // stable enrichment: after primary order, add garage/factory within same type+number tie
+        arr.sort((a,b)=>{
+          const r0 = (()=>{
+            const ta = typeOrderKey(a.type), tb = typeOrderKey(b.type);
+            if(ta !== tb) return ta - tb;
+            const rn = numSortAlg(a,b);
+            if(rn !== 0) return rn;
+            return 0;
+          })();
+          if(r0 !== 0) return r0;
+
+          const sec = transportSectionKey(a);
+          if(sec === 'bus') return compareGarage(a.garageNumber, b.garageNumber);
+          return compareFactory(a.factoryNumber, b.factoryNumber);
+        });
+      }
+
       rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
         ${escapeHTML(headerLabelWithCount(y, arr.length))}
       </td></tr>`);
       for(const v of arr) pushDataRow(v);
     }
-  } else if(sortF === 'model'){
+  }
+  else if(sortF === 'model'){
     const sections = [{k:'bus'},{k:'troll'},{k:'tram'}];
 
     for(const s of sections){
@@ -1188,6 +1289,8 @@ function render(){
 
       for(const mk of keys){
         const arr = groups.get(mk);
+
+        // inside model: type -> number
         arr.sort((a,b)=>{
           const ta = typeOrderKey(a.type);
           const tb = typeOrderKey(b.type);
@@ -1195,13 +1298,23 @@ function render(){
           return numSortAlg(a,b);
         });
 
+        // park tabs: if troll/tram, inside this model sort by factory too (for each concrete model)
+        if(!isAll && (s.k === 'troll' || s.k === 'tram')){
+          arr.sort((a,b)=>{
+            const rf = compareFactory(a.factoryNumber, b.factoryNumber);
+            if(rf !== 0) return rf;
+            return numSortAlg(a,b);
+          });
+        }
+
         rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
           ${escapeHTML(headerLabelWithCount(mk, arr.length))}
         </td></tr>`);
         for(const v of arr) pushDataRow(v);
       }
     }
-  } else if(sortF === 'park'){
+  }
+  else if(sortF === 'park'){
     const groups = new Map();
     for(const v of VIEW){
       const pk = parkKey(v.park) || '—';
@@ -1217,29 +1330,28 @@ function render(){
 
     for(const pk of keys){
       const arr = groups.get(pk);
-      arr.sort((a,b)=>{
-        const rN = numSortAlg(a,b);
-        if(rN !== 0) return rN;
 
-        const sec = transportSectionKey(a);
-        if(sec === 'bus'){
-          const rG = compareGarage(a.garageNumber, b.garageNumber);
-          if(rG !== 0) return rG;
-        } else if(sec === 'troll' || sec === 'tram'){
-          const rF = compareFactory(a.factoryNumber, b.factoryNumber);
-          if(rF !== 0) return rF;
-        }
-        return 0;
-      });
+      // priority: number (buses/e-buses and troll/tuah can mix)
+      arr.sort((a,b)=>numSortAlg(a,b));
+
+      // park tabs: apply garage/factory as well (not _all)
+      if(!isAll){
+        sortForParkTabs(arr);
+      }
 
       rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">
         ${escapeHTML(headerLabelWithCount(parkFullLabelFromKey(pk), arr.length))}
       </td></tr>`);
       for(const v of arr) pushDataRow(v);
     }
-  } else {
+  }
+  else {
     // default
-    for(const v of VIEW) pushDataRow(v);
+    let arr = VIEW.slice();
+    if(!isAll){
+      sortForParkTabs(arr);
+    }
+    for(const v of arr) pushDataRow(v);
   }
 
   tbody.innerHTML = rows.join('');
@@ -1261,12 +1373,12 @@ function render(){
   });
 }
 
-/* sorting ui */
+/* ===== sorting ui ===== */
 document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick = ()=>{
     const f = th.getAttribute('data-f');
 
-    // keep UI disable for these
+    // keep UI disable for these (sorting still happens automatically in park tabs)
     if(f === 'garageNumber' || f === 'factoryNumber' || f === 'livery' || f === '_note'){
       return;
     }
@@ -1288,64 +1400,6 @@ document.addEventListener('input', (e) => {
     render();
   }
 });
-
-/* ===== columns ===== */
-const COLS2 = [
-  {key:'type'},{key:'vehicleNumber'},{key:'_note'},{key:'year'},{key:'model'},{key:'park'},{key:'garageNumber'},{key:'factoryNumber'},{key:'livery'}
-];
-function setColumnVisibility(visibleKeys){
-  const keys = new Set(visibleKeys);
-  const thRow = document.getElementById('headRow');
-  const filterRow = document.getElementById('filterRow');
-  const ths = Array.from(thRow.children);
-  const fths = Array.from(filterRow.children);
-
-  COLS2.forEach((c, idx)=>{
-    const show = keys.has(c.key);
-    if(ths[idx]) ths[idx].style.display = show ? '' : 'none';
-    if(fths[idx]) fths[idx].style.display = show ? '' : 'none';
-  });
-}
-function computeVisibleCols(){
-  const visible = [];
-  for(const c of COLS2){
-    const anyNonEmpty = VIEW.some(v => !isEmptyByKey(v, c.key));
-    if(anyNonEmpty) visible.push(c.key);
-  }
-  return visible;
-}
-
-/* ===== tabs ===== */
-function calcParkCounts(){
-  const m = {};
-  DATA.forEach(v=>{
-    const k = parkKey(v.park);
-    if(!k) return;
-    m[k] = (m[k]||0)+1;
-  });
-  return m;
-}
-function renderTabs(){
-  const wrap = document.getElementById('tabs');
-  const parkCounts = calcParkCounts();
-
-  wrap.innerHTML = PARK_TABS.map(t => {
-    const key = (t === '_all') ? '_all' : t;
-    const k2 = (t === '_all') ? '_all' : tabParkKey(t);
-    const c = (t === '_all') ? DATA.length : (parkCounts[k2] || 0);
-    return `<div class="tab ${activeTab===key?'active':''}" data-tab="${escapeHTML(key)}">
-      ${escapeHTML(parkLabel(key))} <span style="opacity:.75;">${c}</span>
-    </div>`;
-  }).join('');
-
-  wrap.querySelectorAll('.tab').forEach(el=>{
-    el.onclick = ()=>{
-      activeTab = el.getAttribute('data-tab');
-      renderTabs();
-      render();
-    };
-  });
-}
 
 /* ===== errors ===== */
 function showErr(msg){
