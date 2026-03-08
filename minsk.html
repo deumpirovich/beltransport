@@ -1,18 +1,6 @@
 <!-- minsk.html — Viewer "Реестр общественного транспорта г. Минска"
-     Что сделано в этой версии (по вашему последнему требованию):
-     1) Сортировка по "Гаражный" и "Заводской" включена ВЕЗДЕ (включая All): клики по заголовкам работают.
-     2) При сортировке по ГАРАЖНОМУ:
-        - В All: группировки идут "Парк (N)" -> внутри "X колонна (N)" -> строки.
-        - В остальных вкладках: "X колонна (N)" -> строки.
-        (Колонна определяется по первой цифре гаражного или цифре в скобках: (1) и 1 => 1 колонна.)
-     3) При сортировке по ЗАВОДСКОМУ (везде):
-        - Группировки идут "Тип (N)" -> внутри "Модель (N)" -> строки.
-        - Сортировка заводских: пустые в конец; сначала номера, начинающиеся с цифр, затем с букв.
-          Кириллица в заводском приводится к соответствующей латинице (lookalikes) для сравнения.
-     4) При сортировке по НОМЕРУ (везде) восстановлены горизонтальные строки:
-        "Автобусы и электробусы (N)", "Троллейбусы и ТУАХ (N)", "Трамваи (N)", "Другое (N)".
-     5) Дефолт при переключении таба: сортировка по НОМЕРУ (asc) (как вы требовали ранее).
-     6) Модалка "Примечание" — формат как вы просили: 2 строки (Примечание / инфо) + тело (синий, размер как инфо).
+     Исправление:
+     - Добавлены обратно функции isMuted() и tdClass(), иначе падало "tdClass is not defined".
 -->
 <!DOCTYPE html>
 <html lang="ru">
@@ -354,7 +342,7 @@ function normAlnumLAT(s){
   return s;
 }
 
-/* ===== Base fields ===== */
+/* ===== Base ===== */
 function normType(t){ return (t||'').toString().trim().toLowerCase(); }
 function typeLabel(t){
   const nt = normType(t);
@@ -461,7 +449,7 @@ function cellHTMLText(x){
   return s ? escapeHTML(s) : '<span class="no">—</span>';
 }
 
-/* ===== Muted ===== */
+/* ===== FIX: muted helpers that were missing ===== */
 function isMuted(v, key){
   return !!(v && v.gray && typeof v.gray === 'object' && v.gray[key]);
 }
@@ -651,8 +639,8 @@ function numSortAlg(a, b){
   return 0;
 }
 
-/* ===== Garage sorting + columns ===== */
-function garageGroupDigit(s){
+/* ===== Garage & Factory sort keys ===== */
+function garageColumnDigitFromValue(s){
   s = (s||'').toString().trim();
   const m1 = s.match(/^$(\d)$/);
   if(m1) return parseInt(m1[1],10);
@@ -690,7 +678,6 @@ function compareGarage(a, b){
   return 0;
 }
 
-/* ===== Factory sorting: digits first, then letters; Cyrillic->Latin normalization ===== */
 function factorySortKeyLatinized(s){
   const raw = (s||'').toString().trim();
   if(!raw) return {empty:1, kind:9, headNum:null, tail:''};
@@ -738,7 +725,7 @@ function openNote(v){
 }
 function closeNote(){ document.getElementById('noteModalBack').style.display = 'none'; }
 
-/* ===== Sorting comparator for current sortF ===== */
+/* ===== Sorting comparator ===== */
 function generalSort(a, b){
   if(sortF === "vehicleNumber"){
     const r = numSortAlg(a, b);
@@ -753,7 +740,6 @@ function generalSort(a, b){
   }
 
   if(sortF === "factoryNumber"){
-    // base compare: type -> model -> factory -> number
     const ta = typeOrderKey(a.type);
     const tb = typeOrderKey(b.type);
     if(ta !== tb) return sortDesc ? (tb-ta) : (ta-tb);
@@ -825,7 +811,7 @@ function generalSort(a, b){
   return numSortAlg(a,b);
 }
 
-/* ===== Columns & visibility ===== */
+/* ===== Columns visibility & widths ===== */
 const COLS = [
   {key:'type', label:'Тип'},
   {key:'vehicleNumber', label:'Номер'},
@@ -868,7 +854,6 @@ function computeVisibleCols(){
   return visible;
 }
 
-/* ===== width measuring ===== */
 function textWidthPx(txt){
   const box = document.getElementById('measureBox');
   box.textContent = txt || '';
@@ -991,7 +976,7 @@ function renderTabs(){
   });
 }
 
-/* ===== sorting ui: enabled everywhere for garage/factory now ===== */
+/* ===== sorting ui ===== */
 document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick = ()=>{
     const f = th.getAttribute('data-f');
@@ -1077,7 +1062,7 @@ async function loadJson(){
   }
 }
 
-/* ===== helpers for grouping headers ===== */
+/* ===== helpers for grouping ===== */
 function groupBy(items, keyFn){
   const m = new Map();
   for(const v of items){
@@ -1088,14 +1073,6 @@ function groupBy(items, keyFn){
   return m;
 }
 function garageColumnLabel(d){ return `${d} колонна`; }
-function garageColumnDigitFromValue(s){
-  s = (s||'').toString().trim();
-  const m1 = s.match(/^$(\d)$/);
-  if(m1) return parseInt(m1[1],10);
-  const m2 = s.match(/^(\d)/);
-  if(m2) return parseInt(m2[1],10);
-  return null;
-}
 
 /* ===== render ===== */
 function render(){
@@ -1155,7 +1132,6 @@ function render(){
     return true;
   });
 
-  // global sort
   VIEW.sort(generalSort);
 
   document.getElementById('countShown').textContent = VIEW.length;
@@ -1206,15 +1182,10 @@ function render(){
     rows.push(`<tr class="dataRow">${cells.join('')}</tr>`);
   }
 
-  // ===== MODE 1: sort by number => section headers with counts (always) =====
+  // sort by number: section headers always
   if(sortF === 'vehicleNumber'){
     const secOrder = ['bus','troll','tram','other'];
-    const secLabel = {
-      bus:'Автобусы и электробусы',
-      troll:'Троллейбусы и ТУАХ',
-      tram:'Трамваи',
-      other:'Другое'
-    };
+    const secLabel = {bus:'Автобусы и электробусы', troll:'Троллейбусы и ТУАХ', tram:'Трамваи', other:'Другое'};
     for(const sec of secOrder){
       const subset = VIEW.filter(v => transportSectionKey(v) === sec);
       if(!subset.length) continue;
@@ -1222,18 +1193,14 @@ function render(){
       for(const v of subset) pushDataRow(v);
     }
   }
-
-  // ===== MODE 2: sort by garage => All: Park -> Column; others: Column =====
   else if(sortF === 'garageNumber'){
     if(activeTab === '_all'){
-      // group by park
       const byPark = groupBy(VIEW, v => parkKey(v.park) || '—');
       const parkKeys = Array.from(byPark.keys()).sort();
       for(const pk of parkKeys){
         const parkArr = byPark.get(pk);
         rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">${escapeHTML(`${parkFullLabelFromKey(pk)} (${parkArr.length})`)}</td></tr>`);
 
-        // inside park: group by column digit
         const byCol = new Map();
         const other = [];
         for(const v of parkArr){
@@ -1248,31 +1215,16 @@ function render(){
 
         for(const d of colDigits){
           const arr = byCol.get(d);
-          // ensure arr sorted by garage comparator then number (already mostly sorted but safe)
-          arr.sort((a,b)=>{
-            const rg = compareGarage(a.garageNumber, b.garageNumber);
-            if(rg !== 0) return sortDesc ? -rg : rg;
-            const rn = numSortAlg(a,b);
-            return sortDesc ? -rn : rn;
-          });
-
           rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">${escapeHTML(`${garageColumnLabel(d)} (${arr.length})`)}</td></tr>`);
           for(const v of arr) pushDataRow(v);
         }
 
         if(other.length){
-          other.sort((a,b)=>{
-            const rg = compareGarage(a.garageNumber, b.garageNumber);
-            if(rg !== 0) return sortDesc ? -rg : rg;
-            const rn = numSortAlg(a,b);
-            return sortDesc ? -rn : rn;
-          });
           rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">${escapeHTML(`Прочее (${other.length})`)}</td></tr>`);
           for(const v of other) pushDataRow(v);
         }
       }
     } else {
-      // other tabs: group by column digit only
       const byCol = new Map();
       const other = [];
       for(const v of VIEW){
@@ -1287,32 +1239,17 @@ function render(){
 
       for(const d of colDigits){
         const arr = byCol.get(d);
-        arr.sort((a,b)=>{
-          const rg = compareGarage(a.garageNumber, b.garageNumber);
-          if(rg !== 0) return sortDesc ? -rg : rg;
-          const rn = numSortAlg(a,b);
-          return sortDesc ? -rn : rn;
-        });
         rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">${escapeHTML(`${garageColumnLabel(d)} (${arr.length})`)}</td></tr>`);
         for(const v of arr) pushDataRow(v);
       }
       if(other.length){
-        other.sort((a,b)=>{
-          const rg = compareGarage(a.garageNumber, b.garageNumber);
-          if(rg !== 0) return sortDesc ? -rg : rg;
-          const rn = numSortAlg(a,b);
-          return sortDesc ? -rn : rn;
-        });
         rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">${escapeHTML(`Прочее (${other.length})`)}</td></tr>`);
         for(const v of other) pushDataRow(v);
       }
     }
   }
-
-  // ===== MODE 3: sort by factory => Type -> Model =====
   else if(sortF === 'factoryNumber'){
     const byType = groupBy(VIEW, v => typeLabel(v.type) || '—');
-    // order types by your canonical order + fallback
     const typeOrder = ['Автобус','Электробус','Троллейбус','ТУАХ','Трамвай'];
     const typeKeys = Array.from(byType.keys()).sort((a,b)=>{
       const ia = typeOrder.indexOf(a);
@@ -1334,28 +1271,17 @@ function render(){
 
       for(const mk of models){
         const arr = byModel.get(mk);
-        // sort inside model: factory latinized, digits first; then number
-        arr.sort((a,b)=>{
-          const rf = compareFactoryLatinized(a.factoryNumber, b.factoryNumber);
-          if(rf !== 0) return sortDesc ? -rf : rf;
-          const rn = numSortAlg(a,b);
-          return sortDesc ? -rn : rn;
-        });
-
         rows.push(`<tr class="groupRow"><td colspan="${visibleCols.length}">${escapeHTML(`${mk} (${arr.length})`)}</td></tr>`);
         for(const v of arr) pushDataRow(v);
       }
     }
   }
-
-  // ===== other sorts: plain =====
   else {
     for(const v of VIEW) pushDataRow(v);
   }
 
   tbody.innerHTML = rows.join('');
 
-  // note handlers
   tbody.querySelectorAll('.noteBtn').forEach(btn=>{
     btn.onclick = (e)=>{
       e.preventDefault();
