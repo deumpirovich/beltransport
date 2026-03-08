@@ -1,433 +1,750 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Viewer</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Реестр общественного транспорта г. Минска</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 13px; background:#f5f7fa; color:#23263a; margin:0; }
+    .cont { max-width: 1200px; margin: 15px auto; padding: 0 10px; }
 
-<style>
-:root{--blue:#2543a5;--bg:#f5f7fa;--line:#eee;--head:#ecf1fa}
-body{font-family:Arial,system-ui,sans-serif;background:var(--bg);margin:0}
-.container{max-width:1200px;margin:auto;padding:10px}
-.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-.tab{padding:4px 10px;border-radius:10px;border:1px solid #cfd7ea;background:#eef3ff;cursor:pointer;font-size:12px}
-.tab.active{background:var(--blue);color:#fff}
-table{border-collapse:collapse;background:#fff;width:100%;font-size:13px}
-th,td{border-bottom:1px solid var(--line);padding:6px;text-align:center;white-space:nowrap}
-th{background:var(--head);cursor:pointer;color:var(--blue)}
-.filters input{width:100%;box-sizing:border-box;padding:4px;border:1px solid #d7deef;border-radius:6px}
-.groupRow td{background:#f4f7fc;font-weight:bold;color:#1c3789;text-align:left}
-.num{color:var(--blue);font-weight:bold}
-.small{font-size:12px;color:#6b7280}
-</style>
+    .stickyTop{ position: sticky; top: 0; z-index: 100; background:#f5f7fa; padding:10px 0 8px 0; border-bottom:1px solid #e3e8f5; }
+    .topbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+    .tabs{display:flex; gap:6px; flex-wrap:wrap; margin:6px 0 4px 0;}
+    .tab{padding:3px 10px; border-radius:10px; border:1px solid #cfd7ea; background:#eef3ff; cursor:pointer; user-select:none; font-size:12px; white-space:nowrap;}
+    .tab.active{background:#2543a5; color:#fff; border-color:#2543a5;}
+    .counts{color:#5b6b98; font-size:12px; margin-left:auto;}
+
+    .tableWrap{ margin-top:8px; overflow-x:auto; background:transparent; }
+    table{ border-collapse:collapse; background:#fff; border-radius:8px; overflow:hidden; font-size:13px; table-layout:fixed; width:auto; }
+    th, td{ padding:6px 6px; text-align:center; vertical-align:middle; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:18px; height:30px; }
+
+    thead th{ position:sticky; top:0; z-index:3; background:#ecf1fa; border-bottom:1.5px solid #abc; }
+    thead tr.filters th{ position:sticky; top:var(--filtersTop, 34px); z-index:3; background:#ecf1fa; border-bottom:1.5px solid #abc; padding:4px 6px 6px 6px; height:auto; line-height:normal; cursor:default; }
+
+    th { color:#2543a5; font-weight:600; cursor:pointer; user-select:none; }
+    th.active { background:#d2e3ff; }
+
+    tbody tr:hover{ background:#f0f5ff; }
+    tr { border-bottom:1px solid #eee; }
+
+    .num { font-weight:700; color:#2543a5; }
+    td.numCell{ line-height:18px; }
+
+    .colFilter{ width:100%; box-sizing:border-box; padding:3px 6px; font-size:12px; border-radius:6px; border:1px solid #bbc; outline:none; text-align:center; }
+    .colFilter:focus{ border-color:#2543a5; }
+
+    .groupRow td{
+      background:#f4f7fc; color:#1c3789; font-weight:700; text-align:center;
+      border-top:1px solid #d9e2f7; border-bottom:1px solid #d9e2f7; height:30px;
+    }
+
+    td.muted{ color:#8b95a7; font-style:italic; font-weight: normal; }
+    .no{ color:#bbb; font-style:italic; }
+
+    .noteBtn{
+      display:inline-flex; align-items:center; justify-content:center;
+      width:18px; height:18px; border-radius:999px; border:1px solid #cfd7ea;
+      background:#eef3ff; color:#2543a5; cursor:pointer; user-select:none; margin:0 auto;
+    }
+
+    td.liveryCell{ text-align:left; padding-left:10px; }
+
+    .empty{padding:18px 0; text-align:center; color:#9aa6c3; font-style:italic;}
+    .err{margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px; white-space:pre-wrap;}
+
+    /* modal */
+    .modalBack{ position:fixed; inset:0; background:rgba(0,0,0,.25); display:none; align-items:center; justify-content:center; padding:16px; z-index:9999; }
+    .modal{ width:min(560px, 96vw); background:#fff; border-radius:10px; box-shadow:0 6px 26px rgba(30,40,90,.2); padding:12px; }
+    .noteTitleLine{ font-weight:700; color:#2543a5; font-size:13px; margin:0 0 6px 0; }
+    .noteInfoLine{ font-weight:700; color:#2543a5; font-size:11px; margin:0 0 10px 0; line-height:1.25; }
+    .noteBody{ border:1px solid #d9e2f7; border-radius:8px; padding:10px; max-height:60vh; overflow:auto; background:#fbfcff; text-align:left; color:#2543a5; font-size:11px; line-height:1.35; }
+    .modalActions{ display:flex; gap:8px; justify-content:flex-end; margin-top:10px; }
+    .btn{ padding:4px 11px; border-radius:6px; border:none; background:#e3ecfb; color:#2543a5; cursor:pointer; font-size:12px; }
+    .btn:hover{ background:#b2ceff; }
+  </style>
 </head>
-
 <body>
-<div class="container">
+<div class="cont">
+  <div class="stickyTop" id="stickyTop">
+    <div class="topbar">
+      <div style="color:#5b6b98;font-size:12px;" id="updatedAt"></div>
+      <div class="counts"><span id="countShown">0</span> / <span id="countAll">0</span></div>
+    </div>
+    <div class="tabs" id="tabs"></div>
+  </div>
 
-  <div class="tabs" id="tabs"></div>
+  <div class="tableWrap" id="tableWrap">
+    <table id="tbl">
+      <thead>
+        <tr id="headRow">
+          <th data-f="type">Тип</th>
+          <th data-f="vehicleNumber" class="active">Номер</th>
+          <th data-f="_note" style="cursor:default;"></th>
+          <th data-f="year">Год</th>
+          <th data-f="model">Модель</th>
+          <th data-f="park">Парк</th>
+          <th data-f="garageNumber">Гаражный</th>
+          <th data-f="factoryNumber">Заводской</th>
+          <th data-f="livery">Цвет / реклама / оформление</th>
+        </tr>
+        <tr class="filters" id="filterRow">
+          <th><input class="colFilter" data-col="type"></th>
+          <th><input class="colFilter" data-col="vehicleNumber"></th>
+          <th></th>
+          <th><input class="colFilter" data-col="year"></th>
+          <th><input class="colFilter" data-col="model"></th>
+          <th><input class="colFilter" data-col="park"></th>
+          <th><input class="colFilter" data-col="garageNumber"></th>
+          <th><input class="colFilter" data-col="factoryNumber"></th>
+          <th><input class="colFilter" data-col="livery"></th>
+        </tr>
+      </thead>
+      <tbody id="data"></tbody>
+    </table>
+  </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th data-f="type">Тип</th>
-        <th data-f="vehicleNumber">Номер</th>
-        <th></th>
-        <th data-f="year">Год</th>
-        <th data-f="model">Модель</th>
-        <th data-f="park">Парк</th>
-        <th data-f="garageNumber">Гаражный</th>
-        <th data-f="factoryNumber">Заводской</th>
-        <th data-f="livery">Цвет</th>
-      </tr>
-      <tr class="filters">
-        <th><input data-col="type" placeholder="фильтр"></th>
-        <th><input data-col="vehicleNumber" placeholder="фильтр"></th>
-        <th></th>
-        <th><input data-col="year" placeholder="фильтр"></th>
-        <th><input data-col="model" placeholder="фильтр"></th>
-        <th><input data-col="park" placeholder="фильтр"></th>
-        <th><input data-col="garageNumber" placeholder="фильтр"></th>
-        <th><input data-col="factoryNumber" placeholder="фильтр"></th>
-        <th><input data-col="livery" placeholder="фильтр"></th>
-      </tr>
-    </thead>
-    <tbody id="data"></tbody>
-  </table>
+  <div class="empty" id="empty" style="display:none;">Нет данных по фильтру</div>
+  <div class="err" id="err" style="display:none;"></div>
+</div>
 
-  <div class="small" id="status"></div>
-
+<div class="modalBack" id="noteModalBack" onclick="if(event.target.id==='noteModalBack') closeNote()">
+  <div class="modal">
+    <div class="noteTitleLine">Примечание</div>
+    <div class="noteInfoLine" id="noteInfoLine"></div>
+    <div class="noteBody" id="noteBody"></div>
+    <div class="modalActions">
+      <button class="btn" onclick="closeNote()">Закрыть</button>
+    </div>
+  </div>
 </div>
 
 <script>
-/* =========================
-   Конфиг
-========================= */
-const JSON_URL = "./minsk.json";
-
-const TAB_ORDER = [
-  {key:"автобусныйпарк5",label:"АП5"},
-  {key:"автобусныйпарк6",label:"АП6"},
-  {key:"автобусныйпарк7",label:"АП7"},
-  {key:"транспортныйпарк1",label:"ТП1"},
-  {key:"транспортныйпарк2",label:"ТП2"},
-  {key:"троллейбусныйпарк3",label:"ТП3"},
-  {key:"транспортныйпарк4",label:"ТП4"},
-  {key:"троллейбусныйпарк5",label:"ТП5"},
-  {key:"трамвайныйпарк",label:"ТрамП"},
-  {key:"_all",label:"All"}
-];
+const JSON_URL = './minsk.json';
 
 let DATA = [];
 let VIEW = [];
+let VIEW_RENDERED = [];
 
-let sortF = "vehicleNumber";
+let sortF = 'vehicleNumber';
 let sortDesc = false;
-let activeTab = "_all";
+let activeTab = '_all';
 
-/* =========================
-   Утилиты
-========================= */
-function normType(t){
-  return (t || "").toString().trim().toLowerCase();
+const TAB_ORDER = [
+  {key:'автобусныйпарк5', label:'АП5'},
+  {key:'автобусныйпарк6', label:'АП6'},
+  {key:'автобусныйпарк7', label:'АП7'},
+  {key:'транспортныйпарк1', label:'ТП1'},
+  {key:'транспортныйпарк2', label:'ТП2'},
+  {key:'троллейбусныйпарк3', label:'ТП3'},
+  {key:'транспортныйпарк4', label:'ТП4'},
+  {key:'троллейбусныйпарк5', label:'ТП5'},
+  {key:'трамвайныйпарк', label:'ТрамП'},
+  {key:'_all', label:'All'}
+];
+
+function showErr(msg){ const e=document.getElementById('err'); e.style.display=''; e.textContent=msg; }
+function hideErr(){ const e=document.getElementById('err'); e.style.display='none'; e.textContent=''; }
+
+function escapeHTML(s){ return String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function cellText(x){ return (x||'').toString().trim(); }
+function cellHTMLText(x){ const s=cellText(x); return s ? escapeHTML(s) : '<span class="no">—</span>'; }
+
+function isMuted(v,key){ return !!(v && v.gray && typeof v.gray==='object' && v.gray[key]); }
+function tdClass(v,key,base=''){ const c=[]; if(base) c.push(base); if(isMuted(v,key)) c.push('muted'); return c.length ? ` class="${c.join(' ')}"` : ''; }
+
+/* maps */
+function canonToRU(ch){
+  const map={'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У','I':'И','І':'И'};
+  const u=(ch||'').toString().toUpperCase(); return map[u] || u;
 }
-
-/* латиница → кириллица + чистка */
+function canonToLAT(ch){
+  const map={'А':'A','В':'B','С':'C','Е':'E','Н':'H','К':'K','М':'M','О':'O','Р':'P','Т':'T','Х':'X','У':'Y','І':'I','И':'I',
+             'A':'A','B':'B','C':'C','E':'E','H':'H','K':'K','M':'M','O':'O','P':'P','T':'T','X':'X','Y':'Y','I':'I'};
+  const u=(ch||'').toString().toUpperCase(); return map[u] || u;
+}
 function normPlateRU(s){
-  return (s || "")
-    .toString()
-    .trim()
-    .toUpperCase()
-    .replace(/[\s\-]/g,"")
-    .replace(/A/g,"А")
-    .replace(/B/g,"В")
-    .replace(/C/g,"С")
-    .replace(/E/g,"Е")
-    .replace(/H/g,"Н")
-    .replace(/K/g,"К")
-    .replace(/M/g,"М")
-    .replace(/O/g,"О")
-    .replace(/P/g,"Р")
-    .replace(/T/g,"Т")
-    .replace(/X/g,"Х")
-    .replace(/Y/g,"У");
+  s=(s||'').toString().trim().toUpperCase().replace(/[\s\-]/g,'');
+  s=s.replace(/[A-ZА-ЯІ]/g,ch=>canonToRU(ch));
+  return s;
+}
+function normAlnumRU(s){
+  s=(s||'').toString().trim().toUpperCase().replace(/\s+/g,'');
+  s=s.replace(/[A-ZА-ЯІ]/g,ch=>canonToRU(ch));
+  return s;
+}
+function normAlnumLAT(s){
+  s=(s||'').toString().trim().toUpperCase().replace(/\s+/g,'');
+  s=s.replace(/[A-ZА-ЯІ]/g,ch=>canonToLAT(ch));
+  return s;
 }
 
+/* type/sections */
+function normType(t){ return (t||'').toString().trim().toLowerCase(); }
+function typeLabel(t){ const nt=normType(t); if(!nt) return '—'; if(nt==='туах') return 'ТУАХ'; return nt[0].toUpperCase()+nt.slice(1); }
+function typeOrderKey(t){
+  const nt=normType(t);
+  if(nt==='автобус') return 1;
+  if(nt==='электробус') return 2;
+  if(nt==='троллейбус') return 3;
+  if(nt==='туах') return 4;
+  if(nt==='трамвай') return 5;
+  return 99;
+}
 function transportSectionKey(v){
-  const t = normType(v.type);
-  if(t === "автобус" || t === "электробус") return "bus";
-  if(t === "троллейбус" || t === "туах") return "troll";
-  if(t === "трамвай") return "tram";
-  return "other";
+  const t=normType(v.type);
+  if(t==='автобус'||t==='электробус') return 'bus';
+  if(t==='троллейбус'||t==='туах') return 'troll';
+  if(t==='трамвай') return 'tram';
+  return 'other';
 }
-
 function sectionOrderKey(sec){
-  if(sec === "bus") return 1;
-  if(sec === "troll") return 2;
-  if(sec === "tram") return 3;
-  return 9;
+  if(sec==='bus') return 1;
+  if(sec==='troll') return 2;
+  if(sec==='tram') return 3;
+  return 99;
 }
 
-/* Приоритет автобусных серий (расширяйте при необходимости) */
-function busPriorityKeyRU(plate){
-  const pref = plate.match(/^([А-Я]{2,3})/);
-  const p = pref ? pref[1] : "";
-  if(p === "КА") return {w:1,d:0};
-  if(p === "КЕ") return {w:2,d:0};
-  if(p === "КС") return {w:3,d:0};
-  return {w:9,d:0};
+/* model normalize + brand order */
+function normalizeModel(s){
+  let m=(s||'').toString().trim();
+  if(!m) return '';
+  m=m.replace(/[–—−]/g,'-').replace(/\s+/g,' ');
+  m=m.replace(/^(МАЗ|MAZ)\s*-\s*103\s*[cс]$/i,'МАЗ-103с');
+  m=m.replace(/^(МАЗ|MAZ)\s*-\s*203\s*[cс]$/i,'МАЗ-203с');
+  return m;
+}
+function modelBrandOrderKey(model){
+  const m=(model||'').toString().toLowerCase();
+  if(m.includes('маз')||m.startsWith('maz')) return 1;
+  if(m.includes('бкм')||m.includes('bkm')) return 2;
+  if(m.includes('неман')||m.includes('neman')) return 3;
+  return 4;
+}
+function compareModelByBrand(aModel,bModel){
+  const ka=modelBrandOrderKey(aModel), kb=modelBrandOrderKey(bModel);
+  if(ka!==kb) return ka-kb;
+  return (aModel||'').toString().localeCompare((bModel||'').toString(),'ru');
 }
 
-/* =========================
-   Сортировка номеров (ТОЛЬКО номер)
-========================= */
-function numSortAlg(a, b){
-  const aRaw = (a.vehicleNumber || "").toString().trim();
-  const bRaw = (b.vehicleNumber || "").toString().trim();
+/* park key */
+function cleanParkRaw(s){
+  return (s||'').toString().trim().toLowerCase().replace(/[()]/g,'').replace(/[–—−]/g,'-').replace(/\s+/g,' ').trim();
+}
+function parkKey(s){
+  const src=cleanParkRaw(s);
+  if(!src) return '';
+  const raw=src.replace(/[.\s\-]/g,'').replace(/№/g,'').replace(/номер/g,'').trim();
+  const mAP=raw.match(/^(ап)(\d)$/);
+  if(mAP){ const n=mAP[2]; if(n==='5') return 'автобусныйпарк5'; if(n==='6') return 'автобусныйпарк6'; if(n==='7') return 'автобусныйпарк7'; }
+  const mTP=raw.match(/^(тп)(\d)$/);
+  if(mTP){ const n=mTP[2]; if(n==='1') return 'транспортныйпарк1'; if(n==='2') return 'транспортныйпарк2'; if(n==='4') return 'транспортныйпарк4'; if(n==='3') return 'троллейбусныйпарк3'; if(n==='5') return 'троллейбусныйпарк5'; }
+  if(raw.includes('трамп')) return 'трамвайныйпарк';
+  if(raw.includes('трамвайныйпарк')) return 'трамвайныйпарк';
+  return raw;
+}
+function parkFullLabelFromKey(k){
+  if(k==='автобусныйпарк5') return 'Автобусный парк №5';
+  if(k==='автобусныйпарк6') return 'Автобусный парк №6';
+  if(k==='автобусныйпарк7') return 'Автобусный парк №7';
+  if(k==='транспортныйпарк1') return 'Транспортный парк №1';
+  if(k==='транспортныйпарк2') return 'Транспортный парк №2';
+  if(k==='транспортныйпарк4') return 'Транспортный парк №4';
+  if(k==='троллейбусныйпарк3') return 'Троллейбусный парк №3';
+  if(k==='троллейбусныйпарк5') return 'Троллейбусный парк №5';
+  if(k==='трамвайныйпарк') return 'Трамвайный парк';
+  return k||'—';
+}
+function parkShortLabel(s){
+  const k=parkKey(s);
+  const tab=TAB_ORDER.find(x=>x.key===k);
+  return tab ? tab.label : ((s||'').toString().trim()||'—');
+}
 
+/* -------------- RULE 1: 2 letters before 3 letters -------------- */
+function platePrefixLenRU(plateRU){
+  const m = plateRU.match(/^([А-Я]{2,3})/);
+  return m ? m[1].length : 0;
+}
+
+/* bus priority (kept, simplified) */
+function getPrefix2RU(plateRU){ const m=plateRU.match(/^([А-Я]{2})/); return m?m[1]:''; }
+function getNum4RU(plateRU){ const m=plateRU.match(/^[А-Я]{2}(\d{4})/); return m?parseInt(m[1],10):null; }
+function busPriorityKeyRU(plateRU){
+  const p2=getPrefix2RU(plateRU), n4=getNum4RU(plateRU);
+  if(plateRU.startsWith('КА0385')) return {w:250,d:385};
+  if(plateRU.startsWith('КЕ0074')) return {w:850,d:74};
+  if(plateRU.startsWith('КЕ0100')) return {w:860,d:100};
+  if(p2==='КА' && n4!==null && n4<=3999) return {w:100,d:n4};
+  if(p2==='КМ') return {w:150,d:(n4??9999)};
+  if(p2==='КВ') return {w:200,d:(n4??9999)};
+  if(p2==='КЕ' && n4!==null && n4<=5999) return {w:300,d:n4};
+  if(p2==='КС' && n4!==null){ const th=Math.floor(n4/1000); return {w:400+th,d:n4}; }
+  if(p2==='КИ') return {w:500,d:(n4??9999)};
+  if(p2==='КА' && n4!==null && n4>=4000 && n4<=8999) return {w:600,d:n4};
+  if(p2==='КА' && n4!==null && n4>=9000) return {w:700,d:n4};
+  if(p2==='МА') return {w:800,d:(n4??9999)};
+  if(p2==='КЕ' && n4!==null && n4>=6000) return {w:900,d:n4};
+  if(p2==='КН') return {w:1000,d:(n4??9999)};
+  return {w:9999,d:(n4??9999)};
+}
+
+/* num compare with your 2-letter-before-3-letter rule */
+function numSortAlg(a,b){
+  const aRaw=(a.vehicleNumber||'').toString().trim();
+  const bRaw=(b.vehicleNumber||'').toString().trim();
   if(!aRaw && !bRaw) return 0;
   if(!aRaw) return 1;
   if(!bRaw) return -1;
 
-  const aRU = normPlateRU(aRaw);
-  const bRU = normPlateRU(bRaw);
+  const aRU=normPlateRU(aRaw);
+  const bRU=normPlateRU(bRaw);
 
-  /* 1 — длина префикса (2 раньше 3) */
-  const prefA = aRU.match(/^([А-Я]{2,3})/);
-  const prefB = bRU.match(/^([А-Я]{2,3})/);
+  const secA=transportSectionKey(a);
+  const secB=transportSectionKey(b);
 
-  const lenA = prefA ? prefA[1].length : 0;
-  const lenB = prefB ? prefB[1].length : 0;
-
-  if(lenA !== lenB) return lenA - lenB;
-
-  /* 2 — сравнение букв */
-  if(prefA && prefB){
-    if(prefA[1] < prefB[1]) return -1;
-    if(prefA[1] > prefB[1]) return 1;
+  // keep global section order if different sections
+  if(secA!==secB){
+    return sectionOrderKey(secA) - sectionOrderKey(secB);
   }
 
-  /* 3 — автобусный приоритет */
-  if(normType(a.type) === "автобус" && normType(b.type) === "автобус"){
-    const ak = busPriorityKeyRU(aRU);
-    const bk = busPriorityKeyRU(bRU);
-    if(ak.w !== bk.w) return ak.w - bk.w;
-    if(ak.d !== bk.d) return ak.d - bk.d;
+  // RULE: in bus + troll sections, 2-letter prefix before 3-letter prefix
+  if(secA==='bus' || secA==='troll'){
+    const la=platePrefixLenRU(aRU);
+    const lb=platePrefixLenRU(bRU);
+    const aa = (la===3?1:(la===2?0:2));
+    const bb = (lb===3?1:(lb===2?0:2));
+    if(aa!==bb) return aa-bb;
   }
 
-  /* 4 — числовая часть */
-  const numA = aRU.match(/\d+/);
-  const numB = bRU.match(/\d+/);
-
-  if(numA && numB){
-    const nA = parseInt(numA[0],10);
-    const nB = parseInt(numB[0],10);
-    if(nA !== nB) return nA - nB;
+  // bus-specific priority if both are автобусы
+  if(normType(a.type)==='автобус' && normType(b.type)==='автобус'){
+    const ak=busPriorityKeyRU(aRU), bk=busPriorityKeyRU(bRU);
+    if(ak.w!==bk.w) return ak.w-bk.w;
+    if(ak.d!==bk.d) return ak.d-bk.d;
   }
 
-  /* fallback */
-  if(aRU < bRU) return -1;
-  if(aRU > bRU) return 1;
+  // fallback lexicographic
+  if(aRU<bRU) return -1;
+  if(aRU>bRU) return 1;
   return 0;
 }
 
-/* =========================
-   Гаражные: колонна по ПЕРВОЙ цифре, (x) после x
-========================= */
+/* -------------- RULE 2: (x) after x in same column -------------- */
+/* FIXED: column is only first digit; parentheses variant goes AFTER */
 function garageColumnDigitFromValue(s){
-  s = (s||"").toString().trim();
-  const m1 = s.match(/^$(\d)$/);
+  s=(s||'').toString().trim();
+  const m1 = s.match(/^$(\d)$/);  // (3)....
   if(m1) return parseInt(m1[1],10);
-  const m2 = s.match(/^(\d)/);
+  const m2 = s.match(/^(\d)/);     // 3....
   if(m2) return parseInt(m2[1],10);
   return null;
 }
 
-function garageSortAlg(a,b){
-  const ak = (a.garageNumber||"").toString().trim();
-  const bk = (b.garageNumber||"").toString().trim();
+/* FIXED: correct regex + only first digit; (x) after x */
+function garageSortKey(s){
+  const raw=(s||'').toString().trim();
+  if(!raw) return {col: 999999, inParen: 9, rest:''};
 
-  const ca = garageColumnDigitFromValue(ak);
-  const cb = garageColumnDigitFromValue(bk);
-
-  // null уводим вниз
-  if(ca == null && cb != null) return 1;
-  if(ca != null && cb == null) return -1;
-
-  if(ca !== cb) return ca - cb;
-
-  const pa = ak.startsWith("(");
-  const pb = bk.startsWith("(");
-  if(pa !== pb) return pa ? 1 : -1;
-
-  return ak.localeCompare(bk, "ru");
+  const mParen = raw.match(/^$(\d)$\s*(.*)$/);
+  if(mParen){
+    return {col: parseInt(mParen[1],10), inParen: 1, rest: normAlnumRU(mParen[2]||'')};
+  }
+  const mNum = raw.match(/^(\d)\s*(.*)$/);
+  if(mNum){
+    return {col: parseInt(mNum[1],10), inParen: 0, rest: normAlnumRU(mNum[2]||'')};
+  }
+  return {col: 999999, inParen: 9, rest: normAlnumRU(raw)};
 }
 
-/* =========================
-   Central sort
-========================= */
+function compareGarage(a,b){
+  const ak=garageSortKey(a), bk=garageSortKey(b);
+  if(ak.col!==bk.col) return ak.col-bk.col;
+  // RULE: inParen 0 (без скобок) раньше inParen 1 (в скобках)
+  if(ak.inParen!==bk.inParen) return ak.inParen-bk.inParen;
+  if(ak.rest<bk.rest) return -1;
+  if(ak.rest>bk.rest) return 1;
+  return 0;
+}
+
+/* factory sorting (digits first) */
+function factorySortKeyLatinized(s){
+  const raw=(s||'').toString().trim();
+  if(!raw) return {empty:1, kind:9, headNum:null, tail:''};
+  const norm=normAlnumLAT(raw);
+  const m=norm.match(/^(\d+)(.*)$/);
+  if(m) return {empty:0, kind:0, headNum:parseInt(m[1],10), tail:(m[2]||'')};
+  return {empty:0, kind:1, headNum:null, tail:norm};
+}
+function compareFactoryLatinized(a,b){
+  const ak=factorySortKeyLatinized(a), bk=factorySortKeyLatinized(b);
+  if(ak.empty!==bk.empty) return ak.empty-bk.empty;
+  if(ak.kind!==bk.kind) return ak.kind-bk.kind;
+  if(ak.kind===0 && ak.headNum!==bk.headNum) return (ak.headNum||0)-(bk.headNum||0);
+  if(ak.tail<bk.tail) return -1;
+  if(ak.tail>bk.tail) return 1;
+  return 0;
+}
+
 function generalSort(a,b){
+  // always enforce top-level section order (bus/troll/tram) as primary grouping feel
+  const sa=transportSectionKey(a), sb=transportSectionKey(b);
+  if(sa!==sb) return sectionOrderKey(sa)-sectionOrderKey(sb);
 
-  // 0) общий порядок секций транспорта всегда
-  const secA = transportSectionKey(a);
-  const secB = transportSectionKey(b);
-  if(secA !== secB) return sectionOrderKey(secA) - sectionOrderKey(secB);
+  if(sortF==='vehicleNumber'){
+    const r=numSortAlg(a,b);
+    return sortDesc ? -r : r;
+  }
+  if(sortF==='garageNumber'){
+    const r=compareGarage(a.garageNumber, b.garageNumber);
+    if(r!==0) return sortDesc ? -r : r;
+    const rn=numSortAlg(a,b);
+    return sortDesc ? -rn : rn;
+  }
+  if(sortF==='factoryNumber'){
+    // type -> brand -> model -> factory -> number
+    const ta=typeOrderKey(a.type), tb=typeOrderKey(b.type);
+    if(ta!==tb) return sortDesc ? (tb-ta) : (ta-tb);
 
-  // 1) поле сортировки
-  let r = 0;
+    const ma=normalizeModel(a.model), mb=normalizeModel(b.model);
+    const bm=compareModelByBrand(ma,mb);
+    if(bm!==0) return sortDesc ? -bm : bm;
 
-  if(sortF === "vehicleNumber"){
-    r = numSortAlg(a,b);
-  }else if(sortF === "garageNumber"){
-    r = garageSortAlg(a,b);
-  }else{
-    const av = (a[sortF] ?? "").toString();
-    const bv = (b[sortF] ?? "").toString();
-    r = av.localeCompare(bv, "ru", {numeric:true, sensitivity:"base"});
-    if(r === 0) r = numSortAlg(a,b); // fallback стабильности
+    const rf=compareFactoryLatinized(a.factoryNumber, b.factoryNumber);
+    if(rf!==0) return sortDesc ? -rf : rf;
+
+    const rn=numSortAlg(a,b);
+    return sortDesc ? -rn : rn;
+  }
+  if(sortF==='model'){
+    const ta=typeOrderKey(a.type), tb=typeOrderKey(b.type);
+    if(ta!==tb) return sortDesc ? (tb-ta) : (ta-tb);
+    const ma=normalizeModel(a.model), mb=normalizeModel(b.model);
+    const bm=compareModelByBrand(ma,mb);
+    if(bm!==0) return sortDesc ? -bm : bm;
+    const rn=numSortAlg(a,b);
+    return sortDesc ? -rn : rn;
   }
 
-  return sortDesc ? -r : r;
+  // fallback
+  return numSortAlg(a,b);
 }
 
-/* =========================
-   Tabs (парки)
-========================= */
-function parkMatchesTab(parkValue, tabKey){
-  const p = (parkValue || "").toString().toLowerCase();
-
-  if(tabKey === "_all") return true;
-
-  // Примитивно: ищем "парк5" / "парк 5" / "5" для АП/ТП и т.п.
-  // Если у вас были строгие ключи — скажите, подстрою под ваш формат.
-  const k = tabKey.toLowerCase();
-
-  if(k.includes("автобусныйпарк")){
-    const n = k.match(/автобусныйпарк(\d+)/)?.[1];
-    if(!n) return false;
-    return p.includes("автобус") && p.includes(n);
+/* grouping */
+function groupBy(items, keyFn){
+  const m=new Map();
+  for(const v of items){
+    const k=keyFn(v);
+    if(!m.has(k)) m.set(k,[]);
+    m.get(k).push(v);
   }
-
-  if(k.includes("троллейбусныйпарк")){
-    const n = k.match(/троллейбусныйпарк(\d+)/)?.[1];
-    if(!n) return false;
-    return p.includes("троллейбус") && p.includes(n);
-  }
-
-  if(k.includes("транспортныйпарк")){
-    const n = k.match(/транспортныйпарк(\d+)/)?.[1];
-    if(!n) return false;
-    return p.includes("транспорт") && p.includes(n);
-  }
-
-  if(k.includes("трамвайныйпарк")){
-    return p.includes("трамвай");
-  }
-
-  return p.includes(k);
+  return m;
 }
 
-/* =========================
-   Filters
-========================= */
-function applyFilters(arr){
+/* modal */
+function sanitizeNoteHTML(html){
+  html=String(html??'');
+  const wrap=document.createElement('div');
+  wrap.innerHTML=html;
+  const ALLOWED=new Set(['B','I','SPAN','BR','DIV']);
+  (function clean(node){
+    for(const ch of Array.from(node.childNodes)){
+      if(ch.nodeType===Node.ELEMENT_NODE){
+        const tag=ch.tagName.toUpperCase();
+        if(!ALLOWED.has(tag)){
+          const frag=document.createDocumentFragment();
+          while(ch.firstChild) frag.appendChild(ch.firstChild);
+          ch.replaceWith(frag);
+          continue;
+        }
+        for(const a of Array.from(ch.attributes||[])) ch.removeAttribute(a.name);
+        clean(ch);
+      } else if(ch.nodeType===Node.COMMENT_NODE){ ch.remove(); }
+    }
+  })(wrap);
+  return wrap.innerHTML;
+}
+function openNote(v){
+  const info=document.getElementById('noteInfoLine');
+  const body=document.getElementById('noteBody');
+  const parts=[];
+  parts.push(typeLabel(v.type));
+  parts.push(cellText(v.vehicleNumber)||'—');
+  if(cellText(v.year)) parts.push(cellText(v.year));
+  if(cellText(v.model)) parts.push(normalizeModel(v.model));
+  if(cellText(v.park)) parts.push(parkFullLabelFromKey(parkKey(v.park)));
+  if(cellText(v.garageNumber)) parts.push('гар. '+cellText(v.garageNumber));
+  info.textContent=parts.filter(Boolean).join(' • ');
+  body.innerHTML=sanitizeNoteHTML(v.noteHtml||v.note||'') || '<span class="no">—</span>';
+  document.getElementById('noteModalBack').style.display='flex';
+}
+function closeNote(){ document.getElementById('noteModalBack').style.display='none'; }
 
-  const filters = {};
-  document.querySelectorAll(".filters input").forEach(i=>{
-    const v = (i.value || "").trim();
-    if(v) filters[i.dataset.col] = v;
+/* tabs */
+function renderTabs(){
+  const wrap=document.getElementById('tabs');
+  const counts={};
+  for(const v of DATA){
+    const k=parkKey(v.park);
+    if(!k) continue;
+    counts[k]=(counts[k]||0)+1;
+  }
+  wrap.innerHTML=TAB_ORDER.map(t=>{
+    const c=(t.key==='_all')?DATA.length:(counts[t.key]||0);
+    return `<div class="tab ${activeTab===t.key?'active':''}" data-tab="${escapeHTML(t.key)}">${escapeHTML(t.label)} <span style="opacity:.75;">(${c})</span></div>`;
+  }).join('');
+  wrap.querySelectorAll('.tab').forEach(el=>{
+    el.onclick=()=>{
+      activeTab=el.getAttribute('data-tab');
+      sortF='vehicleNumber'; sortDesc=false;
+      document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
+      document.querySelector('th[data-f="vehicleNumber"]').classList.add('active');
+      renderTabs(); render();
+    };
+  });
+}
+
+/* sorting ui */
+document.querySelectorAll('th[data-f]').forEach(th=>{
+  th.onclick=()=>{
+    const f=th.getAttribute('data-f');
+    if(f==='_note') return;
+    document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
+    th.classList.add('active');
+    if(sortF===f) sortDesc=!sortDesc;
+    else { sortF=f; sortDesc=false; }
+    render();
+  };
+});
+document.addEventListener('input',(e)=>{
+  if(e.target && e.target.classList && e.target.classList.contains('colFilter')) render();
+});
+
+/* load json */
+function pickArray(j){
+  if(Array.isArray(j)) return j;
+  if(j && Array.isArray(j.vehicles)) return j.vehicles;
+  if(j && Array.isArray(j.data)) return j.data;
+  if(j && Array.isArray(j.items)) return j.items;
+  return null;
+}
+function mapRow(r){
+  return {
+    type: r.type || '',
+    vehicleNumber: (r.vehicleNumber || r.licensePlate || r.registrationNumber || ''),
+    year: r.year || '',
+    model: r.model || '',
+    park: r.park || '',
+    garageNumber: r.garageNumber || '',
+    factoryNumber: r.factoryNumber || '',
+    livery: r.livery || '',
+    noteHtml: r.noteHtml || r.note || '',
+    gray: (r.gray && typeof r.gray === 'object') ? r.gray : {}
+  };
+}
+async function loadJson(){
+  try{
+    hideErr();
+    const r=await fetch(JSON_URL,{cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j=await r.json();
+    const arr=pickArray(j);
+    if(!arr) throw new Error('Неверный формат JSON');
+    DATA=arr.map(mapRow);
+    const updatedAt=(j && !Array.isArray(j) && j.updatedAt) ? j.updatedAt : '';
+    document.getElementById('updatedAt').textContent = updatedAt ? ('Обновлено: '+updatedAt) : '';
+    renderTabs(); render();
+  } catch(err){
+    DATA=[]; renderTabs(); render();
+    showErr('Ошибка загрузки данных: '+err.message);
+  }
+}
+
+/* render */
+function render(){
+  VIEW_RENDERED=[];
+  const colFilters={};
+  document.querySelectorAll('.colFilter').forEach(inp=>{
+    const col=inp.getAttribute('data-col');
+    const val=(inp.value||'').toString().trim();
+    if(val) colFilters[col]=val;
   });
 
-  const keys = Object.keys(filters);
-  if(!keys.length) return arr;
-
-  return arr.filter(obj=>{
-    for(const k of keys){
-      const needle = normPlateRU(filters[k]).toLowerCase();
-      const hay = normPlateRU((obj[k] ?? "").toString()).toLowerCase();
+  VIEW=DATA.filter(v=>{
+    if(activeTab!=='_all'){
+      if(parkKey(v.park)!==activeTab) return false;
+    }
+    for(const [col,rawNeedle] of Object.entries(colFilters)){
+      const needle=rawNeedle.toLowerCase();
+      if(col==='type'){
+        if(!typeLabel(v.type).toLowerCase().includes(needle)) return false;
+        continue;
+      }
+      if(col==='model'){
+        if(!normalizeModel(v.model).toLowerCase().includes(needle)) return false;
+        continue;
+      }
+      if(col==='livery'){
+        if(!((v.livery||'')+'').toLowerCase().includes(needle)) return false;
+        continue;
+      }
+      if(col==='park'){
+        const p1=parkShortLabel(v.park).toLowerCase();
+        const p2=(parkKey(v.park)||'').toLowerCase();
+        if(!p1.includes(needle) && !p2.includes(needle.replace(/[.\s\-]/g,''))) return false;
+        continue;
+      }
+      if(col==='vehicleNumber' || col==='garageNumber' || col==='factoryNumber'){
+        const hay=normPlateRU(v[col]);
+        const n=normPlateRU(rawNeedle);
+        if(!hay.includes(n)) return false;
+        continue;
+      }
+      const hay=(v[col]||'').toString().toLowerCase();
       if(!hay.includes(needle)) return false;
     }
     return true;
   });
 
-}
+  VIEW.sort(generalSort);
 
-/* =========================
-   Render
-========================= */
-function renderTabs(){
-  const wrap = document.getElementById("tabs");
-  wrap.innerHTML = "";
+  document.getElementById('countShown').textContent = VIEW.length;
+  document.getElementById('countAll').textContent = DATA.length;
 
-  TAB_ORDER.forEach(t=>{
-    const d = document.createElement("div");
-    d.className = "tab" + (activeTab === t.key ? " active" : "");
-    d.textContent = t.label;
-    d.onclick = ()=>{
-      activeTab = t.key;
-      renderTabs();
-      render();
+  const tbody=document.getElementById('data');
+  const empty=document.getElementById('empty');
+  if(!VIEW.length){
+    tbody.innerHTML='';
+    empty.style.display='';
+    return;
+  }
+  empty.style.display='none';
+
+  const rows=[];
+  const visibleColsCount=9;
+
+  function groupRow(label){
+    rows.push(`<tr class="groupRow"><td colspan="${visibleColsCount}">${escapeHTML(label)}</td></tr>`);
+  }
+  function dataRow(v){
+    VIEW_RENDERED.push(v);
+    const hasNote=!!cellText(v.noteHtml||v.note);
+    const num=cellText(v.vehicleNumber);
+    rows.push(`<tr class="dataRow">
+      <td${tdClass(v,'type')}>${escapeHTML(typeLabel(v.type))}</td>
+      <td${tdClass(v,'vehicleNumber','num numCell')} title="${escapeHTML(num)}">${cellHTMLText(num)}</td>
+      <td${tdClass(v,'noteHtml')} style="padding:6px 4px;">${hasNote?`<span class="noteBtn" title="Примечание">&#10148;</span>`:''}</td>
+      <td${tdClass(v,'year')}>${cellHTMLText(v.year)}</td>
+      <td${tdClass(v,'model')}>${cellHTMLText(normalizeModel(v.model))}</td>
+      <td${tdClass(v,'park')}>${cellHTMLText(parkShortLabel(v.park))}</td>
+      <td${tdClass(v,'garageNumber')}>${cellHTMLText(v.garageNumber)}</td>
+      <td${tdClass(v,'factoryNumber')}>${cellHTMLText(v.factoryNumber)}</td>
+      <td${tdClass(v,'livery','liveryCell')}>${cellHTMLText(v.livery)}</td>
+    </tr>`);
+  }
+
+  // Always top-level grouping by sections in required order
+  const secOrder=['bus','troll','tram','other'];
+  const secLabel={bus:'Автобусы и электробусы', troll:'Троллейбусы и ТУАХ', tram:'Трамваи', other:'Другое'};
+
+  for(const sec of secOrder){
+    const secArr=VIEW.filter(v=>transportSectionKey(v)===sec);
+    if(!secArr.length) continue;
+
+    groupRow(`${secLabel[sec]} (${secArr.length})`);
+
+    // inside section: do per-sort grouping (simple)
+    if(sortF==='garageNumber'){
+      if(activeTab==='_all'){
+        const byPark=groupBy(secArr, v=>parkKey(v.park)||'—');
+        const keys=Array.from(byPark.keys()).sort((a,b)=>a.localeCompare(b,'ru'));
+        for(const pk of keys){
+          const parkArr=byPark.get(pk);
+          groupRow(`${parkFullLabelFromKey(pk)} (${parkArr.length})`);
+          const byCol=new Map(); const other=[];
+          for(const v of parkArr){
+            const d=garageColumnDigitFromValue(v.garageNumber);
+            if(d==null) other.push(v);
+            else { if(!byCol.has(d)) byCol.set(d,[]); byCol.get(d).push(v); }
+          }
+          const cols=Array.from(byCol.keys()).sort((a,b)=>a-b);
+          for(const d of cols){
+            const arr=byCol.get(d);
+            groupRow(`${d} колонна (${arr.length})`);
+            for(const v of arr) dataRow(v);
+          }
+          if(other.length){
+            groupRow(`Прочее (${other.length})`);
+            for(const v of other) dataRow(v);
+          }
+        }
+      } else {
+        const byCol=new Map(); const other=[];
+        for(const v of secArr){
+          const d=garageColumnDigitFromValue(v.garageNumber);
+          if(d==null) other.push(v);
+          else { if(!byCol.has(d)) byCol.set(d,[]); byCol.get(d).push(v); }
+        }
+        const cols=Array.from(byCol.keys()).sort((a,b)=>a-b);
+        for(const d of cols){
+          const arr=byCol.get(d);
+          groupRow(`${d} колонна (${arr.length})`);
+          for(const v of arr) dataRow(v);
+        }
+        if(other.length){
+          groupRow(`Прочее (${other.length})`);
+          for(const v of other) dataRow(v);
+        }
+      }
+    }
+    else if(sortF==='factoryNumber' || sortF==='model'){
+      // Type->brand->model groups inside section
+      const typeBuckets=groupBy(secArr, v=>typeLabel(v.type)||'—');
+      const typeNames=['Автобус','Электробус','Троллейбус','ТУАХ','Трамвай','—'];
+      const tkeys=Array.from(typeBuckets.keys()).sort((a,b)=>{
+        const ia=typeNames.indexOf(a), ib=typeNames.indexOf(b);
+        if(ia!==-1||ib!==-1){
+          if(ia===-1) return 1;
+          if(ib===-1) return -1;
+          return ia-ib;
+        }
+        return a.localeCompare(b,'ru');
+      });
+      for(const tk of tkeys){
+        const tArr=typeBuckets.get(tk);
+        groupRow(`${tk} (${tArr.length})`);
+        const byModel=groupBy(tArr, v=>normalizeModel(v.model)||'—');
+        const mkeys=Array.from(byModel.keys()).sort(compareModelByBrand);
+        for(const mk of mkeys){
+          const arr=byModel.get(mk);
+          groupRow(`${mk} (${arr.length})`);
+          for(const v of arr) dataRow(v);
+        }
+      }
+    }
+    else {
+      // default: no extra nested groups
+      for(const v of secArr) dataRow(v);
+    }
+  }
+
+  tbody.innerHTML=rows.join('');
+
+  tbody.querySelectorAll('.noteBtn').forEach(btn=>{
+    btn.onclick=(e)=>{
+      e.preventDefault();
+      const tr=btn.closest('tr.dataRow');
+      if(!tr) return;
+      const dataRows=Array.from(tbody.querySelectorAll('tr.dataRow'));
+      const idx=dataRows.indexOf(tr);
+      if(idx>=0 && VIEW_RENDERED[idx]) openNote(VIEW_RENDERED[idx]);
     };
-    wrap.appendChild(d);
   });
 }
 
-function render(){
-
-  let arr = DATA.slice();
-
-  // tab park filter
-  if(activeTab !== "_all"){
-    arr = arr.filter(v=>parkMatchesTab(v.park, activeTab));
-  }
-
-  // column filters
-  arr = applyFilters(arr);
-
-  // sort
-  arr.sort(generalSort);
-
-  VIEW = arr;
-
-  const tbody = document.getElementById("data");
-  tbody.innerHTML = "";
-
-  const labels = {
-    bus: "Автобусы и электробусы",
-    troll: "Троллейбусы и ТУАХ",
-    tram: "Трамваи",
-    other: "Другое"
-  };
-
-  const order = ["bus","troll","tram","other"];
-
-  for(const sec of order){
-
-    const part = VIEW.filter(v=>transportSectionKey(v) === sec);
-    if(!part.length) continue;
-
-    const tr = document.createElement("tr");
-    tr.className = "groupRow";
-    tr.innerHTML = `<td colspan="9">${labels[sec]} (${part.length})</td>`;
-    tbody.appendChild(tr);
-
-    const frag = document.createDocumentFragment();
-
-    for(const v of part){
-      const row = document.createElement("tr");
-      row.innerHTML =
-        `<td>${v.type ?? ""}</td>` +
-        `<td class="num">${v.vehicleNumber ?? ""}</td>` +
-        `<td>${v.note ? "➜" : ""}</td>` +
-        `<td>${v.year ?? ""}</td>` +
-        `<td>${v.model ?? ""}</td>` +
-        `<td>${v.park ?? ""}</td>` +
-        `<td>${v.garageNumber ?? ""}</td>` +
-        `<td>${v.factoryNumber ?? ""}</td>` +
-        `<td>${v.livery ?? ""}</td>`;
-      frag.appendChild(row);
-    }
-
-    tbody.appendChild(frag);
-  }
-
-  document.getElementById("status").textContent =
-    `Записей: ${VIEW.length}. Сортировка: ${sortF}${sortDesc ? " (desc)" : ""}. Вкладка: ${activeTab}`;
-}
-
-/* =========================
-   Events
-========================= */
-document.querySelectorAll("th[data-f]").forEach(th=>{
-  th.onclick = ()=>{
-    const f = th.dataset.f;
-    if(sortF === f) sortDesc = !sortDesc;
-    else { sortF = f; sortDesc = false; }
-    render();
-  };
-});
-
-document.querySelectorAll(".filters input").forEach(i=>{
-  i.addEventListener("input", ()=>render());
-});
-
-/* =========================
-   Load
-========================= */
-async function load(){
-  try{
-    const r = await fetch(JSON_URL, {cache:"no-store"});
-    const j = await r.json();
-    DATA = Array.isArray(j) ? j : (j.data || j.vehicles || j.items || []);
-    renderTabs();
-    render();
-  }catch(e){
-    console.error(e);
-    document.getElementById("status").textContent = "Ошибка загрузки JSON. См. консоль.";
-  }
-}
-load();
-
+/* init */
+renderTabs();
+loadJson();
 </script>
 </body>
 </html>
