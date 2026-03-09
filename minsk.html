@@ -39,7 +39,6 @@
       border-top:1px solid #d9e2f7; border-bottom:1px solid #d9e2f7;
       height:30px;
     }
-    /* alternating shading for consecutive group rows */
     .groupRow.alt td{
       background:#eaf0fb;
     }
@@ -53,7 +52,6 @@
       background:#eef3ff; color:#2543a5; cursor:pointer; user-select:none; margin:0 auto;
     }
 
-    /* livery: allow multi-line */
     td.liveryCell{
       text-align:left;
       padding-left:10px;
@@ -62,15 +60,12 @@
       text-overflow:clip;
       height:auto;
     }
-    tbody td{ /* allow row to grow when any cell needs it */
-      height:auto;
-    }
+    tbody td{ height:auto; }
     tbody tr.dataRow{ height:auto; }
 
     .empty{padding:18px 0; text-align:center; color:#9aa6c3; font-style:italic;}
     .err{margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px; white-space:pre-wrap;}
 
-    /* note modal */
     .modalBack{
       position:fixed; inset:0;
       background:rgba(0,0,0,.18);
@@ -401,6 +396,52 @@ function compareGarageWithinColumn(aRaw, bRaw){
   return 0;
 }
 
+/* livery normalization */
+function normalizeQuotesToGuillemets(s){
+  s = (s ?? '').toString();
+
+  // unify various quote marks to plain " and '
+  s = s.replace(/[“”„‟«»]/g, '"');
+  s = s.replace(/[’‘‚‛]/g, "'");
+
+  // replace paired "..." to «...»
+  let out = '';
+  let dblOpen = true;
+  let sglOpen = true;
+  for(const ch of s){
+    if(ch === '"'){
+      out += dblOpen ? '«' : '»';
+      dblOpen = !dblOpen;
+    } else if(ch === "'"){
+      out += sglOpen ? '«' : '»';
+      sglOpen = !sglOpen;
+    } else {
+      out += ch;
+    }
+  }
+  return out;
+}
+function normalizeLiveryText(s){
+  s = (s ?? '').toString().trim();
+  if(!s) return '';
+
+  // slash -> bullet
+  s = s.replace(/\s*\/\s*/g, ' \u2022 ');
+
+  // hyphen/en-dash -> em-dash (only those symbols)
+  s = s.replace(/[–-]/g, '—');
+
+  // quotes -> «»
+  s = normalizeQuotesToGuillemets(s);
+
+  // normalize spaces around bullets and dashes a bit
+  s = s.replace(/\s*—\s*/g, ' — ');
+  s = s.replace(/\s*•\s*/g, ' • ');
+  s = s.replace(/\s{2,}/g, ' ').trim();
+
+  return s;
+}
+
 /* vehicle number sort */
 function platePrefixLenRU(plateRU){
   const m = plateRU.match(/^([А-Я]{2,3})/);
@@ -550,20 +591,24 @@ function generalSort(a,b){
     const bm=compareModelByBrand(ma,mb);
     if(bm!==0) return sortDesc ? -bm : bm;
 
-    // FIX: внутри каждой модели сортируем по номеру
     const rn=numSortAlg(a,b);
     return sortDesc ? -rn : rn;
   }
 
   if(sortF==='type'){
     const ta=typeOrderKey(a.type), tb=typeOrderKey(b.type);
-    const r = ta - tb;
-    return sortDesc ? -r : r;
+    if(ta!==tb){
+      const r = ta - tb;
+      return sortDesc ? -r : r;
+    }
+    // FIX: внутри типа по номеру
+    const rn=numSortAlg(a,b);
+    return sortDesc ? -rn : rn;
   }
 
   if(sortF==='livery'){
     if(!ENABLE_SORT_LIVERY) return numSortAlg(a,b);
-    const r=(a.livery||'').toString().localeCompare((b.livery||'').toString(),'ru');
+    const r=normalizeLiveryText(a.livery).localeCompare(normalizeLiveryText(b.livery),'ru');
     return sortDesc ? -r : r;
   }
 
@@ -605,7 +650,7 @@ function sanitizeNoteHTML(html){
   return wrap.innerHTML;
 }
 
-/* note modal: position near button + draggable */
+/* note modal drag */
 let noteDrag = {on:false, dx:0, dy:0};
 let noteLastPos = null;
 function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
@@ -787,18 +832,10 @@ async function loadJson(){
 /* hide empty columns (head + filter + td) based on current VIEW */
 const COL_ORDER = ['type','vehicleNumber','_note','year','model','park','garageNumber','factoryNumber','livery'];
 
-function liveryToHTML(s){
-  s = (s ?? '').toString().trim();
-  if(!s) return '';
-  // break after slash
-  return escapeHTML(s).replaceAll('/', '/<br>');
-}
-
 function applyColumnVisibility(){
   const visible = {};
   for(const c of COL_ORDER) visible[c] = true;
 
-  // always keep these:
   visible.type = true;
   visible.vehicleNumber = true;
   visible._note = true;
@@ -860,7 +897,7 @@ function applyColumnVisibility(){
   }
 }
 
-/* set alternating class for consecutive group rows */
+/* alternating shading for consecutive group rows */
 function applyGroupRowAlternation(){
   const tbody = document.getElementById('data');
   const groupRows = Array.from(tbody.querySelectorAll('tr.groupRow'));
@@ -871,9 +908,7 @@ function applyGroupRowAlternation(){
     const consecutive = prev && prev.classList.contains('groupRow') && prev.nextElementSibling === cur;
     if(consecutive) run += 1;
     else run = 0;
-
-    // top group row in a consecutive run should be darker; then alternate
-    cur.classList.toggle('alt', (run % 2) === 0); // 0th in run gets alt (darker), then normal, then darker...
+    cur.classList.toggle('alt', (run % 2) === 0);
   }
 }
 
@@ -903,7 +938,7 @@ function render(){
         continue;
       }
       if(col==='livery'){
-        if(!((v.livery||'')+'').toLowerCase().includes(needle)) return false;
+        if(!normalizeLiveryText(v.livery).toLowerCase().includes(needle)) return false;
         continue;
       }
       if(col==='park'){
@@ -957,7 +992,7 @@ function render(){
     const hasNote=!!cellText(v.noteHtml||v.note);
     const num=cellText(v.vehicleNumber);
     const garageDisp = normalizeGarageDisplay(v.garageNumber);
-    const liveryHtml = liveryToHTML(v.livery);
+    const liveryNorm = normalizeLiveryText(v.livery);
     rows.push(`<tr class="dataRow">
       <td${tdClass(v,'type')}>${escapeHTML(typeLabel(v.type))}</td>
       <td${tdClass(v,'vehicleNumber','num numCell')} title="${escapeHTML(num)}">${cellHTMLText(num)}</td>
@@ -967,11 +1002,10 @@ function render(){
       <td${tdClass(v,'park')}>${cellHTMLText(parkShortLabel(v.park))}</td>
       <td${tdClass(v,'garageNumber')}>${garageDisp ? escapeHTML(garageDisp) : '<span class="no">—</span>'}</td>
       <td${tdClass(v,'factoryNumber')}>${cellHTMLText(v.factoryNumber)}</td>
-      <td${tdClass(v,'livery','liveryCell')}>${liveryHtml ? liveryHtml : '<span class="no">—</span>'}</td>
+      <td${tdClass(v,'livery','liveryCell')}>${liveryNorm ? escapeHTML(liveryNorm) : '<span class="no">—</span>'}</td>
     </tr>`);
   }
 
-  // groupings by sort (kept from your current base)
   if(sortF==='vehicleNumber'){
     const secOrder=['bus','troll','tram','other'];
     const secLabel={bus:'Автобусы и электробусы', troll:'Троллейбусы и ТУАХ', tram:'Трамваи', other:'Другое'};
@@ -1100,7 +1134,6 @@ function render(){
 
   tbody.innerHTML=rows.join('');
 
-  // note buttons
   tbody.querySelectorAll('.noteBtn').forEach(btn=>{
     btn.onclick=(e)=>{
       e.preventDefault();
@@ -1115,6 +1148,21 @@ function render(){
 
   applyGroupRowAlternation();
   applyColumnVisibility();
+}
+
+/* alternating shading for consecutive group rows */
+function applyGroupRowAlternation(){
+  const tbody = document.getElementById('data');
+  const groupRows = Array.from(tbody.querySelectorAll('tr.groupRow'));
+  let run = 0;
+  for(let i=0;i<groupRows.length;i++){
+    const cur = groupRows[i];
+    const prev = groupRows[i-1];
+    const consecutive = prev && prev.classList.contains('groupRow') && prev.nextElementSibling === cur;
+    if(consecutive) run += 1;
+    else run = 0;
+    cur.classList.toggle('alt', (run % 2) === 0);
+  }
 }
 
 /* init */
