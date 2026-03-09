@@ -225,6 +225,21 @@ function typeOrderKey(t){
   return 99;
 }
 
+/* sections for group rows */
+function transportSectionKey(v){
+  const t=normType(v.type);
+  if(t==='автобус'||t==='электробус') return 'bus';
+  if(t==='троллейбус'||t==='туах') return 'troll';
+  if(t==='трамвай') return 'tram';
+  return 'other';
+}
+function sectionOrderKey(sec){
+  if(sec==='bus') return 1;
+  if(sec==='troll') return 2;
+  if(sec==='tram') return 3;
+  return 99;
+}
+
 /* model normalize + brand order */
 function normalizeModel(s){
   let m=(s||'').toString().trim();
@@ -234,7 +249,7 @@ function normalizeModel(s){
   m=m.replace(/^(МАЗ|MAZ)\s*-\s*203\s*[cс]$/i,'МАЗ-203с');
   return m;
 }
-function modelBrandOrderKey(model){
+function brandOrderKeyFromModel(model){
   const m=(model||'').toString().toLowerCase();
   if(m.includes('маз')||m.startsWith('maz')) return 1;
   if(m.includes('бкм')||m.includes('bkm')) return 2;
@@ -242,7 +257,7 @@ function modelBrandOrderKey(model){
   return 4;
 }
 function compareModelByBrand(aModel,bModel){
-  const ka=modelBrandOrderKey(aModel), kb=modelBrandOrderKey(bModel);
+  const ka=brandOrderKeyFromModel(aModel), kb=brandOrderKeyFromModel(bModel);
   if(ka!==kb) return ka-kb;
   return (aModel||'').toString().localeCompare((bModel||'').toString(),'ru');
 }
@@ -321,8 +336,55 @@ function parkShortLabel(s){
   const tab=TAB_ORDER.find(x=>x.key===k);
   return tab ? tab.label : ((s||'').toString().trim()||'—');
 }
+function parkOrderIndex(k){
+  const i = PARK_ORDER.indexOf(k);
+  return i === -1 ? 999 : i;
+}
 
-/* number sort */
+/* garage format 1/11111 -> 1 • 11111 */
+function normalizeGarageDisplay(s){
+  s = (s ?? '').toString().trim();
+  const m = s.match(/^(\d)\s*\/\s*(\d{1,10})$/);
+  if(m) return `${m[1]} \u2022 ${m[2]}`;
+  return s;
+}
+function garageColumnDigitFromValue(s){
+  s=(s||'').toString().trim();
+  const mNew = s.match(/^(\d)\s*\//);
+  if(mNew) return parseInt(mNew[1],10);
+  const mPlain = s.match(/^(\d)/);
+  if(mPlain) return parseInt(mPlain[1],10);
+  return null;
+}
+function garageIsDecorated(s){
+  s=(s||'').toString().trim();
+  return /^\d\s*\//.test(s);
+}
+function garageNumValue(s){
+  s=(s||'').toString().trim();
+  const mNew = s.match(/^\d\s*\/\s*(\d+)/);
+  if(mNew) return parseInt(mNew[1],10);
+  const mPlain = s.match(/^(\d+)/);
+  if(mPlain) return parseInt(mPlain[1],10);
+  return null;
+}
+function compareGarageWithinColumn(aRaw, bRaw){
+  const aP = garageIsDecorated(aRaw) ? 1 : 0; /* обычные раньше 1/... */
+  const bP = garageIsDecorated(bRaw) ? 1 : 0;
+  if(aP !== bP) return aP - bP;
+
+  const aN = garageNumValue(aRaw);
+  const bN = garageNumValue(bRaw);
+  if(aN != null && bN != null && aN !== bN) return aN - bN;
+
+  const ar = normAlnumRU(aRaw);
+  const br = normAlnumRU(bRaw);
+  if(ar < br) return -1;
+  if(ar > br) return 1;
+  return 0;
+}
+
+/* bus plate sorting helpers */
 function platePrefixLenRU(plateRU){
   const m = plateRU.match(/^([А-Я]{2,3})/);
   return m ? m[1].length : 0;
@@ -346,19 +408,6 @@ function busPriorityKeyRU(plateRU){
   if(p2==='КЕ' && n4!==null && n4>=6000) return {w:900,d:n4};
   if(p2==='КН') return {w:1000,d:(n4??9999)};
   return {w:9999,d:(n4??9999)};
-}
-function transportSectionKey(v){
-  const t=normType(v.type);
-  if(t==='автобус'||t==='электробус') return 'bus';
-  if(t==='троллейбус'||t==='туах') return 'troll';
-  if(t==='трамвай') return 'tram';
-  return 'other';
-}
-function sectionOrderKey(sec){
-  if(sec==='bus') return 1;
-  if(sec==='troll') return 2;
-  if(sec==='tram') return 3;
-  return 99;
 }
 function numSortAlg(a, b){
   const aRaw=(a.vehicleNumber||'').toString().trim();
@@ -388,9 +437,7 @@ function numSortAlg(a, b){
 
   const prefA = (aRU.match(/^([А-Я]{2,3})/)||[])[1] || '';
   const prefB = (bRU.match(/^([А-Я]{2,3})/)||[])[1] || '';
-  if(prefA !== prefB){
-    return prefA.localeCompare(prefB,'ru');
-  }
+  if(prefA !== prefB) return prefA.localeCompare(prefB,'ru');
 
   if(normType(a.type)==='автобус' && normType(b.type)==='автобус'){
     const ak = busPriorityKeyRU(aRU);
@@ -409,53 +456,6 @@ function numSortAlg(a, b){
   else if(!numA && numB) return 1;
 
   return aRU.localeCompare(bRU,'ru');
-}
-
-/* garage format: "1/11111" => display "1 • 11111" and column=1 */
-function normalizeGarageDisplay(s){
-  s = (s ?? '').toString().trim();
-  const m = s.match(/^(\d)\s*\/\s*(\d{1,6})$/); /* колонна/номер (номер может быть и 4-6 знаков на будущее) */
-  if(m) return `${m[1]} \u2022 ${m[2]}`;
-  return s;
-}
-function garageColumnDigitFromValue(s){
-  s=(s||'').toString().trim();
-  const mNew = s.match(/^(\d)\s*\//);
-  if(mNew) return parseInt(mNew[1],10);
-  const mOld = s.match(/^$(\d)$/);
-  if(mOld) return parseInt(mOld[1],10);
-  const m2 = s.match(/^(\d)/);
-  if(m2) return parseInt(m2[1],10);
-  return null;
-}
-function garageIsDecorated(s){
-  s=(s||'').toString().trim();
-  return (/^$\d$/.test(s) || /^\d\s*\//.test(s));
-}
-function garageNumValue(s){
-  s=(s||'').toString().trim();
-  const mNew = s.match(/^\d\s*\/\s*(\d+)/);
-  if(mNew) return parseInt(mNew[1],10);
-  const mOld = s.match(/^$\d$\s*(\d+)/);
-  if(mOld) return parseInt(mOld[1],10);
-  const mPlain = s.match(/^(\d+)/);
-  if(mPlain) return parseInt(mPlain[1],10);
-  return null;
-}
-function compareGarageWithinColumn(aRaw, bRaw){
-  const aP = garageIsDecorated(aRaw) ? 1 : 0; /* обычные раньше декорированных */
-  const bP = garageIsDecorated(bRaw) ? 1 : 0;
-  if(aP !== bP) return aP - bP;
-
-  const aN = garageNumValue(aRaw);
-  const bN = garageNumValue(bRaw);
-  if(aN != null && bN != null && aN !== bN) return aN - bN;
-
-  const ar = normAlnumRU(aRaw);
-  const br = normAlnumRU(bRaw);
-  if(ar < br) return -1;
-  if(ar > br) return 1;
-  return 0;
 }
 
 /* factory sorting */
@@ -478,6 +478,51 @@ function compareFactoryLatinized(a,b){
 }
 
 function generalSort(a,b){
+  if(sortF==='vehicleNumber'){
+    const r=numSortAlg(a,b);
+    return sortDesc ? -r : r;
+  }
+
+  if(sortF==='year'){
+    const ya = parseInt((a.year||'').toString().trim(),10);
+    const yb = parseInt((b.year||'').toString().trim(),10);
+    const aEmpty = Number.isNaN(ya);
+    const bEmpty = Number.isNaN(yb);
+
+    if(aEmpty && !bEmpty) return sortDesc ? -1 : 1;
+    if(!aEmpty && bEmpty) return sortDesc ? 1 : -1;
+    if(!aEmpty && !bEmpty && ya!==yb){
+      const r = ya - yb;
+      return sortDesc ? -r : r;
+    }
+    const rn=numSortAlg(a,b);
+    return sortDesc ? -rn : rn;
+  }
+
+  if(sortF==='park'){
+    const pa=parkKey(a.park), pb=parkKey(b.park);
+    const ra=parkOrderIndex(pa), rb=parkOrderIndex(pb);
+    if(ra!==rb){
+      const r = ra - rb;
+      return sortDesc ? -r : r;
+    }
+    const rn=numSortAlg(a,b);
+    return sortDesc ? -rn : rn;
+  }
+
+  if(sortF==='garageNumber'){
+    const ga=(a.garageNumber||'').toString().trim();
+    const gb=(b.garageNumber||'').toString().trim();
+    const ca = garageColumnDigitFromValue(ga);
+    const cb = garageColumnDigitFromValue(gb);
+    if(ca!=null && cb!=null && ca!==cb){
+      const r = ca - cb;
+      return sortDesc ? -r : r;
+    }
+    const r2 = compareGarageWithinColumn(ga, gb);
+    return sortDesc ? -r2 : r2;
+  }
+
   if(sortF==='factoryNumber'){
     const ta=typeOrderKey(a.type), tb=typeOrderKey(b.type);
     if(ta!==tb){
@@ -485,16 +530,32 @@ function generalSort(a,b){
       return sortDesc ? -r : r;
     }
     const rf=compareFactoryLatinized(a.factoryNumber, b.factoryNumber);
-    if(rf!==0) return sortDesc ? -rf : rf;
-    const rn=numSortAlg(a,b);
-    return sortDesc ? -rn : rn;
+    return sortDesc ? -rf : rf;
   }
-  if(sortF==='livery'){
-    if(!ENABLE_SORT_LIVERY) return numSortAlg(a,b);
-    const av=(a.livery||'').toString(), bv=(b.livery||'').toString();
-    const r=av.localeCompare(bv,'ru');
+
+  if(sortF==='model'){
+    const ta=typeOrderKey(a.type), tb=typeOrderKey(b.type);
+    if(ta!==tb){
+      const r = ta - tb;
+      return sortDesc ? -r : r;
+    }
+    const ma=normalizeModel(a.model), mb=normalizeModel(b.model);
+    const bm=compareModelByBrand(ma,mb);
+    return sortDesc ? -bm : bm;
+  }
+
+  if(sortF==='type'){
+    const ta=typeOrderKey(a.type), tb=typeOrderKey(b.type);
+    const r = ta - tb;
     return sortDesc ? -r : r;
   }
+
+  if(sortF==='livery'){
+    if(!ENABLE_SORT_LIVERY) return numSortAlg(a,b);
+    const r=(a.livery||'').toString().localeCompare((b.livery||'').toString(),'ru');
+    return sortDesc ? -r : r;
+  }
+
   return numSortAlg(a,b);
 }
 
@@ -573,9 +634,7 @@ function openNote(v, anchorEl){
   if(cellText(v.garageNumber)) parts.push('гар. '+normalizeGarageDisplay(v.garageNumber));
   info.textContent=parts.filter(Boolean).join(' • ');
   body.innerHTML=sanitizeNoteHTML(v.noteHtml||v.note||'') || '<span class="no">—</span>';
-
-  const back = document.getElementById('noteModalBack');
-  back.style.display='block';
+  document.getElementById('noteModalBack').style.display='block';
 
   const modal = document.getElementById('noteModal');
   if(noteLastPos){
@@ -716,124 +775,239 @@ async function loadJson(){
 
 /* render */
 function render(){
-  try{
-    VIEW_RENDERED=[];
-    const colFilters={};
-    document.querySelectorAll('.colFilter').forEach(inp=>{
-      const col=inp.getAttribute('data-col');
-      const val=(inp.value||'').toString().trim();
-      if(val) colFilters[col]=val;
-    });
+  hideErr();
+  VIEW_RENDERED=[];
+  const colFilters={};
+  document.querySelectorAll('.colFilter').forEach(inp=>{
+    const col=inp.getAttribute('data-col');
+    const val=(inp.value||'').toString().trim();
+    if(val) colFilters[col]=val;
+  });
 
-    VIEW=DATA.filter(v=>{
-      if(activeTab!=='_all'){
-        if(parkKey(v.park)!==activeTab) return false;
+  VIEW=DATA.filter(v=>{
+    if(activeTab!=='_all'){
+      if(parkKey(v.park)!==activeTab) return false;
+    }
+    for(const [col,rawNeedle] of Object.entries(colFilters)){
+      const needle=rawNeedle.toLowerCase();
+      if(col==='type'){
+        if(!typeLabel(v.type).toLowerCase().includes(needle)) return false;
+        continue;
       }
-      for(const [col,rawNeedle] of Object.entries(colFilters)){
-        const needle=rawNeedle.toLowerCase();
-        if(col==='type'){
-          if(!typeLabel(v.type).toLowerCase().includes(needle)) return false;
-          continue;
-        }
-        if(col==='model'){
-          if(!normalizeModel(v.model).toLowerCase().includes(needle)) return false;
-          continue;
-        }
-        if(col==='livery'){
-          if(!((v.livery||'')+'').toLowerCase().includes(needle)) return false;
-          continue;
-        }
-        if(col==='park'){
-          const p1=parkShortLabel(v.park).toLowerCase();
-          const p2=(parkKey(v.park)||'').toLowerCase();
-          if(!p1.includes(needle) && !p2.includes(needle.replace(/[.\s\-]/g,''))) return false;
-          continue;
-        }
-        if(col==='vehicleNumber' || col==='garageNumber' || col==='factoryNumber'){
-          const hay=normPlateRU(v[col]);
-          const n=normPlateRU(rawNeedle);
-          if(!hay.includes(n)) return false;
-          continue;
-        }
-        const hay=(v[col]||'').toString().toLowerCase();
-        if(!hay.includes(needle)) return false;
+      if(col==='model'){
+        if(!normalizeModel(v.model).toLowerCase().includes(needle)) return false;
+        continue;
       }
-      return true;
-    });
-
-    if(sortF==='factoryNumber'){
-      VIEW = VIEW.filter(v => (v.factoryNumber != null) && String(v.factoryNumber).trim().length>0);
+      if(col==='livery'){
+        if(!((v.livery||'')+'').toLowerCase().includes(needle)) return false;
+        continue;
+      }
+      if(col==='park'){
+        const p1=parkShortLabel(v.park).toLowerCase();
+        const p2=(parkKey(v.park)||'').toLowerCase();
+        if(!p1.includes(needle) && !p2.includes(needle.replace(/[.\s\-]/g,''))) return false;
+        continue;
+      }
+      if(col==='vehicleNumber' || col==='garageNumber' || col==='factoryNumber'){
+        const hay=normPlateRU(v[col]);
+        const n=normPlateRU(rawNeedle);
+        if(!hay.includes(n)) return false;
+        continue;
+      }
+      const hay=(v[col]||'').toString().toLowerCase();
+      if(!hay.includes(needle)) return false;
     }
+    return true;
+  });
 
-    VIEW.sort(generalSort);
+  // hide empties for some sorts (as requested earlier)
+  if(sortF==='garageNumber'){
+    VIEW = VIEW.filter(v => String(v.garageNumber||'').trim().length>0);
+  }
+  if(sortF==='factoryNumber'){
+    VIEW = VIEW.filter(v => String(v.factoryNumber||'').trim().length>0);
+  }
 
-    document.getElementById('countShown').textContent = VIEW.length;
-    document.getElementById('countAll').textContent = DATA.length;
+  VIEW.sort(generalSort);
 
-    const tbody=document.getElementById('data');
-    const empty=document.getElementById('empty');
-    if(!VIEW.length){
-      tbody.innerHTML='';
-      empty.style.display='';
-      return;
+  document.getElementById('countShown').textContent = VIEW.length;
+  document.getElementById('countAll').textContent = DATA.length;
+
+  const tbody=document.getElementById('data');
+  const empty=document.getElementById('empty');
+  if(!VIEW.length){
+    tbody.innerHTML='';
+    empty.style.display='';
+    return;
+  }
+  empty.style.display='none';
+
+  const rows=[];
+  const visibleColsCount=9;
+
+  function groupRow(label){
+    rows.push(`<tr class="groupRow"><td colspan="${visibleColsCount}">${escapeHTML(label)}</td></tr>`);
+  }
+  function dataRow(v){
+    VIEW_RENDERED.push(v);
+    const hasNote=!!cellText(v.noteHtml||v.note);
+    const num=cellText(v.vehicleNumber);
+    const garageDisp = normalizeGarageDisplay(v.garageNumber);
+    rows.push(`<tr class="dataRow">
+      <td${tdClass(v,'type')}>${escapeHTML(typeLabel(v.type))}</td>
+      <td${tdClass(v,'vehicleNumber','num numCell')} title="${escapeHTML(num)}">${cellHTMLText(num)}</td>
+      <td${tdClass(v,'noteHtml')} style="padding:6px 4px;">${hasNote?`<span class="noteBtn" title="Примечание">&#10148;</span>`:''}</td>
+      <td${tdClass(v,'year')}>${cellHTMLText(v.year)}</td>
+      <td${tdClass(v,'model')}>${cellHTMLText(normalizeModel(v.model))}</td>
+      <td${tdClass(v,'park')}>${cellHTMLText(parkShortLabel(v.park))}</td>
+      <td${tdClass(v,'garageNumber')}>${garageDisp ? escapeHTML(garageDisp) : '<span class="no">—</span>'}</td>
+      <td${tdClass(v,'factoryNumber')}>${cellHTMLText(v.factoryNumber)}</td>
+      <td${tdClass(v,'livery','liveryCell')}>${cellHTMLText(v.livery)}</td>
+    </tr>`);
+  }
+
+  // группировки
+  if(sortF==='vehicleNumber'){
+    const secOrder=['bus','troll','tram','other'];
+    const secLabel={bus:'Автобусы и электробусы', troll:'Троллейбусы и ТУАХ', tram:'Трамваи', other:'Другое'};
+    for(const sec of secOrder){
+      const arr = VIEW.filter(v=>transportSectionKey(v)===sec);
+      if(!arr.length) continue;
+      groupRow(`${secLabel[sec]} (${arr.length})`);
+      for(const v of arr) dataRow(v);
     }
-    empty.style.display='none';
-
-    const rows=[];
-    const visibleColsCount=9;
-
-    function groupRow(label){
-      rows.push(`<tr class="groupRow"><td colspan="${visibleColsCount}">${escapeHTML(label)}</td></tr>`);
+  }
+  else if(sortF==='year'){
+    const years = Array.from(new Set(VIEW.map(v=>(v.year||'').toString().trim()).filter(Boolean)));
+    years.sort((a,b)=> (parseInt(a,10)||0) - (parseInt(b,10)||0));
+    if(sortDesc) years.reverse();
+    for(const y of years){
+      const arr = VIEW.filter(v=>(v.year||'').toString().trim()===y);
+      if(!arr.length) continue;
+      groupRow(`${y} (${arr.length})`);
+      for(const v of arr) dataRow(v);
     }
-    function dataRow(v){
-      VIEW_RENDERED.push(v);
-      const hasNote=!!cellText(v.noteHtml||v.note);
-      const num=cellText(v.vehicleNumber);
-      const garageDisp = normalizeGarageDisplay(v.garageNumber);
-      rows.push(`<tr class="dataRow">
-        <td${tdClass(v,'type')}>${escapeHTML(typeLabel(v.type))}</td>
-        <td${tdClass(v,'vehicleNumber','num numCell')} title="${escapeHTML(num)}">${cellHTMLText(num)}</td>
-        <td${tdClass(v,'noteHtml')} style="padding:6px 4px;">${hasNote?`<span class="noteBtn" title="Примечание">&#10148;</span>`:''}</td>
-        <td${tdClass(v,'year')}>${cellHTMLText(v.year)}</td>
-        <td${tdClass(v,'model')}>${cellHTMLText(normalizeModel(v.model))}</td>
-        <td${tdClass(v,'park')}>${cellHTMLText(parkShortLabel(v.park))}</td>
-        <td${tdClass(v,'garageNumber')}>${garageDisp ? escapeHTML(garageDisp) : '<span class="no">—</span>'}</td>
-        <td${tdClass(v,'factoryNumber')}>${cellHTMLText(v.factoryNumber)}</td>
-        <td${tdClass(v,'livery','liveryCell')}>${cellHTMLText(v.livery)}</td>
-      </tr>`);
+    const emptyYear = VIEW.filter(v=>!(v.year||'').toString().trim());
+    if(emptyYear.length){
+      groupRow(`— (${emptyYear.length})`);
+      for(const v of emptyYear) dataRow(v);
     }
+  }
+  else if(sortF==='park'){
+    const byPark = groupBy(VIEW, v=>parkKey(v.park)||'');
+    for(const pk of PARK_ORDER){
+      const arr = byPark.get(pk) || [];
+      if(!arr.length) continue;
+      groupRow(`${parkFullLabelFromKey(pk)} (${arr.length})`);
+      for(const v of arr) dataRow(v);
+    }
+    const other = VIEW.filter(v=>parkOrderIndex(parkKey(v.park))===999);
+    if(other.length){
+      groupRow(`Прочее (${other.length})`);
+      for(const v of other) dataRow(v);
+    }
+  }
+  else if(sortF==='garageNumber'){
+    const byPark = groupBy(VIEW, v=>parkKey(v.park)||'');
+    for(const pk of PARK_ORDER){
+      const parkArr = byPark.get(pk) || [];
+      if(!parkArr.length) continue;
+      groupRow(`${parkFullLabelFromKey(pk)} (${parkArr.length})`);
 
-    if(sortF==='vehicleNumber'){
-      const secOrder=['bus','troll','tram','other'];
-      const secLabel={bus:'Автобусы и электробусы', troll:'Троллейбусы и ТУАХ', tram:'Трамваи', other:'Другое'};
-      for(const sec of secOrder){
-        const arr = VIEW.filter(v=>transportSectionKey(v)===sec);
-        if(!arr.length) continue;
-        groupRow(`${secLabel[sec]} (${arr.length})`);
+      const byCol = new Map();
+      for(const v of parkArr){
+        const d = garageColumnDigitFromValue(v.garageNumber);
+        if(d==null) continue;
+        if(!byCol.has(d)) byCol.set(d,[]);
+        byCol.get(d).push(v);
+      }
+      const cols = Array.from(byCol.keys()).sort((a,b)=>a-b);
+      for(const d of cols){
+        const arr = byCol.get(d);
+        arr.sort((x,y)=>{
+          const r = compareGarageWithinColumn(x.garageNumber, y.garageNumber);
+          if(r!==0) return r;
+          return numSortAlg(x,y);
+        });
+        groupRow(`${d} колонна (${arr.length})`);
         for(const v of arr) dataRow(v);
       }
-    } else {
-      for(const v of VIEW) dataRow(v);
     }
-
-    tbody.innerHTML=rows.join('');
-
-    tbody.querySelectorAll('.noteBtn').forEach(btn=>{
-      btn.onclick=(e)=>{
-        e.preventDefault();
-        e.stopPropagation();
-        const tr=btn.closest('tr.dataRow');
-        if(!tr) return;
-        const dataRows=Array.from(tbody.querySelectorAll('tr.dataRow'));
-        const idx=dataRows.indexOf(tr);
-        if(idx>=0 && VIEW_RENDERED[idx]) openNote(VIEW_RENDERED[idx], btn);
-      };
-    });
-
-  }catch(e){
-    showErr('Ошибка рендера: ' + (e && e.message ? e.message : e));
-    console.error(e);
   }
+  else if(sortF==='factoryNumber'){
+    // тип -> модели (модели отсортированы по брендам)
+    const typeOrder = ['автобус','электробус','троллейбус','туах','трамвай'];
+    const typeLbl = {'автобус':'Автобусы','электробус':'Электробусы','троллейбус':'Троллейбусы','туах':'ТУАХ','трамвай':'Трамваи'};
+
+    for(const t of typeOrder){
+      const tArr = VIEW.filter(v=>normType(v.type)===t);
+      if(!tArr.length) continue;
+
+      groupRow(`${typeLbl[t]} (${tArr.length})`);
+
+      const byModel = groupBy(tArr, v=>normalizeModel(v.model)||'—');
+      const mkeys = Array.from(byModel.keys()).sort(compareModelByBrand);
+
+      for(const mk of mkeys){
+        const arr = byModel.get(mk);
+        groupRow(`${mk} (${arr.length})`);
+        for(const v of arr) dataRow(v);
+      }
+    }
+  }
+  else if(sortF==='model'){
+    // тип -> модели (по брендам) (без “Автобусы и электробусы” строк)
+    const typeOrder = ['автобус','электробус','троллейбус','туах','трамвай'];
+    const typeLbl = {'автобус':'Автобусы','электробус':'Электробусы','троллейбус':'Троллейбусы','туах':'ТУАХ','трамвай':'Трамваи'};
+
+    for(const t of typeOrder){
+      const tArr = VIEW.filter(v=>normType(v.type)===t);
+      if(!tArr.length) continue;
+
+      groupRow(`${typeLbl[t]} (${tArr.length})`);
+
+      const byModel = groupBy(tArr, v=>normalizeModel(v.model)||'—');
+      const mkeys = Array.from(byModel.keys()).sort(compareModelByBrand);
+
+      for(const mk of mkeys){
+        const arr = byModel.get(mk);
+        groupRow(`${mk} (${arr.length})`);
+        for(const v of arr) dataRow(v);
+      }
+    }
+  }
+  else if(sortF==='type'){
+    const order = ['автобус','электробус','троллейбус','туах','трамвай'];
+    const labels = {'автобус':'Автобусы','электробус':'Электробусы','троллейбус':'Троллейбусы','туах':'ТУАХ','трамвай':'Трамваи'};
+    for(const t of order){
+      const arr = VIEW.filter(v=>normType(v.type)===t);
+      if(!arr.length) continue;
+      groupRow(`${labels[t]} (${arr.length})`);
+      for(const v of arr) dataRow(v);
+    }
+    const other = VIEW.filter(v=>!order.includes(normType(v.type)));
+    if(other.length){
+      groupRow(`Другое (${other.length})`);
+      for(const v of other) dataRow(v);
+    }
+  }
+  else {
+    for(const v of VIEW) dataRow(v);
+  }
+
+  tbody.innerHTML=rows.join('');
+
+  tbody.querySelectorAll('.noteBtn').forEach(btn=>{
+    btn.onclick=(e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      const tr=btn.closest('tr.dataRow');
+      if(!tr) return;
+      const dataRows=Array.from(tbody.querySelectorAll('tr.dataRow'));
+      const idx=dataRows.indexOf(tr);
+      if(idx>=0 && VIEW_RENDERED[idx]) openNote(VIEW_RENDERED[idx], btn);
+    };
+  });
 }
 
 /* init */
