@@ -54,11 +54,31 @@
     .err{margin-top:8px; padding:6px 10px; background:#ffecec; border:1px solid #f2b0b0; border-radius:6px; color:#8b1e1e; font-size:12px; white-space:pre-wrap;}
 
     /* modal */
-    .modalBack{ position:fixed; inset:0; background:rgba(0,0,0,.25); display:none; align-items:center; justify-content:center; padding:16px; z-index:9999; }
-    .modal{ width:min(560px, 96vw); background:#fff; border-radius:10px; box-shadow:0 6px 26px rgba(30,40,90,.2); padding:12px; }
-    .noteTitleLine{ font-weight:700; color:#2543a5; font-size:13px; margin:0 0 6px 0; }
-    .noteInfoLine{ font-weight:700; color:#2543a5; font-size:11px; margin:0 0 10px 0; line-height:1.25; }
-    .noteBody{ border:1px solid #d9e2f7; border-radius:8px; padding:10px; max-height:60vh; overflow:auto; background:#fbfcff; text-align:left; color:#2543a5; font-size:11px; line-height:1.35; }
+    /* делаем back без flex-центрирования; окно будет позиционироваться возле кнопки */
+    .modalBack{
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.18);
+      display:none;
+      z-index:9999;
+    }
+    .modal{
+      position:fixed;
+      width: min(420px, 92vw); /* заузили */
+      background:#fff;
+      border-radius:10px;
+      box-shadow:0 6px 26px rgba(30,40,90,.2);
+      padding:10px;
+      border:1px solid #d9e2f7;
+    }
+    .noteTitleLine{
+      font-weight:700; color:#2543a5; font-size:13px;
+      margin:0 0 6px 0;
+      cursor:move; /* перетаскивание за шапку */
+      user-select:none;
+      padding:2px 0;
+    }
+    .noteInfoLine{ font-weight:700; color:#2543a5; font-size:11px; margin:0 0 8px 0; line-height:1.25; }
+    .noteBody{ border:1px solid #d9e2f7; border-radius:8px; padding:10px; max-height:55vh; overflow:auto; background:#fbfcff; text-align:left; color:#2543a5; font-size:11px; line-height:1.35; }
     .modalActions{ display:flex; gap:8px; justify-content:flex-end; margin-top:10px; }
     .btn{ padding:4px 11px; border-radius:6px; border:none; background:#e3ecfb; color:#2543a5; cursor:pointer; font-size:12px; }
     .btn:hover{ background:#b2ceff; }
@@ -109,8 +129,8 @@
 </div>
 
 <div class="modalBack" id="noteModalBack" onclick="if(event.target.id==='noteModalBack') closeNote()">
-  <div class="modal">
-    <div class="noteTitleLine">Примечание</div>
+  <div class="modal" id="noteModal">
+    <div class="noteTitleLine" id="noteModalTitle">Примечание</div>
     <div class="noteInfoLine" id="noteInfoLine"></div>
     <div class="noteBody" id="noteBody"></div>
     <div class="modalActions">
@@ -130,6 +150,9 @@ let sortF = 'vehicleNumber';
 let sortDesc = false;
 let activeTab = '_all';
 
+/* выключатель сортировки по цвету */
+const ENABLE_SORT_LIVERY = false;
+
 const TAB_ORDER = [
   {key:'автобусныйпарк5', label:'АП5'},
   {key:'автобусныйпарк6', label:'АП6'},
@@ -141,6 +164,18 @@ const TAB_ORDER = [
   {key:'троллейбусныйпарк5', label:'ТП5'},
   {key:'трамвайныйпарк', label:'ТрамП'},
   {key:'_all', label:'All'}
+];
+
+const PARK_ORDER = [
+  'автобусныйпарк5',
+  'автобусныйпарк6',
+  'автобусныйпарк7',
+  'транспортныйпарк1',
+  'транспортныйпарк2',
+  'троллейбусныйпарк3',
+  'транспортныйпарк4',
+  'троллейбусныйпарк5',
+  'трамвайныйпарк'
 ];
 
 function showErr(msg){ const e=document.getElementById('err'); e.style.display=''; e.textContent=msg; }
@@ -189,19 +224,6 @@ function typeOrderKey(t){
   if(nt==='троллейбус') return 3;
   if(nt==='туах') return 4;
   if(nt==='трамвай') return 5;
-  return 99;
-}
-function transportSectionKey(v){
-  const t=normType(v.type);
-  if(t==='автобус'||t==='электробус') return 'bus';
-  if(t==='троллейбус'||t==='туах') return 'troll';
-  if(t==='трамвай') return 'tram';
-  return 'other';
-}
-function sectionOrderKey(sec){
-  if(sec==='bus') return 1;
-  if(sec==='troll') return 2;
-  if(sec==='tram') return 3;
   return 99;
 }
 
@@ -260,6 +282,10 @@ function parkShortLabel(s){
   const tab=TAB_ORDER.find(x=>x.key===k);
   return tab ? tab.label : ((s||'').toString().trim()||'—');
 }
+function parkOrderIndex(k){
+  const i = PARK_ORDER.indexOf(k);
+  return i === -1 ? 999 : i;
+}
 
 /* -------------- RULE 1: 2 letters before 3 letters -------------- */
 function platePrefixLenRU(plateRU){
@@ -289,7 +315,7 @@ function busPriorityKeyRU(plateRU){
   return {w:9999,d:(n4??9999)};
 }
 
-/* FIXED: number sort = prefix -> digits -> tail; normalization kept (I -> И) */
+/* number sort = prefix -> digits -> tail; normalization kept (I -> И) */
 function numSortAlg(a,b){
   const aRaw=(a.vehicleNumber||'').toString().trim();
   const bRaw=(b.vehicleNumber||'').toString().trim();
@@ -300,15 +326,14 @@ function numSortAlg(a,b){
   const aRU=normPlateRU(aRaw);
   const bRU=normPlateRU(bRaw);
 
-  const secA=transportSectionKey(a);
-  const secB=transportSectionKey(b);
+  // 2 before 3 ONLY (as earlier rule) for bus+troll; for others just normal
+  const aType = normType(a.type);
+  const bType = normType(b.type);
 
-  if(secA!==secB){
-    return sectionOrderKey(secA) - sectionOrderKey(secB);
-  }
+  const isBusTrollA = (aType==='автобус' || aType==='электробус' || aType==='троллейбус' || aType==='туах');
+  const isBusTrollB = (bType==='автобус' || bType==='электробус' || bType==='троллейбус' || bType==='туах');
 
-  // 2 before 3 for bus+troll (as you had)
-  if(secA==='bus' || secA==='troll'){
+  if(isBusTrollA && isBusTrollB){
     const la=platePrefixLenRU(aRU);
     const lb=platePrefixLenRU(bRU);
     const aa = (la===2?0:(la===3?1:2));
@@ -316,19 +341,16 @@ function numSortAlg(a,b){
     if(aa!==bb) return aa-bb;
   }
 
-  // prefix compare
   const prefA = (aRU.match(/^([А-Я]{2,3})/)||[])[1] || '';
   const prefB = (bRU.match(/^([А-Я]{2,3})/)||[])[1] || '';
   if(prefA !== prefB) return prefA.localeCompare(prefB,'ru');
 
-  // bus priority (your rules)
-  if(normType(a.type)==='автобус' && normType(b.type)==='автобус'){
+  if(aType==='автобус' && bType==='автобус'){
     const ak=busPriorityKeyRU(aRU), bk=busPriorityKeyRU(bRU);
     if(ak.w!==bk.w) return ak.w-bk.w;
     if(ak.d!==bk.d) return ak.d-bk.d;
   }
 
-  // digits compare
   const nA = (aRU.match(/\d+/)||[])[0];
   const nB = (bRU.match(/\d+/)||[])[0];
   if(nA && nB){
@@ -337,12 +359,10 @@ function numSortAlg(a,b){
   }else if(nA && !nB) return -1;
   else if(!nA && nB) return 1;
 
-  // fallback tail
   return aRU.localeCompare(bRU,'ru');
 }
 
-/* -------------- RULE 2: (x) after x in same column -------------- */
-/* FIXED: column by first digit; (x) after x */
+/* garage: column by first digit; (x) after x */
 function garageColumnDigitFromValue(s){
   s=(s||'').toString().trim();
   const m1 = s.match(/^$(\d)$/);
@@ -353,22 +373,44 @@ function garageColumnDigitFromValue(s){
 }
 function garageSortKey(s){
   const raw=(s||'').toString().trim();
-  if(!raw) return {col: 999999, inParen: 9, rest:''};
+  if(!raw) return {col: 999999, inParen: 9, num: null, rest:''};
 
   const mParen = raw.match(/^$(\d)$\s*(.*)$/);
   if(mParen){
-    return {col: parseInt(mParen[1],10), inParen: 1, rest: normAlnumRU(mParen[2]||'')};
+    const rest = (mParen[2]||'').trim();
+    const mNum = rest.match(/^(\d+)/);
+    return {
+      col: parseInt(mParen[1],10),
+      inParen: 1,
+      num: mNum ? parseInt(mNum[1],10) : null,
+      rest: normAlnumRU(rest)
+    };
   }
+
   const mNum = raw.match(/^(\d)\s*(.*)$/);
   if(mNum){
-    return {col: parseInt(mNum[1],10), inParen: 0, rest: normAlnumRU(mNum[2]||'')};
+    const rest = (mNum[2]||'').trim();
+    const mNum2 = rest.match(/^(\d+)/);
+    return {
+      col: parseInt(mNum[1],10),
+      inParen: 0,
+      num: mNum2 ? parseInt(mNum2[1],10) : null,
+      rest: normAlnumRU(rest)
+    };
   }
-  return {col: 999999, inParen: 9, rest: normAlnumRU(raw)};
+
+  return {col: 999999, inParen: 9, num: null, rest: normAlnumRU(raw)};
 }
 function compareGarage(a,b){
   const ak=garageSortKey(a), bk=garageSortKey(b);
   if(ak.col!==bk.col) return ak.col-bk.col;
-  if(ak.inParen!==bk.inParen) return ak.inParen-bk.inParen; // (x) after x
+
+  // внутри колонны: сначала обычные (inParen 0), потом в скобках (inParen 1)
+  if(ak.inParen!==bk.inParen) return ak.inParen-bk.inParen;
+
+  // сортировка по числовой части
+  if(ak.num!=null && bk.num!=null && ak.num!==bk.num) return ak.num-bk.num;
+
   if(ak.rest<bk.rest) return -1;
   if(ak.rest>bk.rest) return 1;
   return 0;
@@ -393,15 +435,24 @@ function compareFactoryLatinized(a,b){
   return 0;
 }
 
+/* generalSort: только сравнение (без групп-строк) */
 function generalSort(a,b){
-  // always enforce top-level section order
-  const sa=transportSectionKey(a), sb=transportSectionKey(b);
-  if(sa!==sb) return sectionOrderKey(sa)-sectionOrderKey(sb);
 
   if(sortF==='vehicleNumber'){
-    const r=numSortAlg(a,b);
+    let r = numSortAlg(a,b);
     return sortDesc ? -r : r;
   }
+
+  if(sortF==='type'){
+    const ta=typeOrderKey(a.type), tb=typeOrderKey(b.type);
+    if(ta!==tb){
+      const r = ta - tb;
+      return sortDesc ? -r : r;
+    }
+    const rn=numSortAlg(a,b);
+    return sortDesc ? -rn : rn;
+  }
+
   if(sortF==='year'){
     const ya = parseInt((a.year||'').toString().trim(),10);
     const yb = parseInt((b.year||'').toString().trim(),10);
@@ -411,35 +462,65 @@ function generalSort(a,b){
 
     if(aEmpty && !bEmpty) return sortDesc ? -1 : 1;
     if(!aEmpty && bEmpty) return sortDesc ? 1 : -1;
-    if(!aEmpty && !bEmpty && ya!==yb) return sortDesc ? (yb-ya) : (ya-yb);
+    if(!aEmpty && !bEmpty && ya!==yb){
+      const r = ya - yb;
+      return sortDesc ? -r : r;
+    }
+
+    // второй уровень: транспортный порядок + номер
+    const ta=typeOrderKey(a.type), tb=typeOrderKey(b.type);
+    if(ta!==tb){
+      const r2 = ta - tb;
+      return sortDesc ? -r2 : r2;
+    }
 
     const rn=numSortAlg(a,b);
     return sortDesc ? -rn : rn;
   }
+
+  if(sortF==='park'){
+    const pa=parkKey(a.park), pb=parkKey(b.park);
+    const ra = parkOrderIndex(pa);
+    const rb = parkOrderIndex(pb);
+    if(ra!==rb){
+      const r = ra - rb;
+      return sortDesc ? -r : r;
+    }
+    const ta=typeOrderKey(a.type), tb=typeOrderKey(b.type);
+    if(ta!==tb){
+      const r2 = ta - tb;
+      return sortDesc ? -r2 : r2;
+    }
+    const rn=numSortAlg(a,b);
+    return sortDesc ? -rn : rn;
+  }
+
   if(sortF==='garageNumber'){
+    // показывать будем только с гаражным; сорт внутри compareGarage
     const r=compareGarage(a.garageNumber, b.garageNumber);
     if(r!==0) return sortDesc ? -r : r;
     const rn=numSortAlg(a,b);
     return sortDesc ? -rn : rn;
   }
+
   if(sortF==='factoryNumber'){
-    // type -> brand -> model -> factory -> number
     const ta=typeOrderKey(a.type), tb=typeOrderKey(b.type);
-    if(ta!==tb) return sortDesc ? (tb-ta) : (ta-tb);
-
-    const ma=normalizeModel(a.model), mb=normalizeModel(b.model);
-    const bm=compareModelByBrand(ma,mb);
-    if(bm!==0) return sortDesc ? -bm : bm;
-
+    if(ta!==tb){
+      const r = ta - tb;
+      return sortDesc ? -r : r;
+    }
     const rf=compareFactoryLatinized(a.factoryNumber, b.factoryNumber);
     if(rf!==0) return sortDesc ? -rf : rf;
-
     const rn=numSortAlg(a,b);
     return sortDesc ? -rn : rn;
   }
+
   if(sortF==='model'){
     const ta=typeOrderKey(a.type), tb=typeOrderKey(b.type);
-    if(ta!==tb) return sortDesc ? (tb-ta) : (ta-tb);
+    if(ta!==tb){
+      const r = ta - tb;
+      return sortDesc ? -r : r;
+    }
     const ma=normalizeModel(a.model), mb=normalizeModel(b.model);
     const bm=compareModelByBrand(ma,mb);
     if(bm!==0) return sortDesc ? -bm : bm;
@@ -447,7 +528,17 @@ function generalSort(a,b){
     return sortDesc ? -rn : rn;
   }
 
-  // fallback
+  if(sortF==='livery'){
+    if(!ENABLE_SORT_LIVERY){
+      // как будто сортировки по цвету нет: стабильный fallback
+      return numSortAlg(a,b);
+    }
+    const av = (a.livery||'').toString();
+    const bv = (b.livery||'').toString();
+    const r = av.localeCompare(bv,'ru');
+    return sortDesc ? -r : r;
+  }
+
   return numSortAlg(a,b);
 }
 
@@ -462,7 +553,7 @@ function groupBy(items, keyFn){
   return m;
 }
 
-/* modal */
+/* modal sanitize */
 function sanitizeNoteHTML(html){
   html=String(html??'');
   const wrap=document.createElement('div');
@@ -485,7 +576,45 @@ function sanitizeNoteHTML(html){
   })(wrap);
   return wrap.innerHTML;
 }
-function openNote(v){
+
+/* note modal: position near button + draggable */
+let noteDrag = {on:false, dx:0, dy:0};
+let noteLastPos = null;
+
+function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+function positionNoteModalNear(el){
+  const modal = document.getElementById('noteModal');
+  const back = document.getElementById('noteModalBack');
+  if(!modal || !back) return;
+
+  const r = el.getBoundingClientRect();
+  const mw = modal.offsetWidth || 420;
+  const mh = modal.offsetHeight || 220;
+
+  const pad = 8;
+
+  // prefer right side, else left, else below
+  let left = r.right + 10;
+  let top = r.top - 8;
+
+  // if out of viewport to the right -> left side
+  if(left + mw > window.innerWidth - pad){
+    left = r.left - mw - 10;
+  }
+  // if still out -> align to right edge
+  if(left < pad) left = window.innerWidth - mw - pad;
+
+  // vertical clamp
+  top = clamp(top, pad, window.innerHeight - mh - pad);
+
+  modal.style.left = `${Math.round(left)}px`;
+  modal.style.top = `${Math.round(top)}px`;
+
+  noteLastPos = {left: Math.round(left), top: Math.round(top)};
+}
+
+function openNote(v, anchorEl){
   const info=document.getElementById('noteInfoLine');
   const body=document.getElementById('noteBody');
   const parts=[];
@@ -497,9 +626,71 @@ function openNote(v){
   if(cellText(v.garageNumber)) parts.push('гар. '+cellText(v.garageNumber));
   info.textContent=parts.filter(Boolean).join(' • ');
   body.innerHTML=sanitizeNoteHTML(v.noteHtml||v.note||'') || '<span class="no">—</span>';
-  document.getElementById('noteModalBack').style.display='flex';
+
+  const back = document.getElementById('noteModalBack');
+  back.style.display='block';
+
+  const modal = document.getElementById('noteModal');
+  // если уже перетаскивали — открываем на последней позиции
+  if(noteLastPos){
+    modal.style.left = noteLastPos.left + 'px';
+    modal.style.top = noteLastPos.top + 'px';
+  }else if(anchorEl){
+    // после display:block размеры известны
+    requestAnimationFrame(()=>positionNoteModalNear(anchorEl));
+  }else{
+    // fallback: вверх-центр
+    modal.style.left = Math.round((window.innerWidth - (modal.offsetWidth||420))/2) + 'px';
+    modal.style.top = '80px';
+  }
 }
-function closeNote(){ document.getElementById('noteModalBack').style.display='none'; }
+
+function closeNote(){
+  document.getElementById('noteModalBack').style.display='none';
+}
+
+(function initNoteDrag(){
+  const title = document.getElementById('noteModalTitle');
+  const modal = document.getElementById('noteModal');
+  if(!title || !modal) return;
+
+  title.addEventListener('mousedown', (e)=>{
+    e.preventDefault();
+    const r = modal.getBoundingClientRect();
+    noteDrag.on = true;
+    noteDrag.dx = e.clientX - r.left;
+    noteDrag.dy = e.clientY - r.top;
+    document.body.style.userSelect = 'none';
+  });
+
+  window.addEventListener('mousemove', (e)=>{
+    if(!noteDrag.on) return;
+    const modal = document.getElementById('noteModal');
+    const mw = modal.offsetWidth, mh = modal.offsetHeight;
+    const pad = 8;
+    let left = e.clientX - noteDrag.dx;
+    let top  = e.clientY - noteDrag.dy;
+    left = clamp(left, pad, window.innerWidth - mw - pad);
+    top  = clamp(top,  pad, window.innerHeight - mh - pad);
+    modal.style.left = `${Math.round(left)}px`;
+    modal.style.top  = `${Math.round(top)}px`;
+    noteLastPos = {left: Math.round(left), top: Math.round(top)};
+  });
+
+  window.addEventListener('mouseup', ()=>{
+    if(!noteDrag.on) return;
+    noteDrag.on = false;
+    document.body.style.userSelect = '';
+  });
+
+  // Esc closes
+  window.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape'){
+      const back = document.getElementById('noteModalBack');
+      if(back && back.style.display !== 'none') closeNote();
+    }
+  });
+})();
 
 /* tabs */
 function renderTabs(){
@@ -530,8 +721,11 @@ document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick=()=>{
     const f=th.getAttribute('data-f');
     if(f==='_note') return;
+    if(f==='livery' && !ENABLE_SORT_LIVERY) return;
+
     document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
     th.classList.add('active');
+
     if(sortF===f) sortDesc=!sortDesc;
     else { sortF=f; sortDesc=false; }
     render();
@@ -627,6 +821,14 @@ function render(){
     return true;
   });
 
+  // sort-specific hide empty garage/factory
+  if(sortF==='garageNumber'){
+    VIEW = VIEW.filter(v => cellText(v.garageNumber).length>0);
+  }
+  if(sortF==='factoryNumber'){
+    VIEW = VIEW.filter(v => cellText(v.factoryNumber).length>0);
+  }
+
   VIEW.sort(generalSort);
 
   document.getElementById('countShown').textContent = VIEW.length;
@@ -664,85 +866,138 @@ function render(){
     </tr>`);
   }
 
-  const secOrder=['bus','troll','tram','other'];
-  const secLabel={bus:'Автобусы и электробусы', troll:'Троллейбусы и ТУАХ', tram:'Трамваи', other:'Другое'};
+  /* Группировки по требованиям */
 
-  for(const sec of secOrder){
-    const secArr=VIEW.filter(v=>transportSectionKey(v)===sec);
-    if(!secArr.length) continue;
+  if(sortF==='type'){
+    const order = ['автобус','электробус','троллейбус','туах','трамвай'];
+    const labels = {
+      'автобус':'Автобусы',
+      'электробус':'Электробусы',
+      'троллейбус':'Троллейбусы',
+      'туах':'ТУАХ',
+      'трамвай':'Трамваи'
+    };
+    for(const t of order){
+      const arr = VIEW.filter(v=>normType(v.type)===t);
+      if(!arr.length) continue;
+      groupRow(`${labels[t]} (${arr.length})`);
+      for(const v of arr) dataRow(v);
+    }
+    // остальные типы (если вдруг есть)
+    const other = VIEW.filter(v=>!order.includes(normType(v.type)));
+    if(other.length){
+      groupRow(`Другое (${other.length})`);
+      for(const v of other) dataRow(v);
+    }
+  }
 
-    groupRow(`${secLabel[sec]} (${secArr.length})`);
+  else if(sortF==='year'){
+    // только строки конкретного года; внутри года порядок: автобус/электробус -> троллейбус/туах -> трамвай; внутри - по номеру (generalSort уже так делает)
+    const years = Array.from(new Set(VIEW.map(v=>(v.year||'').toString().trim()).filter(Boolean)));
+    years.sort((a,b)=> (parseInt(a,10)||0) - (parseInt(b,10)||0));
+    if(sortDesc) years.reverse();
 
-    if(sortF==='garageNumber'){
-      if(activeTab==='_all'){
-        const byPark=groupBy(secArr, v=>parkKey(v.park)||'—');
-        const keys=Array.from(byPark.keys()).sort((a,b)=>a.localeCompare(b,'ru'));
-        for(const pk of keys){
-          const parkArr=byPark.get(pk);
-          groupRow(`${parkFullLabelFromKey(pk)} (${parkArr.length})`);
-          const byCol=new Map(); const other=[];
-          for(const v of parkArr){
-            const d=garageColumnDigitFromValue(v.garageNumber);
-            if(d==null) other.push(v);
-            else { if(!byCol.has(d)) byCol.set(d,[]); byCol.get(d).push(v); }
-          }
-          const cols=Array.from(byCol.keys()).sort((a,b)=>a-b);
-          for(const d of cols){
-            const arr=byCol.get(d);
-            groupRow(`${d} колонна (${arr.length})`);
-            for(const v of arr) dataRow(v);
-          }
-          if(other.length){
-            groupRow(`Прочее (${other.length})`);
-            for(const v of other) dataRow(v);
-          }
-        }
-      } else {
-        const byCol=new Map(); const other=[];
-        for(const v of secArr){
-          const d=garageColumnDigitFromValue(v.garageNumber);
-          if(d==null) other.push(v);
-          else { if(!byCol.has(d)) byCol.set(d,[]); byCol.get(d).push(v); }
-        }
-        const cols=Array.from(byCol.keys()).sort((a,b)=>a-b);
-        for(const d of cols){
-          const arr=byCol.get(d);
-          groupRow(`${d} колонна (${arr.length})`);
-          for(const v of arr) dataRow(v);
-        }
-        if(other.length){
-          groupRow(`Прочее (${other.length})`);
-          for(const v of other) dataRow(v);
-        }
+    for(const y of years){
+      const arr = VIEW.filter(v=>(v.year||'').toString().trim()===y);
+      if(!arr.length) continue;
+      groupRow(`${y} (${arr.length})`);
+      for(const v of arr) dataRow(v);
+    }
+
+    const emptyYear = VIEW.filter(v=>!(v.year||'').toString().trim());
+    if(emptyYear.length){
+      groupRow(`— (${emptyYear.length})`);
+      for(const v of emptyYear) dataRow(v);
+    }
+  }
+
+  else if(sortF==='model'){
+    // убираем секции bus/troll; оставляем типы + модели (модели в порядке brand)
+    const typeOrder = ['автобус','электробус','троллейбус','туах','трамвай'];
+    const typeLbl = {'автобус':'Автобусы','электробус':'Электробусы','троллейбус':'Троллейбусы','туах':'ТУАХ','трамвай':'Трамваи'};
+
+    for(const t of typeOrder){
+      const tArr = VIEW.filter(v=>normType(v.type)===t);
+      if(!tArr.length) continue;
+      groupRow(`${typeLbl[t]} (${tArr.length})`);
+
+      const byModel = groupBy(tArr, v=>normalizeModel(v.model)||'—');
+      const mkeys = Array.from(byModel.keys()).sort(compareModelByBrand);
+      for(const mk of mkeys){
+        const arr = byModel.get(mk);
+        groupRow(`${mk} (${arr.length})`);
+        for(const v of arr) dataRow(v);
       }
     }
-    else if(sortF==='factoryNumber' || sortF==='model'){
-      const typeBuckets=groupBy(secArr, v=>typeLabel(v.type)||'—');
-      const typeNames=['Автобус','Электробус','Троллейбус','ТУАХ','Трамвай','—'];
-      const tkeys=Array.from(typeBuckets.keys()).sort((a,b)=>{
-        const ia=typeNames.indexOf(a), ib=typeNames.indexOf(b);
-        if(ia!==-1||ib!==-1){
-          if(ia===-1) return 1;
-          if(ib===-1) return -1;
-          return ia-ib;
-        }
-        return a.localeCompare(b,'ru');
-      });
-      for(const tk of tkeys){
-        const tArr=typeBuckets.get(tk);
-        groupRow(`${tk} (${tArr.length})`);
-        const byModel=groupBy(tArr, v=>normalizeModel(v.model)||'—');
-        const mkeys=Array.from(byModel.keys()).sort(compareModelByBrand);
-        for(const mk of mkeys){
-          const arr=byModel.get(mk);
-          groupRow(`${mk} (${arr.length})`);
-          for(const v of arr) dataRow(v);
-        }
+
+    const other = VIEW.filter(v=>!typeOrder.includes(normType(v.type)));
+    if(other.length){
+      groupRow(`Другое (${other.length})`);
+      const byModel = groupBy(other, v=>normalizeModel(v.model)||'—');
+      const mkeys = Array.from(byModel.keys()).sort(compareModelByBrand);
+      for(const mk of mkeys){
+        const arr = byModel.get(mk);
+        groupRow(`${mk} (${arr.length})`);
+        for(const v of arr) dataRow(v);
       }
     }
-    else {
-      for(const v of secArr) dataRow(v);
+  }
+
+  else if(sortF==='park'){
+    // дополнительно строки парков в заданном порядке
+    const keys = PARK_ORDER.slice();
+    const byPark = groupBy(VIEW, v=>parkKey(v.park)||'');
+    for(const pk of keys){
+      const arr = byPark.get(pk) || [];
+      if(!arr.length) continue;
+      groupRow(`${parkFullLabelFromKey(pk)} (${arr.length})`);
+      for(const v of arr) dataRow(v);
     }
+    // всё что не распознано
+    const other = VIEW.filter(v=>parkOrderIndex(parkKey(v.park))===999);
+    if(other.length){
+      groupRow(`Прочее (${other.length})`);
+      for(const v of other) dataRow(v);
+    }
+  }
+
+  else if(sortF==='garageNumber'){
+    // только с гаражным; без "Автобусы и электробусы..."
+    const byCol=new Map();
+    for(const v of VIEW){
+      const d=garageColumnDigitFromValue(v.garageNumber);
+      if(d==null) continue;
+      if(!byCol.has(d)) byCol.set(d,[]);
+      byCol.get(d).push(v);
+    }
+    const cols=Array.from(byCol.keys()).sort((a,b)=>a-b);
+    for(const d of cols){
+      const arr=byCol.get(d);
+      groupRow(`${d} колонна (${arr.length})`);
+      for(const v of arr) dataRow(v);
+    }
+  }
+
+  else if(sortF==='factoryNumber'){
+    // только с заводским; без секций; строки по типам
+    const typeOrder = ['автобус','электробус','троллейбус','туах','трамвай'];
+    const typeLbl = {'автобус':'Автобусы','электробус':'Электробусы','троллейбус':'Троллейбусы','туах':'ТУАХ','трамвай':'Трамваи'};
+    for(const t of typeOrder){
+      const arr = VIEW.filter(v=>normType(v.type)===t);
+      if(!arr.length) continue;
+      groupRow(`${typeLbl[t]} (${arr.length})`);
+      for(const v of arr) dataRow(v);
+    }
+    const other = VIEW.filter(v=>!typeOrder.includes(normType(v.type)));
+    if(other.length){
+      groupRow(`Другое (${other.length})`);
+      for(const v of other) dataRow(v);
+    }
+  }
+
+  else {
+    // default: просто список
+    for(const v of VIEW) dataRow(v);
   }
 
   tbody.innerHTML=rows.join('');
@@ -750,11 +1005,12 @@ function render(){
   tbody.querySelectorAll('.noteBtn').forEach(btn=>{
     btn.onclick=(e)=>{
       e.preventDefault();
+      e.stopPropagation();
       const tr=btn.closest('tr.dataRow');
       if(!tr) return;
       const dataRows=Array.from(tbody.querySelectorAll('tr.dataRow'));
       const idx=dataRows.indexOf(tr);
-      if(idx>=0 && VIEW_RENDERED[idx]) openNote(VIEW_RENDERED[idx]);
+      if(idx>=0 && VIEW_RENDERED[idx]) openNote(VIEW_RENDERED[idx], btn);
     };
   });
 }
