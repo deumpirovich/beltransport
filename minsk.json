@@ -1,5 +1,5 @@
 {
-  "updatedAt": "09.03.2026 19:46",
+  "updatedAt": "11.03.2026 12:44",
   "vehicles": [
     {
       "type": "Автобус",
@@ -23564,7 +23564,7 @@
       "model": "МАЗ-303Т",
       "park": "ТП5",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "S0000146",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
@@ -23648,7 +23648,7 @@
       "model": "МАЗ-303Т",
       "park": "ТП5",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "S0000128",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
