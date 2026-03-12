@@ -1,5 +1,5 @@
 {
-  "updatedAt": "12.03.2026 17:02",
+  "updatedAt": "12.03.2026 18:20",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -68,7 +68,7 @@
       "deliveryDate": "02.2026",
       "park": "АП6",
       "licensePlate": "ААЕ148-7",
-      "factoryNumber": "",
+      "factoryNumber": "T0000134",
       "garageNumber": "43605",
       "color": "жёлтый",
       "gray": {}
@@ -80,7 +80,7 @@
       "deliveryDate": "02.2026",
       "park": "АП6",
       "licensePlate": "ААЕ156-7",
-      "factoryNumber": "",
+      "factoryNumber": "T0000125",
       "garageNumber": "15679",
       "color": "жёлтый",
       "gray": {}
@@ -92,7 +92,7 @@
       "deliveryDate": "02.2026",
       "park": "АП6",
       "licensePlate": "ААЕ157-7",
-      "factoryNumber": "",
+      "factoryNumber": "T0000127",
       "garageNumber": "24449",
       "color": "жёлтый",
       "gray": {}
@@ -104,7 +104,7 @@
       "deliveryDate": "02.2026",
       "park": "АП6",
       "licensePlate": "ААЕ158-7",
-      "factoryNumber": "",
+      "factoryNumber": "T0000129",
       "garageNumber": "15687",
       "color": "жёлтый",
       "gray": {}
@@ -128,7 +128,7 @@
       "deliveryDate": "02.2026",
       "park": "АП6",
       "licensePlate": "ААЕ159-7",
-      "factoryNumber": "",
+      "factoryNumber": "T0000133",
       "garageNumber": "34370",
       "color": "жёлтый",
       "gray": {}
@@ -140,7 +140,7 @@
       "deliveryDate": "02.2026",
       "park": "АП6",
       "licensePlate": "ААЕ160-7",
-      "factoryNumber": "",
+      "factoryNumber": "T0000132",
       "garageNumber": "15695",
       "color": "жёлтый",
       "gray": {}
@@ -382,7 +382,7 @@
       "deliveryDate": "01.2026",
       "park": "АП6",
       "licensePlate": "ААЕ138-7",
-      "factoryNumber": "",
+      "factoryNumber": "T0000124",
       "garageNumber": "43583",
       "color": "жёлтый",
       "gray": {}
@@ -394,7 +394,7 @@
       "deliveryDate": "01.2026",
       "park": "АП6",
       "licensePlate": "ААЕ140-7",
-      "factoryNumber": "",
+      "factoryNumber": "T0000130",
       "garageNumber": "34355",
       "color": "жёлтый",
       "gray": {}
@@ -406,7 +406,7 @@
       "deliveryDate": "01.2026",
       "park": "АП6",
       "licensePlate": "ААЕ142-7",
-      "factoryNumber": "",
+      "factoryNumber": "T0000128",
       "garageNumber": "24457",
       "color": "жёлтый",
       "gray": {}
@@ -418,7 +418,7 @@
       "deliveryDate": "01.2026",
       "park": "АП6",
       "licensePlate": "ААЕ143-7",
-      "factoryNumber": "",
+      "factoryNumber": "T0000123",
       "garageNumber": "24431",
       "color": "жёлтый",
       "gray": {}
@@ -430,7 +430,7 @@
       "deliveryDate": "01.2026",
       "park": "АП6",
       "licensePlate": "ААЕ144-7",
-      "factoryNumber": "",
+      "factoryNumber": "T0000131",
       "garageNumber": "34363",
       "color": "жёлтый",
       "gray": {}
@@ -442,7 +442,7 @@
       "deliveryDate": "01.2026",
       "park": "АП6",
       "licensePlate": "ААЕ147-7",
-      "factoryNumber": "",
+      "factoryNumber": "T0000126",
       "garageNumber": "43590",
       "color": "жёлтый",
       "gray": {}
@@ -13234,7 +13234,7 @@
       "deliveryDate": "09.2025",
       "park": "АП6",
       "licensePlate": "ААЕ110-7",
-      "factoryNumber": "",
+      "factoryNumber": "T0000096",
       "garageNumber": "15110",
       "color": "жёлтый",
       "gray": {}
@@ -13306,7 +13306,7 @@
       "deliveryDate": "09.2025",
       "park": "АП6",
       "licensePlate": "ААЕ122-7",
-      "factoryNumber": "",
+      "factoryNumber": "T0000097",
       "garageNumber": "34122",
       "color": "жёлтый",
       "gray": {}
