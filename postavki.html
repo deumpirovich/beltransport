@@ -87,7 +87,6 @@
       font-weight: normal;
     }
 
-    /* Горизонтальные строки-группы */
     .groupRow td{
       background:#f4f7fc; color:#1c3789; font-weight:700; text-align:center;
       border-top:1px solid #d9e2f7; border-bottom:1px solid #d9e2f7;
@@ -153,7 +152,16 @@ const JSON_URL = './postavki.json';
 
 let DATA = [];
 let VIEW = [];
-let sortF = "vehicleNumber";
+
+/*
+  ВАЖНОЕ ИЗМЕНЕНИЕ ПО ТВОЕЙ ПРОСЬБЕ:
+  "приоритетная сортировка (после клика по вкладке)" -> теперь это deliveryDate DESC.
+  То есть при переключении вкладок мы выставляем:
+    sortF = 'deliveryDate'
+    sortDesc = true
+  и подсвечиваем соответствующий th.
+*/
+let sortF = "deliveryDate";
 let sortDesc = true;
 
 let activeTab = "_new";
@@ -242,6 +250,12 @@ function countForNew(){
   return DATA.filter(v => monthKeyFromDeliveryDate(v.deliveryDate) === newMonthKey).length;
 }
 
+function setActiveSortHeader(){
+  document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
+  const th = document.querySelector(`th[data-f="${sortF}"]`);
+  if(th) th.classList.add('active');
+}
+
 function renderTabs(){
   const wrap = document.getElementById('tabs');
   const typeCounts = calcTypeCounts();
@@ -263,8 +277,10 @@ function renderTabs(){
       activeTab = el.getAttribute('data-tab');
       renderTabs();
 
-      /* Важное правило: сортировка по номеру ВО ВКЛАДКЕ NEW — по возрастанию */
-      if(activeTab === '_new' && sortF === 'vehicleNumber') sortDesc = false;
+      // Приоритетная сортировка при переключении вкладки: ДАТА (deliveryDate) по убыванию
+      sortF = 'deliveryDate';
+      sortDesc = true;
+      setActiveSortHeader();
 
       render();
     };
@@ -274,12 +290,6 @@ function renderTabs(){
 /* ---------------------------
    МОДЕЛИ: схлопывание + брендовый порядок
    --------------------------- */
-
-/*
-  brandOrderKeyFromModel():
-  задаёт приоритет бренда для сортировки моделей:
-  1) МАЗ, 2) БКМ, 3) Неман, 4) прочее
-*/
 function brandOrderKeyFromModel(model){
   const m = (model||'').toString().toLowerCase();
   if(m.includes('маз') || m.startsWith('maz')) return 1;
@@ -287,40 +297,24 @@ function brandOrderKeyFromModel(model){
   if(m.includes('неман') || m.includes('neman')) return 3;
   return 4;
 }
-
-/*
-  compareModelByBrand():
-  сравнение моделей: сначала по бренду (МАЗ->БКМ->Неман->прочее), затем по алфавиту.
-*/
 function compareModelByBrand(aModel, bModel){
   const ka = brandOrderKeyFromModel(aModel);
   const kb = brandOrderKeyFromModel(bModel);
   if(ka !== kb) return ka - kb;
   return (aModel||'').toString().localeCompare((bModel||'').toString(), 'ru');
 }
-
-/*
-  normalizeModelRaw():
-  приводит модель к нормальной форме по разделителям:
-  - заменяет разные тире на дефис
-  - убирает пробелы вокруг дефиса
-*/
 function normalizeModelRaw(s){
   let m = (s||'').toString().trim();
   if(!m) return '';
   m = m.replace(/[–—−]/g,'-').replace(/\s+/g,' ');
-  m = m.replace(/\s*-\s*/g,'-'); // "МАЗ - 103" -> "МАЗ-103"
+  m = m.replace(/\s*-\s*/g,'-');
   return m;
 }
-
 /*
-  normalizeModelBase():
-  "схлопывает" модификации в базовую модель ДЛЯ ГРУППИРОВКИ.
-  Пример:
-    МАЗ-103.465 -> МАЗ-103
-    Неман-52012.03 -> Неман-52012
-    БКМ-433.00 -> БКМ-433
-  Правило: если встречаем участок "<цифра>.<цифры>" - убираем ".<цифры>".
+  БАЗОВАЯ МОДЕЛЬ ДЛЯ ГРУППИРОВКИ:
+  МАЗ-103.465 -> МАЗ-103
+  БКМ-433.00 -> БКМ-433
+  Неман-52012.03 -> Неман-52012
 */
 function normalizeModelBase(s){
   let m = normalizeModelRaw(s);
@@ -333,46 +327,31 @@ function normalizeModelBase(s){
 /* ---------------------------
    СОРТИРОВКА НОМЕРОВ
    --------------------------- */
-
 const BUS_SERIES_ORDER = "ABEIKMHOPCTX";
 const BUS_SERIES_WEIGHT = (() => {
   const m = {};
   for(let i=0;i<BUS_SERIES_ORDER.length;i++) m[BUS_SERIES_ORDER[i]] = i;
   return m;
 })();
-
 function canonSeriesChar(ch){
   ch = (ch || '').toString().toUpperCase();
   if(Object.prototype.hasOwnProperty.call(BUS_SERIES_WEIGHT, ch)) return ch;
-
-  const ru2lat = {
-    'А':'A','В':'B','Е':'E','И':'I','І':'I','К':'K','М':'M','Н':'H','О':'O','Р':'P','С':'C','Т':'T','Х':'X'
-  };
+  const ru2lat = {'А':'A','В':'B','Е':'E','И':'I','І':'I','К':'K','М':'M','Н':'H','О':'O','Р':'P','С':'C','Т':'T','Х':'X'};
   return ru2lat[ch] || ch;
 }
-
 function normVehicleNumberForSort(s){
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/\s+/g, '');
   s = s.replace(/[A-ZА-ЯІ]/g, ch => canonSeriesChar(ch));
   return s;
 }
-
-function isPlateDash7(s){
-  return /^[A-Z0-9]{6}-7$/.test(s);
-}
-
-function plateGroupThirdChar(normS){
-  const ch3 = normS[2] || '';
-  return /\d/.test(ch3) ? 0 : 1;
-}
-
+function isPlateDash7(s){ return /^[A-Z0-9]{6}-7$/.test(s); }
+function plateGroupThirdChar(normS){ const ch3 = normS[2] || ''; return /\d/.test(ch3) ? 0 : 1; }
 function compareVehicleStringsAsc(a, b){
   const n = Math.max(a.length, b.length);
   for(let i=0;i<n;i++){
     const ac = a[i] || '';
     const bc = b[i] || '';
-
     if(ac === bc) continue;
     if(!ac) return -1;
     if(!bc) return 1;
@@ -389,7 +368,6 @@ function compareVehicleStringsAsc(a, b){
   }
   return 0;
 }
-
 function numSortAlg(a, b){
   const anRaw = (a.vehicleNumber || '').toString().trim();
   const bnRaw = (b.vehicleNumber || '').toString().trim();
@@ -404,7 +382,6 @@ function numSortAlg(a, b){
   const tA = normType(a.type);
   const tB = normType(b.type);
 
-  // особое правило для "-7" (как в твоём исходнике)
   const applyThirdRuleA = (tA === 'автобус' || tA === 'электробус');
   const applyThirdRuleB = (tB === 'автобус' || tB === 'электробус');
 
@@ -434,7 +411,6 @@ function normFactoryForSort(s){
   s = s.replace(/[АВСЕНКМОРТХУ]/g, ch => map[ch] || ch);
   return s;
 }
-
 function normDeliveryDateForSort(s){
   const m = String(s || '').trim().match(/^(\d{1,2})\.(\d{4})$/);
   if(!m) return '';
@@ -442,7 +418,7 @@ function normDeliveryDateForSort(s){
 }
 
 /* ---------------------------
-   ПАРКИ: нормализация для заголовков групп
+   ПАРКИ (для групп по парку)
    --------------------------- */
 function cleanParkRaw(s){
   return (s||'').toString().trim().toLowerCase()
@@ -529,24 +505,23 @@ function parkOrderIndex(k){
 }
 
 /* ---------------------------
-   “ЭФФЕКТИВНОЕ” НАПРАВЛЕНИЕ СОРТИРОВКИ
+   ЭФФЕКТИВНОЕ НАПРАВЛЕНИЕ СОРТИРОВКИ
    --------------------------- */
 function isSortDescEffective(){
-  // Дата (deliveryDate) — всегда по убыванию
+  // deliveryDate: всегда DESC
   if(sortF === 'deliveryDate') return true;
 
-  // Номер — только в NEW по возрастанию, в остальных вкладках как переключено (обычно desc)
+  // vehicleNumber: в NEW asc, иначе как переключено
   if(sortF === 'vehicleNumber') return (activeTab === '_new') ? false : sortDesc;
 
-  // Год — в NEW asc, во всех остальных вкладках всегда desc
+  // year: в NEW asc, иначе всегда desc
   if(sortF === 'year') return (activeTab === '_new') ? false : true;
 
-  // прочее — как переключено
   return sortDesc;
 }
 
 /* ---------------------------
-   ОБЩАЯ СОРТИРОВКА (generalSort)
+   GENERAL SORT
    --------------------------- */
 function generalSort(a, b){
   const effDesc = isSortDescEffective();
@@ -559,10 +534,10 @@ function generalSort(a, b){
   if(sortF === "deliveryDate"){
     const av = normDeliveryDateForSort(a.deliveryDate);
     const bv = normDeliveryDateForSort(b.deliveryDate);
-    if(av < bv) return effDesc ? 1 : -1;
-    if(av > bv) return effDesc ? -1 : 1;
+    if(av < bv) return 1;
+    if(av > bv) return -1;
     const r2 = numSortAlg(a, b);
-    return effDesc ? -r2 : r2;
+    return -r2;
   }
 
   if(sortF === "year"){
@@ -578,7 +553,6 @@ function generalSort(a, b){
       const r = ya - yb;
       return effDesc ? -r : r;
     }
-
     const rn = numSortAlg(a, b);
     return effDesc ? -rn : rn;
   }
@@ -588,12 +562,10 @@ function generalSort(a, b){
     const pb = parkKey(b.park);
     const ra = parkOrderIndex(pa);
     const rb = parkOrderIndex(pb);
-
     if(ra !== rb){
       const r = ra - rb;
       return effDesc ? -r : r;
     }
-
     const rn = numSortAlg(a, b);
     return effDesc ? -rn : rn;
   }
@@ -608,12 +580,6 @@ function generalSort(a, b){
   }
 
   if(sortF === "model"){
-    /*
-      СОРТИРОВКА ПО МОДЕЛИ:
-      - используем базовую модель (normalizeModelBase),
-      - сортируем по брендовому приоритету (МАЗ->БКМ->Неман->прочее),
-      - затем по алфавиту.
-    */
     const ma = normalizeModelBase(a.model);
     const mb = normalizeModelBase(b.model);
     const r = compareModelByBrand(ma, mb);
@@ -622,10 +588,8 @@ function generalSort(a, b){
     return effDesc ? -rn : rn;
   }
 
-  // default: обычная строковая сортировка + tie-break номером
   const av = (a[sortF]||'').toLowerCase();
   const bv = (b[sortF]||'').toLowerCase();
-
   if(av < bv) return effDesc ? 1 : -1;
   if(av > bv) return effDesc ? -1 : 1;
 
@@ -633,9 +597,9 @@ function generalSort(a, b){
   return effDesc ? -r2 : r2;
 }
 
-/* =========================
-   RENDER
-   ========================= */
+/* ---------------------------
+   RENDER HELPERS
+   --------------------------- */
 function escapeHTML(s){
   return String(s).replace(/[&<>"']/g, c => ({
     '&':'&amp;',
@@ -645,26 +609,18 @@ function escapeHTML(s){
     "'":'&#39;'
   }[c]));
 }
-
 function cell(x){
   const s = (x||'').toString().trim();
   return s ? escapeHTML(s) : '<span class="no">—</span>';
 }
-
 function normVehicleNumberForSearch(s){
   s = (s || '').toString().trim().toUpperCase();
   s = s.replace(/[\s\-]/g, '');
-  const map = {
-    'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У',
-    'I':'И','І':'И'
-  };
+  const map = {'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У','I':'И','І':'И'};
   s = s.replace(/[ABCEHKMOPTXYIІ]/g, ch => map[ch] || ch);
   return s;
 }
-
-function isMuted(v, key){
-  return !!(v && v.gray && typeof v.gray === 'object' && v.gray[key]);
-}
+function isMuted(v, key){ return !!(v && v.gray && typeof v.gray === 'object' && v.gray[key]); }
 function tdClass(v, key, baseClass=''){
   const c = [];
   if(baseClass) c.push(baseClass);
@@ -699,7 +655,6 @@ function setColumnVisibility(visibleKeys){
     if(fths[idx]) fths[idx].style.display = show ? '' : 'none';
   });
 }
-
 function computeVisibleCols(){
   const visible = [];
   for(const c of COLS){
@@ -733,6 +688,9 @@ function applyGroupRowAlternation(){
   }
 }
 
+/* ---------------------------
+   RENDER
+   --------------------------- */
 function render(){
   const colFilters = {};
   document.querySelectorAll('.colFilter').forEach(inp=>{
@@ -769,7 +727,6 @@ function render(){
           continue;
         }
 
-        // модель ищем по “сырой” строке (как в таблице)
         const hay = (v[col] || '').toString().toLowerCase();
         if(!hay.includes(needle)) return false;
       }
@@ -800,7 +757,6 @@ function render(){
   function groupRow(label){
     return `<tr class="groupRow"><td colspan="${visibleColsCount}">${escapeHTML(label)}</td></tr>`;
   }
-
   function dataRow(v){
     const tds = COLS
       .filter(c => visibleSet.has(c.key))
@@ -811,11 +767,9 @@ function render(){
 
   const rows = [];
 
-  // 1) Сортировка по номеру: добавляем группы по типам (Автобусы/Электробусы/...)
   if(sortF === 'vehicleNumber'){
     const order = ['автобус','электробус','троллейбус','туах','трамвай'];
     const labels = {'автобус':'Автобусы','электробус':'Электробусы','троллейбус':'Троллейбусы','туах':'ТУАХ','трамвай':'Трамваи'};
-
     for(const t of order){
       const arr = VIEW.filter(v => normType(v.type) === t);
       if(!arr.length) continue;
@@ -828,7 +782,6 @@ function render(){
       for(const v of other) rows.push(dataRow(v));
     }
   }
-  // 2) Сортировка по году: группируем по годам + правило направления уже в generalSort/isSortDescEffective
   else if(sortF === 'year'){
     const years = Array.from(new Set(VIEW.map(v => (v.year||'').toString().trim()).filter(Boolean)));
     years.sort((a,b)=>(parseInt(a,10)||0)-(parseInt(b,10)||0));
@@ -846,13 +799,12 @@ function render(){
       for(const v of emptyYear) rows.push(dataRow(v));
     }
   }
-  // 3) Сортировка по дате: всегда desc, группируем по месяцу
   else if(sortF === 'deliveryDate'){
     const byMonth = groupBy(VIEW, v => monthKeyFromDeliveryDate(v.deliveryDate) || '—');
     const months = Array.from(byMonth.keys()).sort((a,b)=>{
       if(a==='—' && b!=='—') return 1;
       if(a!=='—' && b==='—') return -1;
-      const na = (a==='—') ? '' : a.split('.').reverse().join(''); // YYYYMM
+      const na = (a==='—') ? '' : a.split('.').reverse().join('');
       const nb = (b==='—') ? '' : b.split('.').reverse().join('');
       if(na === nb) return 0;
       return (na < nb) ? 1 : -1; // desc
@@ -864,7 +816,6 @@ function render(){
       for(const v of arr) rows.push(dataRow(v));
     }
   }
-  // 4) Сортировка по парку: группы с полными названиями (Автобусный парк №5 и т.п.)
   else if(sortF === 'park'){
     const byPark = groupBy(VIEW, v => parkKey(v.park) || '');
     for(const pk of PARK_ORDER){
@@ -879,11 +830,9 @@ function render(){
       for(const v of other) rows.push(dataRow(v));
     }
   }
-  // 5) Сортировка по типу: группы по типам
   else if(sortF === 'type'){
     const order = ['автобус','электробус','троллейбус','туах','трамвай'];
     const labels = {'автобус':'Автобусы','электробус':'Электробусы','троллейбус':'Троллейбусы','туах':'ТУАХ','трамвай':'Трамваи'};
-
     for(const t of order){
       const arr = VIEW.filter(v => normType(v.type) === t);
       if(!arr.length) continue;
@@ -896,25 +845,18 @@ function render(){
       for(const v of other) rows.push(dataRow(v));
     }
   }
-  // 6) Сортировка по модели или заводскому:
-  //    группируем по типу -> по БАЗОВОЙ модели (МАЗ-103.465, МАЗ-103.062 => МАЗ-103)
   else if(sortF === 'model' || sortF === 'factoryNumber'){
     const order = ['автобус','электробус','троллейбус','туах','трамвай'];
     const labels = {'автобус':'Автобусы','электробус':'Электробусы','троллейбус':'Троллейбусы','туах':'ТУАХ','трамвай':'Трамваи'};
-
     for(const t of order){
       const tArr = VIEW.filter(v => normType(v.type) === t);
       if(!tArr.length) continue;
 
       rows.push(groupRow(`${labels[t]} (${tArr.length})`));
 
-      // ВАЖНО: ключ группировки — normalizeModelBase()
       const byModel = groupBy(tArr, v => normalizeModelBase(v.model) || '—');
-
-      // ВАЖНО: сортировка ключей групп — compareModelByBrand()
       const mkeys = Array.from(byModel.keys()).sort(compareModelByBrand);
 
-      // если пользователь включил обратную сортировку по модели — реверсим список групп
       if(isSortDescEffective() && sortF === 'model') mkeys.reverse();
 
       for(const mk of mkeys){
@@ -933,7 +875,7 @@ function render(){
 }
 
 /* ---------------------------
-   UI: клики по заголовкам сортировки
+   UI: клики по заголовкам
    --------------------------- */
 document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick = ()=>{
@@ -952,9 +894,7 @@ document.querySelectorAll('th[data-f]').forEach(th=>{
       }
     } else {
       sortF = f;
-
-      // “дефолт” направления при выборе нового столбца
-      if(f === 'deliveryDate') sortDesc = true;                 // всегда desc
+      if(f === 'deliveryDate') sortDesc = true;
       else if(f === 'year') sortDesc = (activeTab === '_new') ? false : true;
       else if(f === 'vehicleNumber') sortDesc = (activeTab === '_new') ? false : true;
       else sortDesc = false;
@@ -971,7 +911,7 @@ document.addEventListener('input', (e) => {
 });
 
 /* ---------------------------
-   загрузка JSON
+   Загрузка JSON
    --------------------------- */
 function showErr(msg){
   const e = document.getElementById('err');
@@ -983,7 +923,6 @@ function hideErr(){
   e.style.display = 'none';
   e.textContent = '';
 }
-
 function pickArray(j){
   if(Array.isArray(j)) return j;
   if(j && Array.isArray(j.vehicles)) return j.vehicles;
@@ -1021,10 +960,11 @@ async function loadJson(){
 
     computeNewMonthKey();
 
-    // старт: NEW + сортировка по номеру по возрастанию
+    // старт: NEW + приоритетная сортировка по дате desc
     activeTab = "_new";
-    sortF = "vehicleNumber";
-    sortDesc = false;
+    sortF = "deliveryDate";
+    sortDesc = true;
+    setActiveSortHeader();
 
     renderTabs();
     render();
