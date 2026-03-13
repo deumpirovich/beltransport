@@ -114,7 +114,6 @@
       font-weight: normal;
     }
 
-    /* group rows */
     .groupRow td{
       background:#f4f7fc; color:#1c3789; font-weight:700; text-align:center;
       border-top:1px solid #d9e2f7; border-bottom:1px solid #d9e2f7;
@@ -193,37 +192,26 @@
 
 <script>
 /*
-  Применены вводные "как в postavki":
+  SPISANIE с логикой "как в postavki":
 
-  1) При переключении вкладок приоритетная сортировка:
-     writeoffDate DESC (по месяцу вывода, убывание).
+  A) При переключении вкладок приоритетная сортировка:
+     writeoffDate DESC.
 
-  2) Сортировка/группировка по writeoffDate:
-     - месяцы (MM.YYYY) по убыванию
-     - внутри каждого месяца: подгруппы по типу
-       Автобусы / Электробусы / Троллейбусы / ТУАХ / Трамваи
-     - внутри каждой подгруппы: сортировка по номеру ASC
-     - пустые подгруппы не показываются
+  B) sortF=writeoffDate:
+     месяц DESC -> внутри месяца типы -> внутри типа номера ASC.
 
-  3) Сортировка по vehicleNumber:
-     - в табе NEW сортировка по номеру ASC, в остальных — как переключено (обычно DESC)
-     - группировка по типам (Автобусы/Электробусы/...)
+  C) sortF=vehicleNumber:
+     группировка по типам.
+     направление: NEW -> ASC, остальные -> как переключено.
 
-  4) Сортировка по year:
-     - в табе NEW сортировка по году ASC, в остальных табах ALWAYS DESC
-     - группировка по годам
+  D) sortF=year:
+     ТВОЯ ПРАВКА: всегда ASC (во всех вкладках).
 
-  5) Сортировка по park:
-     - нормализация парков и заголовки групп полными названиями (Автобусный парк №5 ...)
+  E) sortF=park:
+     группировка по нормализованным паркам + полные названия в заголовках.
 
-  6) Сортировка по model / factoryNumber:
-     - группировка по типу -> по БАЗОВОЙ модели
-       (МАЗ-103.465, МАЗ-103.062 => МАЗ-103 и т.п.)
-     - сортировка моделей с приоритетом бренда:
-       МАЗ, затем БКМ, затем Неман, затем прочее по алфавиту
-
-  7) Сортировку по garageNumber и note “специально” не делаем (можно кликать, но без усложнений;
-     garageNumber помечен как cursor:default — как в postavki).
+  F) sortF=model / factoryNumber:
+     тип -> базовая модель (схлопываем ".числа"), порядок брендов: МАЗ, БКМ, Неман, прочее.
 */
 
 const JSON_URL = './spisanie.json';
@@ -240,7 +228,29 @@ let newMonthKey = '';
 let hasCurrentMonth = false;
 
 /* ---------------------------
-   helpers: dates
+   sticky metrics
+   --------------------------- */
+function updateStickyMetrics(){
+  const wrap = document.getElementById('tableWrap');
+  const stickyTop = document.getElementById('stickyTop');
+  if(wrap && stickyTop && wrap.style.overflowY !== 'visible'){
+    const topH = Math.max(0, Math.round(stickyTop.getBoundingClientRect().height));
+    wrap.style.maxHeight = `calc(100vh - ${topH + 25}px)`;
+  }
+
+  const headRow = document.getElementById('headRow');
+  if(headRow){
+    const h = Math.max(0, Math.ceil(headRow.getBoundingClientRect().height));
+    document.documentElement.style.setProperty('--filtersTop', h + 'px');
+  }
+}
+window.addEventListener('resize', ()=> {
+  updateStickyMetrics();
+  requestAnimationFrame(applyMeasuredColumnWidths);
+});
+
+/* ---------------------------
+   date helpers
    --------------------------- */
 function pad2(n){ return String(n).padStart(2,'0'); }
 
@@ -284,29 +294,7 @@ function computeNewMonthKey(){
 }
 
 /* ---------------------------
-   sticky metrics (как было в spisanie)
-   --------------------------- */
-function updateStickyMetrics(){
-  const wrap = document.getElementById('tableWrap');
-  const stickyTop = document.getElementById('stickyTop');
-  if(wrap && stickyTop && wrap.style.overflowY !== 'visible'){
-    const topH = Math.max(0, Math.round(stickyTop.getBoundingClientRect().height));
-    wrap.style.maxHeight = `calc(100vh - ${topH + 25}px)`;
-  }
-
-  const headRow = document.getElementById('headRow');
-  if(headRow){
-    const h = Math.max(0, Math.ceil(headRow.getBoundingClientRect().height));
-    document.documentElement.style.setProperty('--filtersTop', h + 'px');
-  }
-}
-window.addEventListener('resize', ()=> {
-  updateStickyMetrics();
-  requestAnimationFrame(applyMeasuredColumnWidths);
-});
-
-/* ---------------------------
-   types (with ТУАХ)
+   types
    --------------------------- */
 function normType(t){
   t = (t||'').toString().trim().toLowerCase();
@@ -326,7 +314,7 @@ const TYPE_ORDER = ['автобус','электробус','троллейбу�
 const TYPE_LABELS_PL = {'автобус':'Автобусы','электробус':'Электробусы','троллейбус':'Троллейбусы','туах':'ТУАХ','трамвай':'Трамваи'};
 
 /* ---------------------------
-   tabs (как в spisanie)
+   tabs
    --------------------------- */
 const TAB_ORDER = [
   {key:'_new', label:'NEW'},
@@ -378,7 +366,7 @@ function renderTabs(){
       activeTab = el.getAttribute('data-tab');
       renderTabs();
 
-      // Приоритетная сортировка при переключении вкладок: дата вывода DESC
+      // Приоритетная сортировка при переключении вкладок: writeoffDate DESC
       sortF = 'writeoffDate';
       sortDesc = true;
       setActiveSortHeader();
@@ -389,7 +377,7 @@ function renderTabs(){
 }
 
 /* ---------------------------
-   MODEL normalization + brand order (как в postavki)
+   Model: base + brand order
    --------------------------- */
 function brandOrderKeyFromModel(model){
   const m = (model||'').toString().toLowerCase();
@@ -414,13 +402,13 @@ function normalizeModelRaw(s){
 function normalizeModelBase(s){
   let m = normalizeModelRaw(s);
   if(!m) return '';
-  m = m.replace(/(\d)\.(\d+)\b/g, '$1'); // 103.465 -> 103
+  m = m.replace(/(\d)\.(\d+)\b/g, '$1');
   m = m.replace(/--+/g,'-').trim();
   return m;
 }
 
 /* ---------------------------
-   PARK normalization (full labels in group headers)
+   Park normalization for grouping
    --------------------------- */
 function cleanParkRaw(s){
   return (s||'').toString().trim().toLowerCase()
@@ -507,13 +495,10 @@ function parkOrderIndex(k){
 }
 
 /* ---------------------------
-   sorting utils (license plates etc.) — из твоего spisanie
+   plate normalization + sorting (из spisanie)
    --------------------------- */
 function canonToRU(ch){
-  const map = {
-    'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У',
-    'I':'И','І':'И'
-  };
+  const map = {'A':'А','B':'В','C':'С','E':'Е','H':'Н','K':'К','M':'М','O':'О','P':'Р','T':'Т','X':'Х','Y':'У','I':'И','І':'И'};
   const u = (ch||'').toString().toUpperCase();
   return map[u] || u;
 }
@@ -562,13 +547,11 @@ function busPriorityKey(plateRU){
 
   return {w: 9999, d: (n4 ?? 9999)};
 }
-
 function comparePlateRU(aRU, bRU){
   if(aRU < bRU) return -1;
   if(aRU > bRU) return 1;
   return 0;
 }
-
 function numSortAlgByField(a, b, field){
   const aRaw = (a[field] || '').toString().trim();
   const bRaw = (b[field] || '').toString().trim();
@@ -604,14 +587,15 @@ function numSortAlgByField(a, b, field){
 function numSortAlg(a, b){ return numSortAlgByField(a, b, 'vehicleNumber'); }
 function exNumSortAlg(a, b){ return numSortAlgByField(a, b, 'exNumber'); }
 
-/* writeoffDate: YYYYMM for sort */
 function normWriteoffDateForSort(s){
   const m = String(s || '').trim().match(/^(\d{1,2})\.(\d{4})$/);
   if(!m) return '';
   return m[2] + pad2(m[1]);
 }
 
-/* factory numbers latinized compare (from spisanie) */
+/* ---------------------------
+   factory compare (из spisanie)
+   --------------------------- */
 function canonToLAT(ch){
   const map = {
     'А':'A','В':'B','С':'C','Е':'E','Н':'H','К':'K','М':'M','О':'O','Р':'P','Т':'T','Х':'X','У':'Y','І':'I','И':'I',
@@ -682,24 +666,23 @@ function compareFactory(a, b){
 }
 
 /* ---------------------------
-   effective sort direction (postavki rules)
+   effective sort direction
    --------------------------- */
 function isSortDescEffective(){
-  // writeoffDate: всегда DESC
+  // writeoffDate always DESC
   if(sortF === 'writeoffDate') return true;
 
-  // vehicleNumber: NEW asc, else as toggled
+  // vehicleNumber: NEW asc, else toggled
   if(sortF === 'vehicleNumber') return (activeTab === '_new') ? false : sortDesc;
 
-  // year: NEW asc, else always DESC
-  if(sortF === 'year') return (activeTab === '_new') ? false : true;
+  // year: ТВОЯ ПРАВКА — всегда ASC
+  if(sortF === 'year') return false;
 
   return sortDesc;
 }
 
 /* ---------------------------
-   generalSort:
-   NOTE: for writeoffDate we sort only by month desc (ties handled in render)
+   generalSort
    --------------------------- */
 function generalSort(a, b){
   const effDesc = isSortDescEffective();
@@ -719,7 +702,6 @@ function generalSort(a, b){
     const bv = normWriteoffDateForSort(b.writeoffDate);
     if(av < bv) return 1;
     if(av > bv) return -1;
-    // tie-break not needed here (render will sort inside groups by number ASC)
     return 0;
   }
 
@@ -760,28 +742,24 @@ function generalSort(a, b){
 
     if(aEmpty && !bEmpty) return 1;
     if(!aEmpty && bEmpty) return -1;
-    if(!aEmpty && !bEmpty && ya !== yb){
-      const r = ya - yb;
-      return effDesc ? -r : r;
-    }
-    const rn = numSortAlg(a, b);
-    return effDesc ? -rn : rn;
+
+    if(!aEmpty && !bEmpty && ya !== yb) return ya - yb;
+
+    // tie-break: номер ASC (логично для year ASC)
+    return numSortAlg(a, b);
   }
 
-  // fallback string sort
   const av = (a[sortF]||'').toString().toLowerCase();
   const bv = (b[sortF]||'').toString().toLowerCase();
-
   if(av < bv) return effDesc ? 1 : -1;
   if(av > bv) return effDesc ? -1 : 1;
-
   const r2 = numSortAlg(a, b);
   return effDesc ? -r2 : r2;
 }
 
-/* =========================
-   render utilities (mostly from spisanie)
-   ========================= */
+/* ---------------------------
+   render utils
+   --------------------------- */
 function escapeHTML(s){
   return String(s).replace(/[&<>"']/g, c => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
@@ -799,9 +777,7 @@ function normVehicleNumberForSearch(s){
   s = s.replace(/[A-ZА-ЯІ]/g, ch => canonToRU(ch));
   return s;
 }
-function isMuted(v, key){
-  return !!(v && v.gray && typeof v.gray === 'object' && v.gray[key]);
-}
+function isMuted(v, key){ return !!(v && v.gray && typeof v.gray === 'object' && v.gray[key]); }
 function tdClass(v, key, baseClass=''){
   const c = [];
   if(baseClass) c.push(baseClass);
@@ -822,18 +798,14 @@ const COLS = [
   {key:'writeoffDate', label:'Дата вывода'},
   {key:'note', label:'Примечание', wrap:true}
 ];
-
 function isEmptyByKey(v, key){
   if(key === 'type') return !normType(v.type);
   return !cellText(v[key]);
 }
-
 function setColumnVisibility(visibleKeys){
   const keys = new Set(visibleKeys);
-
   const thRow = document.getElementById('headRow');
   const filterRow = document.getElementById('filterRow');
-
   const ths = Array.from(thRow.children);
   const fths = Array.from(filterRow.children);
 
@@ -843,7 +815,6 @@ function setColumnVisibility(visibleKeys){
     if(fths[idx]) fths[idx].style.display = show ? '' : 'none';
   });
 }
-
 function computeVisibleCols(){
   const visible = [];
   for(const c of COLS){
@@ -852,13 +823,11 @@ function computeVisibleCols(){
   }
   return visible;
 }
-
 function textWidthPx(txt){
   const box = document.getElementById('measureBox');
   box.textContent = txt || '';
   return Math.ceil(box.getBoundingClientRect().width);
 }
-
 function applyMeasuredColumnWidths(){
   const thRow = document.getElementById('headRow');
   const filterRow = document.getElementById('filterRow');
@@ -915,14 +884,11 @@ function applyMeasuredColumnWidths(){
     colgroup.appendChild(colEl);
   }
 }
-
 function updateVerticalScrollMode(){
   const wrap = document.getElementById('tableWrap');
   if(!wrap) return;
 
-  const needWrapBySpace =
-    VIEW.some(v => hasSpace(v.note) || hasSpace(v.vehicleNumber));
-
+  const needWrapBySpace = VIEW.some(v => hasSpace(v.note) || hasSpace(v.vehicleNumber));
   if(needWrapBySpace){
     wrap.style.overflowY = 'auto';
     updateStickyMetrics();
@@ -932,7 +898,7 @@ function updateVerticalScrollMode(){
   }
 }
 
-/* grouping helpers */
+/* group helpers */
 function groupBy(items, keyFn){
   const m=new Map();
   for(const v of items){
@@ -956,9 +922,9 @@ function applyGroupRowAlternation(){
   }
 }
 
-/* =========================
+/* ---------------------------
    render
-   ========================= */
+   --------------------------- */
 function render(){
   const colFilters = {};
   document.querySelectorAll('.colFilter').forEach(inp=>{
@@ -969,7 +935,6 @@ function render(){
 
   VIEW = DATA
     .filter(v=>{
-      // tab filtering
       if(activeTab === '_new'){
         if(!newMonthKey) return false;
         const mk = monthKeyFromWriteoffDate(v.writeoffDate);
@@ -979,13 +944,11 @@ function render(){
         if(normType(v.type) !== activeTab) return false;
       }
 
-      // column filters
       for(const [col, rawNeedle] of Object.entries(colFilters)){
         const needle = rawNeedle.toString().toLowerCase();
 
         if(col === 'type'){
-          const hay = typeLabel(v.type).toLowerCase();
-          if(!hay.includes(needle)) return false;
+          if(!typeLabel(v.type).toLowerCase().includes(needle)) return false;
           continue;
         }
 
@@ -1039,28 +1002,22 @@ function render(){
     const fac = cellText(v.factoryNumber);
 
     const cells = [];
-
     if(visibleSet.has('type')) cells.push(`<td${tdClass(v,'type')}>${escapeHTML(typeLabel(v.type))}</td>`);
     if(visibleSet.has('model')) cells.push(`<td${tdClass(v,'model')}>${cellHTML(v.model)}</td>`);
     if(visibleSet.has('year')) cells.push(`<td${tdClass(v,'year')}>${cellHTML(v.year)}</td>`);
     if(visibleSet.has('park')) cells.push(`<td${tdClass(v,'park')}>${cellHTML(v.park)}</td>`);
-
     if(visibleSet.has('vehicleNumber')) cells.push(`<td${tdClass(v,'vehicleNumber','num wrapNum')} title="${escapeHTML(num)}">${cellHTML(num)}</td>`);
     if(visibleSet.has('exNumber')) cells.push(`<td${tdClass(v,'exNumber')} title="${escapeHTML(exn)}">${cellHTML(exn)}</td>`);
-
     if(visibleSet.has('garageNumber')) cells.push(`<td${tdClass(v,'garageNumber')} title="${escapeHTML(gar)}">${cellHTML(gar)}</td>`);
     if(visibleSet.has('factoryNumber')) cells.push(`<td${tdClass(v,'factoryNumber')} title="${escapeHTML(fac)}">${cellHTML(fac)}</td>`);
-
     if(visibleSet.has('writeoffDate')) cells.push(`<td${tdClass(v,'writeoffDate')} title="${escapeHTML(v.writeoffDate||'')}">${cellHTML(v.writeoffDate)}</td>`);
     if(visibleSet.has('note')) cells.push(`<td${tdClass(v,'note','wrapNote')}>${cellHTML(v.note)}</td>`);
-
     return `<tr class="dataRow">${cells.join('')}</tr>`;
   }
 
   const rows = [];
 
   if(sortF === 'writeoffDate'){
-    // месяцы desc + внутри месяца группы по типу + внутри типа номера ASC
     const byMonth = groupBy(VIEW, v => monthKeyFromWriteoffDate(v.writeoffDate) || '—');
 
     const months = Array.from(byMonth.keys()).sort((a,b)=>{
@@ -1082,7 +1039,7 @@ function render(){
         const arrT = monthArr.filter(v => normType(v.type) === t);
         if(!arrT.length) continue;
 
-        arrT.sort(numSortAlg); // ASC
+        arrT.sort(numSortAlg); // ASC inside subgroup
         rows.push(groupRow(`${TYPE_LABELS_PL[t]} (${arrT.length})`));
         for(const v of arrT) rows.push(dataRow(v));
       }
@@ -1110,8 +1067,7 @@ function render(){
   }
   else if(sortF === 'year'){
     const years = Array.from(new Set(VIEW.map(v => (v.year||'').toString().trim()).filter(Boolean)));
-    years.sort((a,b)=>(parseInt(a,10)||0)-(parseInt(b,10)||0));
-    if(isSortDescEffective()) years.reverse();
+    years.sort((a,b)=>(parseInt(a,10)||0)-(parseInt(b,10)||0)); // ALWAYS ASC
 
     for(const y of years){
       const arr = VIEW.filter(v => (v.year||'').toString().trim() === y);
@@ -1194,23 +1150,23 @@ document.querySelectorAll('th[data-f]').forEach(th=>{
   th.onclick = ()=>{
     const f = th.getAttribute('data-f');
 
-    // "сортировку по гаражному и примечанию можно не делать" — как минимум отключим garageNumber
+    // сортировку по гаражному можно не делать
     if(f === 'garageNumber') return;
 
     document.querySelectorAll('th[data-f]').forEach(t=>t.classList.remove('active'));
     th.classList.add('active');
 
     if(sortF === f){
-      // writeoffDate всегда desc — не переключаем
-      if(f !== 'writeoffDate'){
+      if(f !== 'writeoffDate' && f !== 'year'){
         sortDesc = !sortDesc;
       }
+      // writeoffDate: always DESC (toggle disabled)
+      // year: always ASC (toggle disabled)
     } else {
       sortF = f;
 
-      // default direction
-      if(f === 'writeoffDate') sortDesc = true;                 // always desc
-      else if(f === 'year') sortDesc = (activeTab === '_new') ? false : true;
+      if(f === 'writeoffDate') sortDesc = true;
+      else if(f === 'year') sortDesc = false; // always ASC
       else if(f === 'vehicleNumber') sortDesc = (activeTab === '_new') ? false : true;
       else sortDesc = false;
     }
@@ -1276,7 +1232,6 @@ async function loadJson(){
 
     computeNewMonthKey();
 
-    // старт: NEW + writeoffDate desc
     activeTab = "_new";
     sortF = "writeoffDate";
     sortDesc = true;
