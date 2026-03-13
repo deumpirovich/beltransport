@@ -116,6 +116,14 @@
       font-weight: normal;
     }
 
+    /* group rows */
+    .groupRow td{
+      background:#f4f7fc; color:#1c3789; font-weight:700; text-align:center;
+      border-top:1px solid #d9e2f7; border-bottom:1px solid #d9e2f7;
+      height:30px;
+    }
+    .groupRow.alt td{ background:#eaf0fb; }
+
     #measureBox{
       position: absolute;
       left: -99999px;
@@ -262,15 +270,103 @@ function normType(t){ return (t||'').toString().trim().toLowerCase(); }
 function typeLabel(t){
   t = normType(t);
   if(t === 'автобус') return 'Автобус';
-  if(t === 'троллейбус') return 'Троллейбус';
-  if(t === 'трамвай') return 'Трамвай';
   if(t === 'электробус') return 'Электробус';
+  if(t === 'троллейбус') return 'Троллейбус';
+  if(t === 'туах') return 'ТУАХ';
+  if(t === 'трамвай') return 'Трамвай';
   return t ? (t[0].toUpperCase()+t.slice(1)) : '—';
 }
-const TYPE_ORDER = {'автобус': 0, 'троллейбус': 1, 'трамвай': 2, 'электробус': 3};
+
+// порядок: автобусы / электробусы / троллейбусы / ТУАХ / трамваи
+const TYPE_ORDER = {'автобус': 0, 'электробус': 1, 'троллейбус': 2, 'туах': 3, 'трамвай': 4};
 function typeWeight(t){
   t = normType(t);
   return Object.prototype.hasOwnProperty.call(TYPE_ORDER, t) ? TYPE_ORDER[t] : 999;
+}
+
+/* park normalization (for grouping by park) */
+function cleanParkRaw(s){
+  return (s||'').toString().trim().toLowerCase()
+    .replace(/[()]/g,'')
+    .replace(/[–—−]/g,'-')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+function parkKey(s){
+  const src=cleanParkRaw(s);
+  if(!src) return '';
+  const raw=src.replace(/[.\s\-]/g,'').replace(/№/g,'').replace(/номер/g,'').trim();
+
+  const mAP=raw.match(/^(ап)(\d)$/);
+  if(mAP){
+    const n=mAP[2];
+    if(n==='5') return 'автобусныйпарк5';
+    if(n==='6') return 'автобусныйпарк6';
+    if(n==='7') return 'автобусныйпарк7';
+  }
+
+  const mTP=raw.match(/^(тп)(\d)$/);
+  if(mTP){
+    const n=mTP[2];
+    if(n==='1') return 'транспортныйпарк1';
+    if(n==='2') return 'транспортныйпарк2';
+    if(n==='4') return 'транспортныйпарк4';
+    if(n==='3') return 'троллейбусныйпарк3';
+    if(n==='5') return 'троллейбусныйпарк5';
+  }
+
+  const mLong = src.match(/(автобусный|транспортный|троллейбусный)\s*парк.*?(\d)/i);
+  if(mLong){
+    const kind = mLong[1].toLowerCase();
+    const n = mLong[2];
+    if(kind==='автобусный'){
+      if(n==='5') return 'автобусныйпарк5';
+      if(n==='6') return 'автобусныйпарк6';
+      if(n==='7') return 'автобусныйпарк7';
+    }
+    if(kind==='транспортный'){
+      if(n==='1') return 'транспортныйпарк1';
+      if(n==='2') return 'транспортныйпарк2';
+      if(n==='4') return 'транспортныйпарк4';
+    }
+    if(kind==='троллейбусный'){
+      if(n==='3') return 'троллейбусныйпарк3';
+      if(n==='5') return 'троллейбусныйпарк5';
+    }
+  }
+
+  if(raw.includes('трамп')) return 'трамвайныйпарк';
+  if(raw.includes('трамвайныйпарк')) return 'трамвайныйпарк';
+  if(src.includes('трамвайный парк')) return 'трамвайныйпарк';
+
+  return raw;
+}
+function parkFullLabelFromKey(k){
+  if(k==='автобусныйпарк5') return 'Автобусный парк №5';
+  if(k==='автобусныйпарк6') return 'Автобусный парк №6';
+  if(k==='автобусныйпарк7') return 'Автобусный парк №7';
+  if(k==='транспортныйпарк1') return 'Транспортный парк №1';
+  if(k==='транспортныйпарк2') return 'Транспортный парк №2';
+  if(k==='транспортныйпарк4') return 'Транспортный парк №4';
+  if(k==='троллейбусныйпарк3') return 'Троллейбусный парк №3';
+  if(k==='троллейбусныйпарк5') return 'Троллейбусный парк №5';
+  if(k==='трамвайныйпарк') return 'Трамвайный парк';
+  return k||'—';
+}
+const PARK_ORDER = [
+  'автобусныйпарк5',
+  'автобусныйпарк6',
+  'автобусныйпарк7',
+  'транспортныйпарк1',
+  'транспортныйпарк2',
+  'троллейбусныйпарк3',
+  'транспортныйпарк4',
+  'троллейбусныйпарк5',
+  'трамвайныйпарк'
+];
+function parkOrderIndex(k){
+  const i = PARK_ORDER.indexOf(k);
+  return i === -1 ? 999 : i;
 }
 
 const TAB_ORDER = [
@@ -506,14 +602,17 @@ function compareFactory(a, b){
 }
 
 function basePriorityCompare(a, b){
+  // 1) месяц списания по убыванию
   const ad = normWriteoffDateForSort(a.writeoffDate);
   const bd = normWriteoffDateForSort(b.writeoffDate);
   if(ad !== bd) return (ad < bd) ? 1 : -1;
 
+  // 2) тип: автобус / электробус / троллейбус / туах / трамвай
   const at = typeWeight(a.type);
   const bt = typeWeight(b.type);
   if(at !== bt) return at - bt;
 
+  // 3) номер по возрастанию
   return numSortAlg(a, b);
 }
 
@@ -553,7 +652,7 @@ function generalSort(a, b){
   return basePriorityCompare(a, b);
 }
 
-/* ===== дальше код без изменений ===== */
+/* ===== дальше код без изменений (кроме render) ===== */
 function escapeHTML(s){
   return String(s).replace(/[&<>"']/g, c => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
@@ -703,6 +802,30 @@ function updateVerticalScrollMode(){
   }
 }
 
+/* grouping helpers */
+function groupBy(items, keyFn){
+  const m=new Map();
+  for(const v of items){
+    const k=keyFn(v);
+    if(!m.has(k)) m.set(k,[]);
+    m.get(k).push(v);
+  }
+  return m;
+}
+function applyGroupRowAlternation(){
+  const tbody = document.getElementById('data');
+  const groupRows = Array.from(tbody.querySelectorAll('tr.groupRow'));
+  let run = 0;
+  for(let i=0;i<groupRows.length;i++){
+    const cur = groupRows[i];
+    const prev = groupRows[i-1];
+    const consecutive = prev && prev.classList.contains('groupRow') && prev.nextElementSibling === cur;
+    if(consecutive) run += 1;
+    else run = 0;
+    cur.classList.toggle('alt', (run % 2) === 0);
+  }
+}
+
 function render(){
   const colFilters = {};
   document.querySelectorAll('.colFilter').forEach(inp=>{
@@ -768,8 +891,13 @@ function render(){
   const visibleCols = computeVisibleCols();
   setColumnVisibility(visibleCols);
   const visibleSet = new Set(visibleCols);
+  const visibleColsCount = visibleCols.length;
 
-  tbody.innerHTML = VIEW.map(v=>{
+  function groupRow(label){
+    return `<tr class="groupRow"><td colspan="${visibleColsCount}">${escapeHTML(label)}</td></tr>`;
+  }
+
+  function dataRow(v){
     const num = cellText(v.vehicleNumber);
     const exn = cellText(v.exNumber);
     const gar = cellText(v.garageNumber);
@@ -790,11 +918,109 @@ function render(){
     if(visibleSet.has('writeoffDate')) cells.push(`<td${tdClass(v,'writeoffDate')} title="${escapeHTML(v.writeoffDate||'')}">${cellHTML(v.writeoffDate)}</td>`);
     if(visibleSet.has('note')) cells.push(`<td${tdClass(v,'note','wrapNote')}>${cellHTML(v.note)}</td>`);
 
-    return `<tr>${cells.join('')}</tr>`;
-  }).join('');
+    return `<tr class="dataRow">${cells.join('')}</tr>`;
+  }
+
+  const rows = [];
+
+  if(sortF === 'writeoffDate'){
+    const byMonth = groupBy(VIEW, v => monthKeyFromWriteoffDate(v.writeoffDate) || '—');
+
+    const months = Array.from(byMonth.keys()).sort((a,b)=>{
+      if(a==='—' && b!=='—') return 1;
+      if(a!=='—' && b==='—') return -1;
+      const na = (a==='—') ? '' : a.split('.').reverse().join(''); // YYYYMM
+      const nb = (b==='—') ? '' : b.split('.').reverse().join('');
+      if(na === nb) return 0;
+      return (na < nb) ? 1 : -1; // desc
+    });
+    if(!sortDesc){ months.reverse(); }
+
+    for(const mk of months){
+      const arr = byMonth.get(mk) || [];
+      rows.push(groupRow(`${mk} (${arr.length})`));
+      for(const v of arr) rows.push(dataRow(v));
+    }
+  }
+  else if(sortF === 'park'){
+    const byPark = groupBy(VIEW, v => parkKey(v.park) || '');
+    for(const pk of PARK_ORDER){
+      const arr = byPark.get(pk) || [];
+      if(!arr.length) continue;
+      rows.push(groupRow(`${parkFullLabelFromKey(pk)} (${arr.length})`));
+      for(const v of arr) rows.push(dataRow(v));
+    }
+    const other = VIEW.filter(v => parkOrderIndex(parkKey(v.park)) === 999);
+    if(other.length){
+      rows.push(groupRow(`Прочее (${other.length})`));
+      for(const v of other) rows.push(dataRow(v));
+    }
+  }
+  else if(sortF === 'type'){
+    const order = ['автобус','электробус','троллейбус','туах','трамвай'];
+    const labels = {'автобус':'Автобусы','электробус':'Электробусы','троллейбус':'Троллейбусы','туах':'ТУАХ','трамвай':'Трамваи'};
+
+    for(const t of order){
+      const arr = VIEW.filter(v => normType(v.type) === t);
+      if(!arr.length) continue;
+      rows.push(groupRow(`${labels[t]} (${arr.length})`));
+      for(const v of arr) rows.push(dataRow(v));
+    }
+    const other = VIEW.filter(v => !order.includes(normType(v.type)));
+    if(other.length){
+      rows.push(groupRow(`Другое (${other.length})`));
+      for(const v of other) rows.push(dataRow(v));
+    }
+  }
+  else if(sortF === 'model'){
+    const order = ['автобус','электробус','троллейбус','туах','трамвай'];
+    const labels = {'автобус':'Автобусы','электробус':'Электробусы','троллейбус':'Троллейбусы','туах':'ТУАХ','трамвай':'Трамваи'};
+
+    for(const t of order){
+      const tArr = VIEW.filter(v => normType(v.type) === t);
+      if(!tArr.length) continue;
+
+      rows.push(groupRow(`${labels[t]} (${tArr.length})`));
+
+      const byModel = groupBy(tArr, v => (v.model||'').toString().trim() || '—');
+      const mkeys = Array.from(byModel.keys()).sort((a,b)=>a.localeCompare(b,'ru'));
+      if(sortDesc) mkeys.reverse();
+
+      for(const mk of mkeys){
+        const arr = byModel.get(mk) || [];
+        rows.push(groupRow(`${mk} (${arr.length})`));
+        for(const v of arr) rows.push(dataRow(v));
+      }
+    }
+  }
+  else if(sortF === 'factoryNumber'){
+    const order = ['автобус','электробус','троллейбус','туах','трамвай'];
+    const labels = {'автобус':'Автобусы','электробус':'Электробусы','троллейбус':'Троллейбусы','туах':'ТУАХ','трамвай':'Трамваи'};
+
+    for(const t of order){
+      const tArr = VIEW.filter(v => normType(v.type) === t);
+      if(!tArr.length) continue;
+
+      rows.push(groupRow(`${labels[t]} (${tArr.length})`));
+
+      const byModel = groupBy(tArr, v => (v.model||'').toString().trim() || '—');
+      const mkeys = Array.from(byModel.keys()).sort((a,b)=>a.localeCompare(b,'ru'));
+
+      for(const mk of mkeys){
+        const arr = byModel.get(mk) || [];
+        rows.push(groupRow(`${mk} (${arr.length})`));
+        for(const v of arr) rows.push(dataRow(v));
+      }
+    }
+  }
+  else {
+    for(const v of VIEW) rows.push(dataRow(v));
+  }
+
+  tbody.innerHTML = rows.join('');
+  applyGroupRowAlternation();
 
   updateVerticalScrollMode();
-
   requestAnimationFrame(()=> {
     updateStickyMetrics();
     applyMeasuredColumnWidths();
