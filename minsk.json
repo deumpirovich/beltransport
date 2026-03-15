@@ -1,5 +1,5 @@
 {
-  "updatedAt": "12.03.2026 18:48",
+  "updatedAt": "15.03.2026 18:47",
   "vehicles": [
     {
       "type": "Автобус",
@@ -17972,7 +17972,7 @@
       "model": "МАЗ-203Т (у/п)",
       "park": "ТП3",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0001269",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
@@ -17984,7 +17984,7 @@
       "model": "МАЗ-203Т (у/п)",
       "park": "ТП3",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0001270",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
