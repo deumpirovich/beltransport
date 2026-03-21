@@ -1,5 +1,5 @@
 {
-  "updatedAt": "20.03.2026 12:20",
+  "updatedAt": "21.03.2026 10:20",
   "vehicles": [
     {
       "type": "Автобус",
@@ -15804,7 +15804,7 @@
       "livery": "салатовый",
       "noteHtml": "⇐ 2212",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
