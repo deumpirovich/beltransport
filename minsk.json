@@ -1,5 +1,5 @@
 {
-  "updatedAt": "24.03.2026 10:58",
+  "updatedAt": "25.03.2026 16:20",
   "vehicles": [
     {
       "type": "Автобус",
@@ -3045,7 +3045,7 @@
       "park": "АП5",
       "garageNumber": "25488",
       "factoryNumber": "",
-      "livery": "жёлтый / 80 лет Великой Победы",
+      "livery": "жёлтый",
       "noteHtml": "",
       "gray": {}
     },
@@ -10089,7 +10089,7 @@
       "park": "АП7",
       "garageNumber": "24015",
       "factoryNumber": "",
-      "livery": "жёлтый / 80 лет Великой Победы",
+      "livery": "жёлтый",
       "noteHtml": "",
       "gray": {}
     },
@@ -10353,7 +10353,7 @@
       "park": "АП7",
       "garageNumber": "24104",
       "factoryNumber": "",
-      "livery": "жёлтый / 80 лет Великой Победы",
+      "livery": "жёлтый",
       "noteHtml": "",
       "gray": {}
     },
@@ -25667,7 +25667,7 @@
       "park": "ТрамП",
       "garageNumber": "",
       "factoryNumber": "0157",
-      "livery": "бирюзовый / 80 лет Великой Победы",
+      "livery": "бирюзовый",
       "noteHtml": "",
       "gray": {}
     },
