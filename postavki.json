@@ -1,6 +1,18 @@
 {
-  "updatedAt": "21.03.2026 14:29",
+  "updatedAt": "27.03.2026 10:38",
   "vehicles": [
+    {
+      "type": "Автобус",
+      "model": "МАЗ-350.047",
+      "year": "2026",
+      "deliveryDate": "03.2026",
+      "park": "АП5",
+      "licensePlate": "ВВ0501-7",
+      "factoryNumber": "",
+      "garageNumber": "62782",
+      "color": "бордовый",
+      "gray": {}
+    },
     {
       "type": "ТУАХ",
       "model": "МАЗ-203Т70 (у/п)",
