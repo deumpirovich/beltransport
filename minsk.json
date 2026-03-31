@@ -1,6 +1,18 @@
 {
-  "updatedAt": "27.03.2026 10:45",
+  "updatedAt": "31.03.2026 22:29",
   "vehicles": [
+    {
+      "type": "Автобус",
+      "vehicleNumber": "",
+      "year": "2026",
+      "model": "МАЗ-350",
+      "park": "АП5",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "бордовый",
+      "noteHtml": "",
+      "gray": {}
+    },
     {
       "type": "Автобус",
       "vehicleNumber": "ВВ0501-7",
@@ -6572,18 +6584,6 @@
       "model": "МАЗ-105",
       "park": "АП6",
       "garageNumber": "23388",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АЕ3561-7",
-      "year": "2008",
-      "model": "МАЗ-105",
-      "park": "АП6",
-      "garageNumber": "23434",
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
