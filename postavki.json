@@ -1,6 +1,18 @@
 {
-  "updatedAt": "27.03.2026 10:38",
+  "updatedAt": "31.03.2026 22:26",
   "vehicles": [
+    {
+      "type": "Автобус",
+      "model": "МАЗ-350.047",
+      "year": "2026",
+      "deliveryDate": "03.2026",
+      "park": "АП5",
+      "licensePlate": "",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "бордовый",
+      "gray": {}
+    },
     {
       "type": "Автобус",
       "model": "МАЗ-350.047",
