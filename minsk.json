@@ -1,5 +1,5 @@
 {
-  "updatedAt": "31.03.2026 22:29",
+  "updatedAt": "01.04.2026 11:29",
   "vehicles": [
     {
       "type": "Автобус",
@@ -17321,18 +17321,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "3061",
-      "year": "2009",
-      "model": "БКМ-321 (у/п)",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "90000424",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "3062",
       "year": "2009",
       "model": "БКМ-321 (у/п)",
@@ -17927,18 +17915,6 @@
       "park": "ТП3",
       "garageNumber": "",
       "factoryNumber": "90000336",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "3497",
-      "year": "2009",
-      "model": "БКМ-321",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "90000337",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
