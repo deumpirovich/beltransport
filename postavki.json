@@ -1,5 +1,5 @@
 {
-  "updatedAt": "31.03.2026 22:26",
+  "updatedAt": "03.04.2026 11:09",
   "vehicles": [
     {
       "type": "Автобус",
@@ -7,9 +7,9 @@
       "year": "2026",
       "deliveryDate": "03.2026",
       "park": "АП5",
-      "licensePlate": "",
+      "licensePlate": "ВВ0619-7",
       "factoryNumber": "",
-      "garageNumber": "",
+      "garageNumber": "62791",
       "color": "бордовый",
       "gray": {}
     },

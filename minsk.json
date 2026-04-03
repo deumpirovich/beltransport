@@ -1,13 +1,13 @@
 {
-  "updatedAt": "01.04.2026 11:29",
+  "updatedAt": "03.04.2026 11:09",
   "vehicles": [
     {
       "type": "Автобус",
-      "vehicleNumber": "",
+      "vehicleNumber": "ВВ0619-7",
       "year": "2026",
       "model": "МАЗ-350",
       "park": "АП5",
-      "garageNumber": "",
+      "garageNumber": "62791",
       "factoryNumber": "",
       "livery": "бордовый",
       "noteHtml": "",
