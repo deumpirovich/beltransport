@@ -1,5 +1,5 @@
 {
-  "updatedAt": "15.04.2026 09:36",
+  "updatedAt": "15.04.2026 12:22",
   "vehicles": [
     {
       "type": "Автобус",
@@ -17744,7 +17744,7 @@
       "vehicleNumber": "5665",
       "year": "2008",
       "model": "БКМ-321",
-      "park": "ТП3",
+      "park": "ТП5",
       "garageNumber": "",
       "factoryNumber": "80000127",
       "livery": "салатовый",
@@ -17756,7 +17756,7 @@
       "vehicleNumber": "5666",
       "year": "2008",
       "model": "БКМ-321",
-      "park": "ТП3",
+      "park": "ТП5",
       "garageNumber": "",
       "factoryNumber": "80000130",
       "livery": "салатовый",
@@ -17912,7 +17912,7 @@
       "vehicleNumber": "5667",
       "year": "2009",
       "model": "БКМ-321",
-      "park": "ТП3",
+      "park": "ТП5",
       "garageNumber": "",
       "factoryNumber": "90000336",
       "livery": "салатовый",
