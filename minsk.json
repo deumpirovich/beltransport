@@ -1,5 +1,5 @@
 {
-  "updatedAt": "16.04.2026 11:48",
+  "updatedAt": "01.05.2026 13:24",
   "vehicles": [
     {
       "type": "Автобус",
@@ -11372,18 +11372,6 @@
       "model": "МАЗ-103",
       "park": "ТП1",
       "garageNumber": "25844",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АК6365-7",
-      "year": "2011",
-      "model": "МАЗ-103",
-      "park": "ТП1",
-      "garageNumber": "38687",
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",

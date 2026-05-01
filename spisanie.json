@@ -1,6 +1,32 @@
 {
-  "updatedAt": "16.04.2026 11:48",
+  "updatedAt": "01.05.2026 13:24",
   "vehicles": [
+    {
+      "type": "Автобус",
+      "model": "МАЗ-103",
+      "year": "2011",
+      "park": "ТП1",
+      "licensePlate": "АК6365-7",
+      "exNumber": "",
+      "garageNumber": "38687",
+      "factoryNumber": "",
+      "writeoffDate": "",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Автобус",
+      "model": "МАЗ-203с",
+      "year": "2014",
+      "park": "ТП1",
+      "licensePlate": "АН8318-7",
+      "exNumber": "",
+      "garageNumber": "12841",
+      "factoryNumber": "",
+      "writeoffDate": "",
+      "note": "",
+      "gray": {}
+    },
     {
       "type": "Автобус",
       "model": "МАЗ-203",
