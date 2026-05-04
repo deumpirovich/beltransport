@@ -1,5 +1,5 @@
 {
-  "updatedAt": "01.05.2026 13:24",
+  "updatedAt": "04.05.2026 18:38",
   "vehicles": [
     {
       "type": "Автобус",
@@ -10,7 +10,7 @@
       "exNumber": "",
       "garageNumber": "38687",
       "factoryNumber": "",
-      "writeoffDate": "",
+      "writeoffDate": "04.2026",
       "note": "",
       "gray": {}
     },
@@ -23,7 +23,7 @@
       "exNumber": "",
       "garageNumber": "12841",
       "factoryNumber": "",
-      "writeoffDate": "",
+      "writeoffDate": "04.2026",
       "note": "",
       "gray": {}
     },
