@@ -1,5 +1,5 @@
 {
-  "updatedAt": "05.05.2026 15:25",
+  "updatedAt": "05.05.2026 15:34",
   "vehicles": [
     {
       "type": "Автобус",
@@ -43,7 +43,7 @@
     {
       "type": "Автобус",
       "model": "МАЗ-107",
-      "year": "",
+      "year": "2009",
       "park": "АП6",
       "licensePlate": "АК0202-7",
       "exNumber": "",
@@ -56,7 +56,7 @@
     {
       "type": "Автобус",
       "model": "МАЗ-107",
-      "year": "",
+      "year": "2009",
       "park": "АП6",
       "licensePlate": "АК0206-7",
       "exNumber": "",
@@ -69,7 +69,7 @@
     {
       "type": "Автобус",
       "model": "МАЗ-107",
-      "year": "",
+      "year": "2011",
       "park": "АП6",
       "licensePlate": "АК7249-7",
       "exNumber": "",
@@ -82,7 +82,7 @@
     {
       "type": "Автобус",
       "model": "МАЗ-203",
-      "year": "",
+      "year": "2011",
       "park": "АП6",
       "licensePlate": "АК5700-7",
       "exNumber": "",
