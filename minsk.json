@@ -1,5 +1,5 @@
 {
-  "updatedAt": "01.05.2026 13:24",
+  "updatedAt": "05.05.2026 15:27",
   "vehicles": [
     {
       "type": "Автобус",
@@ -4695,18 +4695,6 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "АК5700-7",
-      "year": "2011",
-      "model": "МАЗ-203",
-      "park": "АП6",
-      "garageNumber": "24351",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "⇐ АП2 - 41092",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
       "vehicleNumber": "АН0324-7",
       "year": "2013",
       "model": "МАЗ-203",
@@ -5979,18 +5967,6 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "АК0202-7",
-      "year": "2009",
-      "model": "МАЗ-107",
-      "park": "АП6",
-      "garageNumber": "23639",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
       "vehicleNumber": "АК0203-7",
       "year": "2009",
       "model": "МАЗ-107",
@@ -6027,18 +6003,6 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "АК0206-7",
-      "year": "2009",
-      "model": "МАЗ-107",
-      "park": "АП6",
-      "garageNumber": "33601",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
       "vehicleNumber": "АК4073-7",
       "year": "2009",
       "model": "МАЗ-107",
@@ -6068,18 +6032,6 @@
       "model": "МАЗ-107",
       "park": "АП6",
       "garageNumber": "33693",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АК7249-7",
-      "year": "2011",
-      "model": "МАЗ-107",
-      "park": "АП6",
-      "garageNumber": "15016",
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
@@ -9704,18 +9656,6 @@
       "model": "МАЗ-107",
       "park": "АП7",
       "garageNumber": "24139",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АК3776-7",
-      "year": "2011",
-      "model": "МАЗ-105",
-      "park": "АП7",
-      "garageNumber": "34029",
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
@@ -17105,18 +17045,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "3030",
-      "year": "2009",
-      "model": "БКМ-321",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "90000341",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "3032",
       "year": "2009",
       "model": "БКМ-321",
@@ -17645,18 +17573,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "3453",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "80000080",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "3454",
       "year": "2008",
       "model": "БКМ-321",
@@ -17773,18 +17689,6 @@
       "factoryNumber": "80000156",
       "livery": "салатовый",
       "noteHtml": "⇐ 3474",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "3477",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "80000192",
-      "livery": "салатовый",
-      "noteHtml": "",
       "gray": {}
     },
     {
