@@ -1,5 +1,5 @@
 {
-  "updatedAt": "05.05.2026 15:27",
+  "updatedAt": "06.05.2026 15:45",
   "vehicles": [
     {
       "type": "Автобус",
@@ -15779,18 +15779,6 @@
       "park": "ТП2",
       "garageNumber": "",
       "factoryNumber": "90000417",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "2250",
-      "year": "2009",
-      "model": "БКМ-321 (у/п)",
-      "park": "ТП2",
-      "garageNumber": "",
-      "factoryNumber": "90000420",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
