@@ -1,5 +1,5 @@
 {
-  "updatedAt": "06.05.2026 15:44",
+  "updatedAt": "08.05.2026 15:08",
   "vehicles": [
     {
       "type": "Автобус",
@@ -30,11 +30,11 @@
     {
       "type": "Автобус",
       "model": "МАЗ-105",
-      "year": "2011",
+      "year": "",
       "park": "АП7",
-      "licensePlate": "АК3776-7",
+      "licensePlate": "",
       "exNumber": "",
-      "garageNumber": "34029",
+      "garageNumber": "",
       "factoryNumber": "",
       "writeoffDate": "04.2026",
       "note": "",
@@ -95,12 +95,12 @@
     {
       "type": "Троллейбус",
       "model": "БКМ-32100",
-      "year": "",
+      "year": "2008",
       "park": "ТП4",
-      "licensePlate": "",
+      "licensePlate": "4600",
       "exNumber": "",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "80000107",
       "writeoffDate": "04.2026",
       "note": "",
       "gray": {}
@@ -108,12 +108,12 @@
     {
       "type": "Троллейбус",
       "model": "БКМ-32100",
-      "year": "",
+      "year": "2008",
       "park": "ТП4",
-      "licensePlate": "",
+      "licensePlate": "4599",
       "exNumber": "",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "80000103",
       "writeoffDate": "04.2026",
       "note": "",
       "gray": {}
@@ -121,12 +121,12 @@
     {
       "type": "Троллейбус",
       "model": "БКМ-32100",
-      "year": "",
+      "year": "2008",
       "park": "ТП4",
-      "licensePlate": "",
+      "licensePlate": "4598",
       "exNumber": "",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "80000100",
       "writeoffDate": "04.2026",
       "note": "",
       "gray": {}
@@ -134,12 +134,12 @@
     {
       "type": "Троллейбус",
       "model": "БКМ-32100",
-      "year": "",
+      "year": "2008",
       "park": "ТП4",
-      "licensePlate": "",
+      "licensePlate": "4681 (2172)",
       "exNumber": "",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "80000037",
       "writeoffDate": "04.2026",
       "note": "",
       "gray": {}
