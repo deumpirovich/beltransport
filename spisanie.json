@@ -1,44 +1,68 @@
 {
-  "updatedAt": "08.05.2026 15:08",
+  "updatedAt": "11.05.2026 14:02",
   "vehicles": [
     {
       "type": "Автобус",
       "model": "МАЗ-105",
-      "year": "",
+      "year": "2011",
       "park": "АП5",
-      "licensePlate": "",
+      "licensePlate": "АК6771-7",
       "exNumber": "",
-      "garageNumber": "",
+      "garageNumber": "24491",
       "factoryNumber": "",
       "writeoffDate": "04.2026",
       "note": "",
-      "gray": {}
+      "gray": {
+        "type": true,
+        "model": true,
+        "year": true,
+        "park": true,
+        "vehicleNumber": true,
+        "garageNumber": true,
+        "writeoffDate": true
+      }
     },
     {
       "type": "Автобус",
       "model": "МАЗ-105",
-      "year": "",
+      "year": "2011",
       "park": "АП5",
-      "licensePlate": "",
+      "licensePlate": "АК5318-7",
       "exNumber": "",
-      "garageNumber": "",
+      "garageNumber": "24465",
       "factoryNumber": "",
       "writeoffDate": "04.2026",
       "note": "",
-      "gray": {}
+      "gray": {
+        "type": true,
+        "model": true,
+        "year": true,
+        "park": true,
+        "vehicleNumber": true,
+        "garageNumber": true,
+        "writeoffDate": true
+      }
     },
     {
       "type": "Автобус",
       "model": "МАЗ-105",
-      "year": "",
+      "year": "2011",
       "park": "АП7",
-      "licensePlate": "",
+      "licensePlate": "АК3776-7",
       "exNumber": "",
-      "garageNumber": "",
+      "garageNumber": "34029",
       "factoryNumber": "",
       "writeoffDate": "04.2026",
       "note": "",
-      "gray": {}
+      "gray": {
+        "type": true,
+        "model": true,
+        "year": true,
+        "park": true,
+        "vehicleNumber": true,
+        "garageNumber": true,
+        "writeoffDate": true
+      }
     },
     {
       "type": "Автобус",
