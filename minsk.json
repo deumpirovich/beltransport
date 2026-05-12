@@ -1,5 +1,5 @@
 {
-  "updatedAt": "11.05.2026 13:59",
+  "updatedAt": "12.05.2026 19:40",
   "vehicles": [
     {
       "type": "Автобус",
@@ -4362,7 +4362,7 @@
       "park": "АП5",
       "garageNumber": "62741",
       "factoryNumber": "",
-      "livery": "бордовый",
+      "livery": "бордовый / перевозчик \"Минсктранс\"",
       "noteHtml": "",
       "gray": {}
     },
@@ -4374,7 +4374,7 @@
       "park": "АП5",
       "garageNumber": "62758",
       "factoryNumber": "",
-      "livery": "бордовый",
+      "livery": "бордовый / перевозчик \"Минсктранс\"",
       "noteHtml": "",
       "gray": {}
     },
@@ -4386,7 +4386,7 @@
       "park": "АП5",
       "garageNumber": "62730",
       "factoryNumber": "",
-      "livery": "бордовый",
+      "livery": "бордовый / перевозчик \"Минсктранс\"",
       "noteHtml": "",
       "gray": {}
     },
@@ -4398,7 +4398,7 @@
       "park": "АП5",
       "garageNumber": "62766",
       "factoryNumber": "",
-      "livery": "бордовый",
+      "livery": "бордовый / перевозчик \"Минсктранс\"",
       "noteHtml": "",
       "gray": {}
     },
