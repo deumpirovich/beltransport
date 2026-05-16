@@ -1,5 +1,5 @@
 {
-  "updatedAt": "12.05.2026 19:40",
+  "updatedAt": "16.05.2026 09:33",
   "vehicles": [
     {
       "type": "Автобус",
@@ -12,12 +12,12 @@
       "livery": "жёлтый",
       "noteHtml": "",
       "gray": {
-        "year": true,
-        "vehicleNumber": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "livery": true
+        "year": false,
+        "vehicleNumber": false,
+        "model": false,
+        "park": false,
+        "garageNumber": false,
+        "livery": false
       }
     },
     {
