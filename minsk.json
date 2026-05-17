@@ -1,6 +1,44 @@
 {
-  "updatedAt": "16.05.2026 09:33",
+  "updatedAt": "17.05.2026 10:23",
   "vehicles": [
+    {
+      "type": "Автобус",
+      "vehicleNumber": "АН8318-7",
+      "year": "2014",
+      "model": "МАЗ-203с",
+      "park": "ТП1",
+      "garageNumber": "12841",
+      "factoryNumber": "",
+      "livery": "жёлтый",
+      "noteHtml": "",
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "garageNumber": true,
+        "livery": true
+      }
+    },
+    {
+      "type": "Автобус",
+      "vehicleNumber": "АК6365-7",
+      "year": "2011",
+      "model": "МАЗ-103",
+      "park": "ТП1",
+      "garageNumber": "38687",
+      "factoryNumber": "",
+      "livery": "жёлтый",
+      "noteHtml": "",
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "garageNumber": true,
+        "livery": true
+      }
+    },
     {
       "type": "Автобус",
       "vehicleNumber": "АК3776-7",
@@ -4556,7 +4594,14 @@
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "garageNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Автобус",
@@ -4580,7 +4625,14 @@
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "(AI9810-7); ⇐ АП2 - 31770",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "garageNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Автобус",
@@ -7988,7 +8040,14 @@
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "garageNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Автобус",
@@ -8024,7 +8083,14 @@
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "garageNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Автобус",
@@ -8276,7 +8342,14 @@
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "garageNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Автобус",
@@ -8348,7 +8421,14 @@
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "⇐ 44600 ⇐ 23857 ⇐ 44148",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "garageNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Автобус",
@@ -11036,7 +11116,14 @@
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "garageNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Автобус",
@@ -11048,7 +11135,14 @@
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "garageNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Автобус",
@@ -11060,7 +11154,14 @@
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "garageNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Автобус",
