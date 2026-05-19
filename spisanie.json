@@ -1,5 +1,5 @@
 {
-  "updatedAt": "17.05.2026 10:36",
+  "updatedAt": "19.05.2026 08:56",
   "vehicles": [
     {
       "type": "Автобус",
@@ -154,7 +154,7 @@
       "year": "2009",
       "park": "АП6",
       "licensePlate": "АК0718-7",
-      "exNumber": "",
+      "exNumber": "AI9810-7",
       "garageNumber": "43516",
       "factoryNumber": "",
       "writeoffDate": "05.2026",
@@ -166,7 +166,8 @@
         "park": true,
         "vehicleNumber": true,
         "garageNumber": true,
-        "writeoffDate": true
+        "writeoffDate": true,
+        "exNumber": true
       }
     },
     {
