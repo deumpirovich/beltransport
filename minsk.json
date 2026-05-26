@@ -1,5 +1,5 @@
 {
-  "updatedAt": "17.05.2026 10:23",
+  "updatedAt": "26.05.2026 12:38",
   "vehicles": [
     {
       "type": "Автобус",
@@ -11389,7 +11389,14 @@
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "⇐ 12660",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "garageNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Автобус",
@@ -11509,7 +11516,14 @@
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "garageNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Автобус",
@@ -11557,7 +11571,14 @@
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "garageNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Автобус",

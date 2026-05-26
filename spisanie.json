@@ -1,6 +1,69 @@
 {
-  "updatedAt": "19.05.2026 08:56",
+  "updatedAt": "26.05.2026 12:39",
   "vehicles": [
+    {
+      "type": "Автобус",
+      "model": "МАЗ-103",
+      "year": "2009",
+      "park": "ТП1",
+      "licensePlate": "АК4341-7",
+      "exNumber": "",
+      "garageNumber": "25900",
+      "factoryNumber": "",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {
+        "type": true,
+        "model": true,
+        "year": true,
+        "park": true,
+        "vehicleNumber": true,
+        "garageNumber": true,
+        "writeoffDate": true
+      }
+    },
+    {
+      "type": "Автобус",
+      "model": "МАЗ-203",
+      "year": "2008",
+      "park": "ТП1",
+      "licensePlate": "АК0827-7",
+      "exNumber": "",
+      "garageNumber": "25770",
+      "factoryNumber": "",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {
+        "type": true,
+        "year": true,
+        "model": true,
+        "vehicleNumber": true,
+        "park": true,
+        "garageNumber": true,
+        "writeoffDate": true
+      }
+    },
+    {
+      "type": "Автобус",
+      "model": "МАЗ-203",
+      "year": "2008",
+      "park": "ТП1",
+      "licensePlate": "АК2058-7",
+      "exNumber": "",
+      "garageNumber": "38563",
+      "factoryNumber": "",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {
+        "type": true,
+        "model": true,
+        "year": true,
+        "park": true,
+        "vehicleNumber": true,
+        "garageNumber": true,
+        "writeoffDate": true
+      }
+    },
     {
       "type": "Автобус",
       "model": "МАЗ-203с",
