@@ -1,44 +1,6 @@
 {
-  "updatedAt": "27.05.2026 11:05",
+  "updatedAt": "27.05.2026 15:16",
   "vehicles": [
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АН8318-7",
-      "year": "2014",
-      "model": "МАЗ-203с",
-      "park": "ТП1",
-      "garageNumber": "12841",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "livery": true
-      }
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АК6365-7",
-      "year": "2011",
-      "model": "МАЗ-103",
-      "park": "ТП1",
-      "garageNumber": "38687",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "livery": true
-      }
-    },
     {
       "type": "Автобус",
       "vehicleNumber": "АК3776-7",
@@ -4586,25 +4548,6 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "АЕ4024-7",
-      "year": "2008",
-      "model": "МАЗ-203",
-      "park": "АП6",
-      "garageNumber": "23485",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "livery": true
-      }
-    },
-    {
-      "type": "Автобус",
       "vehicleNumber": "АК0306-7",
       "year": "2009",
       "model": "МАЗ-203",
@@ -4614,25 +4557,6 @@
       "livery": "жёлтый",
       "noteHtml": "⇐ АП2 - 40894",
       "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АК0718-7",
-      "year": "2009",
-      "model": "МАЗ-203",
-      "park": "АП6",
-      "garageNumber": "43516",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "(AI9810-7); ⇐ АП2 - 31770",
-      "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "livery": true
-      }
     },
     {
       "type": "Автобус",
@@ -8032,25 +7956,6 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "АН8271-7",
-      "year": "2014",
-      "model": "МАЗ-203с",
-      "park": "АП6",
-      "garageNumber": "42561",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "livery": true
-      }
-    },
-    {
-      "type": "Автобус",
       "vehicleNumber": "АН8272-7",
       "year": "2014",
       "model": "МАЗ-203с",
@@ -8072,25 +7977,6 @@
       "livery": "жёлтый",
       "noteHtml": "",
       "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АН8342-7",
-      "year": "2014",
-      "model": "МАЗ-203с",
-      "park": "АП6",
-      "garageNumber": "42595",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "livery": true
-      }
     },
     {
       "type": "Автобус",
@@ -11108,63 +10994,6 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "АО3839-7",
-      "year": "2014",
-      "model": "МАЗ-203c",
-      "park": "АП7",
-      "garageNumber": "44636",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "livery": true
-      }
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АО3841-7",
-      "year": "2014",
-      "model": "МАЗ-203c",
-      "park": "АП7",
-      "garageNumber": "44687",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "livery": true
-      }
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АО3845-7",
-      "year": "2015",
-      "model": "МАЗ-203c",
-      "park": "АП7",
-      "garageNumber": "44679",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "livery": true
-      }
-    },
-    {
-      "type": "Автобус",
       "vehicleNumber": "АО3849-7",
       "year": "2015",
       "model": "МАЗ-203c",
@@ -11381,25 +11210,6 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "АК4341-7",
-      "year": "2009",
-      "model": "МАЗ-103",
-      "park": "ТП1",
-      "garageNumber": "25900",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "⇐ 12660",
-      "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "livery": true
-      }
-    },
-    {
-      "type": "Автобус",
       "vehicleNumber": "АК4440-7",
       "year": "2010",
       "model": "МАЗ-103",
@@ -11508,25 +11318,6 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "АК0827-7",
-      "year": "2008",
-      "model": "МАЗ-203",
-      "park": "ТП1",
-      "garageNumber": "25770",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "livery": true
-      }
-    },
-    {
-      "type": "Автобус",
       "vehicleNumber": "АК0828-7",
       "year": "2009",
       "model": "МАЗ-203",
@@ -11560,25 +11351,6 @@
       "livery": "жёлтый",
       "noteHtml": "⇐ АП2 - 40924",
       "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АК2058-7",
-      "year": "2008",
-      "model": "МАЗ-203",
-      "park": "ТП1",
-      "garageNumber": "38563",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "livery": true
-      }
     },
     {
       "type": "Автобус",
@@ -13874,18 +13646,6 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "АН8318-7",
-      "year": "2014",
-      "model": "МАЗ-203с",
-      "park": "ТП1",
-      "garageNumber": "12841",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
       "vehicleNumber": "АН8320-7",
       "year": "2014",
       "model": "МАЗ-203с",
@@ -15758,18 +15518,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "2181",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП2",
-      "garageNumber": "",
-      "factoryNumber": "80000092",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "2191",
       "year": "2008",
       "model": "БКМ-321",
@@ -16984,18 +16732,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "2630",
-      "year": "2009",
-      "model": "БКМ-333",
-      "park": "ТП2",
-      "garageNumber": "",
-      "factoryNumber": "90000083",
-      "livery": "салатовый",
-      "noteHtml": "⇐ 5582 ⇐ 2304",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "2631",
       "year": "2009",
       "model": "БКМ-333",
@@ -17248,18 +16984,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "3043",
-      "year": "2009",
-      "model": "БКМ-321",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "90000361",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "3044",
       "year": "2009",
       "model": "БКМ-321",
@@ -17326,18 +17050,6 @@
       "park": "ТП3",
       "garageNumber": "",
       "factoryNumber": "90000386",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "3059",
-      "year": "2009",
-      "model": "БКМ-321 (у/п)",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "90000421",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
@@ -17692,18 +17404,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "3449",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "80000073",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "5662",
       "year": "2008",
       "model": "БКМ-321",
@@ -17776,18 +17476,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "3468",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "80000133",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "3470",
       "year": "2008",
       "model": "БКМ-321",
@@ -17842,18 +17530,6 @@
       "park": "ТП3",
       "garageNumber": "",
       "factoryNumber": "80000221",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "3490",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "80000279",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
@@ -18952,18 +18628,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "3601",
-      "year": "2009",
-      "model": "БКМ-333",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "90000076",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "3602",
       "year": "2009",
       "model": "БКМ-333",
@@ -19768,60 +19432,12 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "4607",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП4",
-      "garageNumber": "",
-      "factoryNumber": "80000215",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "4608",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП4",
-      "garageNumber": "",
-      "factoryNumber": "80000219",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "4612",
       "year": "2008",
       "model": "БКМ-321",
       "park": "ТП4",
       "garageNumber": "",
       "factoryNumber": "80000246",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "4614",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП4",
-      "garageNumber": "",
-      "factoryNumber": "80000251",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "4615",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП4",
-      "garageNumber": "",
-      "factoryNumber": "80000253",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
@@ -19840,36 +19456,12 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "4618",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП4",
-      "garageNumber": "",
-      "factoryNumber": "80000259",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "4620",
       "year": "2008",
       "model": "БКМ-321",
       "park": "ТП4",
       "garageNumber": "",
       "factoryNumber": "80000258",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "4624",
-      "year": "2009",
-      "model": "БКМ-321",
-      "park": "ТП4",
-      "garageNumber": "",
-      "factoryNumber": "90000317",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
@@ -20452,18 +20044,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "4682",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП4",
-      "garageNumber": "",
-      "factoryNumber": "80000104",
-      "livery": "салатовый",
-      "noteHtml": "⇐ 2188",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "4683",
       "year": "2008",
       "model": "БКМ-321",
@@ -20532,18 +20112,6 @@
       "factoryNumber": "А0000563",
       "livery": "салатовый",
       "noteHtml": "⇐ 2715",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "4694",
-      "year": "2010",
-      "model": "БКМ-321",
-      "park": "ТП4",
-      "garageNumber": "",
-      "factoryNumber": "А0000618",
-      "livery": "салатовый",
-      "noteHtml": "⇐ 2721",
       "gray": {}
     },
     {

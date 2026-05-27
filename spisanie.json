@@ -1,6 +1,214 @@
 {
-  "updatedAt": "26.05.2026 12:39",
+  "updatedAt": "27.05.2026 15:12",
   "vehicles": [
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-32100",
+      "year": "2008",
+      "park": "ТП2",
+      "licensePlate": "2181",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "80000092",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-33300",
+      "year": "2009",
+      "park": "ТП2",
+      "licensePlate": "2630 (2304)",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "90000083",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-32100",
+      "year": "2009",
+      "park": "ТП3",
+      "licensePlate": "3043",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "90000361",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-32100 (у/п)",
+      "year": "2009",
+      "park": "ТП3",
+      "licensePlate": "3059",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "90000421",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-32100",
+      "year": "2008",
+      "park": "ТП3",
+      "licensePlate": "3449",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "80000073",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-32100",
+      "year": "2008",
+      "park": "ТП3",
+      "licensePlate": "3468",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "80000133",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-32100",
+      "year": "2008",
+      "park": "ТП3",
+      "licensePlate": "3490",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "80000279",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-33300",
+      "year": "2009",
+      "park": "ТП3",
+      "licensePlate": "3601",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "90000076",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-32100",
+      "year": "2008",
+      "park": "ТП4",
+      "licensePlate": "4607",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "80000215",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-32100",
+      "year": "2008",
+      "park": "ТП4",
+      "licensePlate": "4608",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "80000219",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-32100",
+      "year": "2008",
+      "park": "ТП4",
+      "licensePlate": "4614",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "80000251",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-32100",
+      "year": "2008",
+      "park": "ТП4",
+      "licensePlate": "4615",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "80000253",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-32100",
+      "year": "2008",
+      "park": "ТП4",
+      "licensePlate": "4618",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "80000259",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-32100",
+      "year": "2009",
+      "park": "ТП4",
+      "licensePlate": "4624",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "90000317",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-32100",
+      "year": "2008",
+      "park": "ТП4",
+      "licensePlate": "4682 (2188)",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "80000104",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-32100",
+      "year": "2010",
+      "park": "ТП4",
+      "licensePlate": "4694 (2721)",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "A0000618",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {}
+    },
     {
       "type": "Автобус",
       "model": "МАЗ-103",
@@ -13,13 +221,13 @@
       "writeoffDate": "05.2026",
       "note": "",
       "gray": {
-        "type": true,
-        "model": true,
-        "year": true,
-        "park": true,
-        "vehicleNumber": true,
-        "garageNumber": true,
-        "writeoffDate": true
+        "type": false,
+        "model": false,
+        "year": false,
+        "park": false,
+        "vehicleNumber": false,
+        "garageNumber": false,
+        "writeoffDate": false
       }
     },
     {
@@ -34,13 +242,13 @@
       "writeoffDate": "05.2026",
       "note": "",
       "gray": {
-        "type": true,
-        "year": true,
-        "model": true,
-        "vehicleNumber": true,
-        "park": true,
-        "garageNumber": true,
-        "writeoffDate": true
+        "type": false,
+        "year": false,
+        "model": false,
+        "vehicleNumber": false,
+        "park": false,
+        "garageNumber": false,
+        "writeoffDate": false
       }
     },
     {
@@ -55,13 +263,13 @@
       "writeoffDate": "05.2026",
       "note": "",
       "gray": {
-        "type": true,
-        "model": true,
-        "year": true,
-        "park": true,
-        "vehicleNumber": true,
-        "garageNumber": true,
-        "writeoffDate": true
+        "type": false,
+        "model": false,
+        "year": false,
+        "park": false,
+        "vehicleNumber": false,
+        "garageNumber": false,
+        "writeoffDate": false
       }
     },
     {
@@ -76,13 +284,13 @@
       "writeoffDate": "05.2026",
       "note": "",
       "gray": {
-        "type": true,
-        "model": true,
-        "year": true,
-        "park": true,
-        "vehicleNumber": true,
-        "garageNumber": true,
-        "writeoffDate": true
+        "type": false,
+        "model": false,
+        "year": false,
+        "park": false,
+        "vehicleNumber": false,
+        "garageNumber": false,
+        "writeoffDate": false
       }
     },
     {
@@ -97,13 +305,13 @@
       "writeoffDate": "05.2026",
       "note": "",
       "gray": {
-        "type": true,
-        "model": true,
-        "year": true,
-        "park": true,
-        "vehicleNumber": true,
-        "garageNumber": true,
-        "writeoffDate": true
+        "type": false,
+        "model": false,
+        "year": false,
+        "park": false,
+        "vehicleNumber": false,
+        "garageNumber": false,
+        "writeoffDate": false
       }
     },
     {
@@ -118,13 +326,13 @@
       "writeoffDate": "05.2026",
       "note": "",
       "gray": {
-        "type": true,
-        "model": true,
-        "year": true,
-        "park": true,
-        "vehicleNumber": true,
-        "garageNumber": true,
-        "writeoffDate": true
+        "type": false,
+        "model": false,
+        "year": false,
+        "park": false,
+        "vehicleNumber": false,
+        "garageNumber": false,
+        "writeoffDate": false
       }
     },
     {
@@ -181,13 +389,13 @@
       "writeoffDate": "05.2026",
       "note": "",
       "gray": {
-        "type": true,
-        "model": true,
-        "year": true,
-        "park": true,
-        "vehicleNumber": true,
-        "garageNumber": true,
-        "writeoffDate": true
+        "type": false,
+        "model": false,
+        "year": false,
+        "park": false,
+        "vehicleNumber": false,
+        "garageNumber": false,
+        "writeoffDate": false
       }
     },
     {
@@ -202,13 +410,13 @@
       "writeoffDate": "05.2026",
       "note": "",
       "gray": {
-        "type": true,
-        "model": true,
-        "year": true,
-        "park": true,
-        "vehicleNumber": true,
-        "garageNumber": true,
-        "writeoffDate": true
+        "type": false,
+        "model": false,
+        "year": false,
+        "park": false,
+        "vehicleNumber": false,
+        "garageNumber": false,
+        "writeoffDate": false
       }
     },
     {
@@ -223,14 +431,14 @@
       "writeoffDate": "05.2026",
       "note": "",
       "gray": {
-        "type": true,
-        "model": true,
-        "year": true,
-        "park": true,
-        "vehicleNumber": true,
-        "garageNumber": true,
-        "writeoffDate": true,
-        "exNumber": true
+        "type": false,
+        "model": false,
+        "year": false,
+        "park": false,
+        "vehicleNumber": false,
+        "garageNumber": false,
+        "writeoffDate": false,
+        "exNumber": false
       }
     },
     {
@@ -245,13 +453,13 @@
       "writeoffDate": "05.2026",
       "note": "",
       "gray": {
-        "type": true,
-        "model": true,
-        "year": true,
-        "park": true,
-        "vehicleNumber": true,
-        "garageNumber": true,
-        "writeoffDate": true
+        "type": false,
+        "model": false,
+        "year": false,
+        "park": false,
+        "vehicleNumber": false,
+        "garageNumber": false,
+        "writeoffDate": false
       }
     },
     {
@@ -464,13 +672,13 @@
       "writeoffDate": "05.2026",
       "note": "",
       "gray": {
-        "type": true,
-        "model": true,
-        "year": true,
-        "park": true,
-        "vehicleNumber": true,
-        "garageNumber": true,
-        "writeoffDate": true
+        "type": false,
+        "model": false,
+        "year": false,
+        "park": false,
+        "vehicleNumber": false,
+        "garageNumber": false,
+        "writeoffDate": false
       }
     },
     {
@@ -485,13 +693,13 @@
       "writeoffDate": "05.2026",
       "note": "",
       "gray": {
-        "type": true,
-        "model": true,
-        "year": true,
-        "park": true,
-        "vehicleNumber": true,
-        "garageNumber": true,
-        "writeoffDate": true
+        "type": false,
+        "model": false,
+        "year": false,
+        "park": false,
+        "vehicleNumber": false,
+        "garageNumber": false,
+        "writeoffDate": false
       }
     },
     {
