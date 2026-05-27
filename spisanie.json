@@ -1,5 +1,5 @@
 {
-  "updatedAt": "27.05.2026 15:12",
+  "updatedAt": "27.05.2026 17:48",
   "vehicles": [
     {
       "type": "Троллейбус",
@@ -474,13 +474,13 @@
       "writeoffDate": "04.2026",
       "note": "",
       "gray": {
-        "type": true,
-        "model": true,
-        "year": true,
-        "park": true,
-        "vehicleNumber": true,
-        "garageNumber": true,
-        "writeoffDate": true
+        "type": false,
+        "model": false,
+        "year": false,
+        "park": false,
+        "vehicleNumber": false,
+        "garageNumber": false,
+        "writeoffDate": false
       }
     },
     {
@@ -495,13 +495,13 @@
       "writeoffDate": "04.2026",
       "note": "",
       "gray": {
-        "type": true,
-        "model": true,
-        "year": true,
-        "park": true,
-        "vehicleNumber": true,
-        "garageNumber": true,
-        "writeoffDate": true
+        "type": false,
+        "model": false,
+        "year": false,
+        "park": false,
+        "vehicleNumber": false,
+        "garageNumber": false,
+        "writeoffDate": false
       }
     },
     {

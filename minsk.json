@@ -1,5 +1,5 @@
 {
-  "updatedAt": "27.05.2026 15:16",
+  "updatedAt": "27.05.2026 17:44",
   "vehicles": [
     {
       "type": "Автобус",
@@ -1594,25 +1594,6 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "АК5318-7",
-      "year": "2011",
-      "model": "МАЗ-105",
-      "park": "АП5",
-      "garageNumber": "24465",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "livery": true
-      }
-    },
-    {
-      "type": "Автобус",
       "vehicleNumber": "АК5319-7",
       "year": "2011",
       "model": "МАЗ-105",
@@ -1646,25 +1627,6 @@
       "livery": "жёлтый",
       "noteHtml": "⇐ 24473",
       "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АК6771-7",
-      "year": "2011",
-      "model": "МАЗ-105",
-      "park": "АП5",
-      "garageNumber": "24491",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "livery": true
-      }
     },
     {
       "type": "Автобус",
