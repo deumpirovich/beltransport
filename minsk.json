@@ -1,5 +1,5 @@
 {
-  "updatedAt": "01.06.2026 13:48",
+  "updatedAt": "01.06.2026 21:41",
   "vehicles": [
     {
       "type": "Автобус",
@@ -8182,25 +8182,6 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "АЕ1923-7",
-      "year": "2008",
-      "model": "МАЗ-203",
-      "park": "АП7",
-      "garageNumber": "33634",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "livery": true
-      }
-    },
-    {
-      "type": "Автобус",
       "vehicleNumber": "АЕ1925-7",
       "year": "2008",
       "model": "МАЗ-203",
@@ -8258,25 +8239,6 @@
       "livery": "жёлтый",
       "noteHtml": "⇐ АП2 - 14478",
       "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АК1183-7",
-      "year": "2009",
-      "model": "МАЗ-203",
-      "park": "АП7",
-      "garageNumber": "24340",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "⇐ 44600 ⇐ 23857 ⇐ 44148",
-      "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "livery": true
-      }
     },
     {
       "type": "Автобус",
@@ -10736,18 +10698,6 @@
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АН9045-7",
-      "year": "2014",
-      "model": "Любава АВР-19",
-      "park": "АП7",
-      "garageNumber": "45021",
-      "factoryNumber": "",
-      "livery": "серый",
-      "noteHtml": "7ТЕХ1002; ⇐ АП5 - 62261 ⇐ АП2 - 24510",
       "gray": {}
     },
     {
@@ -18572,18 +18522,6 @@
       "park": "ТП3",
       "garageNumber": "",
       "factoryNumber": "S0000143",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "3600",
-      "year": "2009",
-      "model": "БКМ-333",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "90000025",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
