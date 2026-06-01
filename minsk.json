@@ -1,5 +1,5 @@
 {
-  "updatedAt": "29.05.2026 14:44",
+  "updatedAt": "01.06.2026 13:40",
   "vehicles": [
     {
       "type": "Автобус",
@@ -11536,10 +11536,10 @@
       "year": "2014",
       "model": "МАЗ-203",
       "park": "ТП1",
-      "garageNumber": "(1) 38790",
+      "garageNumber": "13188",
       "factoryNumber": "",
       "livery": "жёлтый",
-      "noteHtml": "",
+      "noteHtml": "⇐ 38790",
       "gray": {}
     },
     {
@@ -11764,10 +11764,10 @@
       "year": "2018",
       "model": "МАЗ-203",
       "park": "ТП1",
-      "garageNumber": "(1) 26069",
+      "garageNumber": "13277",
       "factoryNumber": "",
       "livery": "жёлтый",
-      "noteHtml": "",
+      "noteHtml": "⇐ 26069",
       "gray": {}
     },
     {
@@ -11824,10 +11824,10 @@
       "year": "2018",
       "model": "МАЗ-203",
       "park": "ТП1",
-      "garageNumber": "(1) 26077",
+      "garageNumber": "13285",
       "factoryNumber": "",
       "livery": "жёлтый",
-      "noteHtml": "",
+      "noteHtml": "⇐ 26077",
       "gray": {}
     },
     {
@@ -11920,10 +11920,10 @@
       "year": "2018",
       "model": "МАЗ-203",
       "park": "ТП1",
-      "garageNumber": "(1) 38971",
+      "garageNumber": "13293",
       "factoryNumber": "",
       "livery": "жёлтый",
-      "noteHtml": "",
+      "noteHtml": "⇐ 38971",
       "gray": {}
     },
     {
@@ -12616,10 +12616,10 @@
       "year": "2021",
       "model": "МАЗ-303E",
       "park": "ТП1",
-      "garageNumber": "(1) 39233",
+      "garageNumber": "11304",
       "factoryNumber": "",
       "livery": "жёлтый",
-      "noteHtml": "",
+      "noteHtml": "⇐ 39233",
       "gray": {}
     },
     {
@@ -12628,10 +12628,10 @@
       "year": "2021",
       "model": "МАЗ-303E",
       "park": "ТП1",
-      "garageNumber": "(1) 39240",
+      "garageNumber": "11312",
       "factoryNumber": "",
       "livery": "жёлтый",
-      "noteHtml": "",
+      "noteHtml": "⇐ 39240",
       "gray": {}
     },
     {
@@ -12640,10 +12640,10 @@
       "year": "2021",
       "model": "МАЗ-303E",
       "park": "ТП1",
-      "garageNumber": "(1) 26426",
+      "garageNumber": "11321",
       "factoryNumber": "",
       "livery": "жёлтый",
-      "noteHtml": "",
+      "noteHtml": "⇐ 26426",
       "gray": {}
     },
     {
@@ -12652,10 +12652,10 @@
       "year": "2021",
       "model": "МАЗ-303E",
       "park": "ТП1",
-      "garageNumber": "(1) 26433",
+      "garageNumber": "11339",
       "factoryNumber": "",
       "livery": "жёлтый",
-      "noteHtml": "",
+      "noteHtml": "⇐ 26433",
       "gray": {}
     },
     {
