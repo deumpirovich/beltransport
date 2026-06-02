@@ -1,5 +1,5 @@
 {
-  "updatedAt": "01.06.2026 21:40",
+  "updatedAt": "02.06.2026 10:11",
   "vehicles": [
     {
       "type": "Автобус",
@@ -17,32 +17,6 @@
     {
       "type": "Автобус",
       "model": "Irisbus Magelys",
-      "year": "",
-      "park": "АП5",
-      "licensePlate": "",
-      "exNumber": "",
-      "garageNumber": "",
-      "factoryNumber": "",
-      "writeoffDate": "05.2026",
-      "note": "",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "model": "МАЗ-203",
-      "year": "",
-      "park": "АП5",
-      "licensePlate": "",
-      "exNumber": "",
-      "garageNumber": "",
-      "factoryNumber": "",
-      "writeoffDate": "05.2026",
-      "note": "",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "model": "МАЗ-203",
       "year": "",
       "park": "АП5",
       "licensePlate": "",
