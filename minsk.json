@@ -1,5 +1,5 @@
 {
-  "updatedAt": "01.06.2026 21:41",
+  "updatedAt": "02.06.2026 18:52",
   "vehicles": [
     {
       "type": "Автобус",
@@ -4194,18 +4194,6 @@
       "factoryNumber": "",
       "livery": "бордовый / перевозчик \"Минсктранс\"",
       "noteHtml": "⇐ АП2 - 24252",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АО6170-7",
-      "year": "2013",
-      "model": "Irisbus Magelys",
-      "park": "АП5",
-      "garageNumber": "62502",
-      "factoryNumber": "",
-      "livery": "бордовый / перевозчик \"Минсктранс\"",
-      "noteHtml": "⇐ АП2 - 14575 ⇐ АН0834-7",
       "gray": {}
     },
     {

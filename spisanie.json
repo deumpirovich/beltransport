@@ -1,5 +1,5 @@
 {
-  "updatedAt": "02.06.2026 10:11",
+  "updatedAt": "02.06.2026 18:51",
   "vehicles": [
     {
       "type": "Автобус",
@@ -17,11 +17,11 @@
     {
       "type": "Автобус",
       "model": "Irisbus Magelys",
-      "year": "",
+      "year": "2013",
       "park": "АП5",
-      "licensePlate": "",
+      "licensePlate": "АО6170-7 (АН0834-7)",
       "exNumber": "",
-      "garageNumber": "",
+      "garageNumber": "62502",
       "factoryNumber": "",
       "writeoffDate": "05.2026",
       "note": "",
