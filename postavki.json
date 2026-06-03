@@ -1,6 +1,18 @@
 {
-  "updatedAt": "03.04.2026 11:09",
+  "updatedAt": "03.06.2026 10:02",
   "vehicles": [
+    {
+      "type": "ТУАХ",
+      "model": "МАЗ-303Т20",
+      "year": "2026",
+      "deliveryDate": "06.2026",
+      "park": "ТП4",
+      "licensePlate": "",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {}
+    },
     {
       "type": "Автобус",
       "model": "МАЗ-350.047",
