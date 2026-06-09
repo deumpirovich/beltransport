@@ -1,9 +1,57 @@
 {
-  "updatedAt": "03.06.2026 10:00",
+  "updatedAt": "09.06.2026 11:51",
   "vehicles": [
     {
       "type": "ТУАХ",
-      "vehicleNumber": "",
+      "vehicleNumber": "4323",
+      "year": "2026",
+      "model": "МАЗ-303Т",
+      "park": "ТП4",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {}
+    },
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "4322",
+      "year": "2026",
+      "model": "МАЗ-303Т",
+      "park": "ТП4",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {}
+    },
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "4321",
+      "year": "2026",
+      "model": "МАЗ-303Т",
+      "park": "ТП4",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {}
+    },
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "4320",
+      "year": "2026",
+      "model": "МАЗ-303Т",
+      "park": "ТП4",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {}
+    },
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "4319",
       "year": "2026",
       "model": "МАЗ-303Т",
       "park": "ТП4",
