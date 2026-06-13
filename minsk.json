@@ -1,5 +1,5 @@
 {
-  "updatedAt": "13.06.2026 08:27",
+  "updatedAt": "13.06.2026 15:30",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -27,7 +27,7 @@
     },
     {
       "type": "ТУАХ",
-      "vehicleNumber": "",
+      "vehicleNumber": "2518",
       "year": "2026",
       "model": "БКМ-433D",
       "park": "ТП2",
@@ -21106,7 +21106,14 @@
       "factoryNumber": "80000327",
       "livery": "салатовый",
       "noteHtml": "",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "factoryNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Троллейбус",
@@ -21214,7 +21221,13 @@
       "factoryNumber": "80000185",
       "livery": "салатовый",
       "noteHtml": "",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "factoryNumber": true
+      }
     },
     {
       "type": "Троллейбус",
@@ -21262,7 +21275,14 @@
       "factoryNumber": "90000318",
       "livery": "салатовый",
       "noteHtml": "",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "factoryNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Троллейбус",
@@ -21358,7 +21378,14 @@
       "factoryNumber": "90000377",
       "livery": "салатовый",
       "noteHtml": "",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "factoryNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Троллейбус",
@@ -21406,7 +21433,14 @@
       "factoryNumber": "90000423",
       "livery": "салатовый",
       "noteHtml": "",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "factoryNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Троллейбус",
@@ -21814,7 +21848,14 @@
       "factoryNumber": "90000344",
       "livery": "салатовый",
       "noteHtml": "⇐ 2216",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "factoryNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Троллейбус",
@@ -21886,7 +21927,14 @@
       "factoryNumber": "А0000565",
       "livery": "салатовый",
       "noteHtml": "⇐ 2719",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "factoryNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Троллейбус",

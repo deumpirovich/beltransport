@@ -1,5 +1,5 @@
 {
-  "updatedAt": "02.06.2026 18:51",
+  "updatedAt": "13.06.2026 15:54",
   "vehicles": [
     {
       "type": "Автобус",
@@ -43,93 +43,149 @@
     {
       "type": "Троллейбус",
       "model": "БКМ-32100",
-      "year": "",
+      "year": "2010",
       "park": "ТП5",
-      "licensePlate": "",
+      "licensePlate": "5655 (2719)",
       "exNumber": "",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "A0000565",
       "writeoffDate": "05.2026",
       "note": "",
-      "gray": {}
+      "gray": {
+        "type": true,
+        "model": true,
+        "year": true,
+        "park": true,
+        "vehicleNumber": true,
+        "factoryNumber": true,
+        "writeoffDate": true
+      }
     },
     {
       "type": "Троллейбус",
       "model": "БКМ-32100",
-      "year": "",
+      "year": "2009",
       "park": "ТП5",
-      "licensePlate": "",
+      "licensePlate": "5633 (2216)",
       "exNumber": "",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "90000344",
       "writeoffDate": "05.2026",
       "note": "",
-      "gray": {}
+      "gray": {
+        "type": true,
+        "model": true,
+        "year": true,
+        "park": true,
+        "vehicleNumber": true,
+        "factoryNumber": true,
+        "writeoffDate": true
+      }
+    },
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-32100 (у/п)",
+      "year": "2009",
+      "park": "ТП5",
+      "licensePlate": "5525",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "90000423",
+      "writeoffDate": "05.2026",
+      "note": "",
+      "gray": {
+        "type": true,
+        "model": true,
+        "year": true,
+        "park": true,
+        "vehicleNumber": true,
+        "factoryNumber": true,
+        "writeoffDate": true
+      }
     },
     {
       "type": "Троллейбус",
       "model": "БКМ-32100",
-      "year": "",
+      "year": "2009",
       "park": "ТП5",
-      "licensePlate": "",
+      "licensePlate": "5516",
       "exNumber": "",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "90000377",
       "writeoffDate": "05.2026",
       "note": "",
-      "gray": {}
+      "gray": {
+        "type": true,
+        "model": true,
+        "year": true,
+        "park": true,
+        "vehicleNumber": true,
+        "factoryNumber": true,
+        "writeoffDate": true
+      }
     },
     {
       "type": "Троллейбус",
       "model": "БКМ-32100",
-      "year": "",
+      "year": "2009",
       "park": "ТП5",
-      "licensePlate": "",
+      "licensePlate": "5504",
       "exNumber": "",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "90000318",
       "writeoffDate": "05.2026",
       "note": "",
-      "gray": {}
+      "gray": {
+        "type": true,
+        "model": true,
+        "year": true,
+        "park": true,
+        "vehicleNumber": true,
+        "factoryNumber": true,
+        "writeoffDate": true
+      }
     },
     {
       "type": "Троллейбус",
       "model": "БКМ-32100",
-      "year": "",
+      "year": "2008",
       "park": "ТП5",
-      "licensePlate": "",
+      "licensePlate": "5476",
       "exNumber": "",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "80000185",
       "writeoffDate": "05.2026",
       "note": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "model": "БКМ-32100",
-      "year": "",
-      "park": "ТП5",
-      "licensePlate": "",
-      "exNumber": "",
-      "garageNumber": "",
-      "factoryNumber": "",
-      "writeoffDate": "05.2026",
-      "note": "",
-      "gray": {}
+      "gray": {
+        "type": true,
+        "model": true,
+        "year": true,
+        "park": true,
+        "vehicleNumber": true,
+        "factoryNumber": true,
+        "writeoffDate": true
+      }
     },
     {
       "type": "Троллейбус",
       "model": "БКМ-32102",
-      "year": "",
+      "year": "2008",
       "park": "ТП5",
-      "licensePlate": "",
+      "licensePlate": "5445",
       "exNumber": "",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "80000327",
       "writeoffDate": "05.2026",
       "note": "",
-      "gray": {}
+      "gray": {
+        "type": true,
+        "model": true,
+        "year": true,
+        "park": true,
+        "vehicleNumber": true,
+        "factoryNumber": true,
+        "writeoffDate": true
+      }
     },
     {
       "type": "Троллейбус",
