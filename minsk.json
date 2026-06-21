@@ -1,5 +1,5 @@
 {
-  "updatedAt": "19.06.2026 13:02",
+  "updatedAt": "21.06.2026 17:20",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -13059,11 +13059,11 @@
       "vehicleNumber": "АН8959-7",
       "year": "2014",
       "model": "МАЗ-215",
-      "park": "ТП1",
-      "garageNumber": "39314",
+      "park": "АП6",
+      "garageNumber": "",
       "factoryNumber": "",
       "livery": "жёлтый",
-      "noteHtml": "⇐ АП5 - 42935",
+      "noteHtml": "⇐ ТП1 - 39314 ⇐ АП5 - 42935",
       "gray": {}
     },
     {
