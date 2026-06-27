@@ -1,6 +1,30 @@
 {
-  "updatedAt": "25.06.2026 10:03",
+  "updatedAt": "27.06.2026 09:59",
   "vehicles": [
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "3681",
+      "year": "2026",
+      "model": "БКМ-433D",
+      "park": "ТП3",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {}
+    },
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "2060",
+      "year": "2026",
+      "model": "МАЗ-303Т",
+      "park": "ТП2",
+      "garageNumber": "",
+      "factoryNumber": "T0000170",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {}
+    },
     {
       "type": "ТУАХ",
       "vehicleNumber": "4325",
@@ -119,8 +143,8 @@
       "year": "2026",
       "model": "МАЗ-303Т",
       "park": "ТП2",
-      "garageNumber": "T0000171",
-      "factoryNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "T0000171",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
@@ -132,7 +156,7 @@
       "model": "МАЗ-303Т",
       "park": "ТП2",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000168",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
@@ -143,8 +167,8 @@
       "year": "2026",
       "model": "МАЗ-303Т",
       "park": "ТП3",
-      "garageNumber": "T0000157",
-      "factoryNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "T0000157",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
@@ -167,8 +191,8 @@
       "year": "2026",
       "model": "БКМ-433D",
       "park": "ТП2",
-      "garageNumber": "T0000083",
-      "factoryNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "T0000083",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
@@ -179,8 +203,8 @@
       "year": "2026",
       "model": "МАЗ-303Т",
       "park": "ТП2",
-      "garageNumber": "T0000160",
-      "factoryNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "T0000160",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
