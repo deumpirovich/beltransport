@@ -1,81 +1,11 @@
 {
-  "updatedAt": "30.06.2026 07:38",
+  "updatedAt": "30.06.2026 22:36",
   "vehicles": [
-    {
-      "type": "ТУАХ",
-      "vehicleNumber": "2520",
-      "year": "2026",
-      "model": "БКМ-433D",
-      "park": "ТП2",
-      "garageNumber": "",
-      "factoryNumber": "",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true
-      }
-    },
     {
       "type": "ТУАХ",
       "vehicleNumber": "2519",
       "year": "2026",
       "model": "БКМ-433D",
-      "park": "ТП2",
-      "garageNumber": "",
-      "factoryNumber": "",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true
-      }
-    },
-    {
-      "type": "ТУАХ",
-      "vehicleNumber": "2062",
-      "year": "2026",
-      "model": "МАЗ-303Т",
-      "park": "ТП2",
-      "garageNumber": "",
-      "factoryNumber": "",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true
-      }
-    },
-    {
-      "type": "ТУАХ",
-      "vehicleNumber": "2061",
-      "year": "2026",
-      "model": "МАЗ-303Т",
-      "park": "ТП2",
-      "garageNumber": "",
-      "factoryNumber": "",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true
-      }
-    },
-    {
-      "type": "ТУАХ",
-      "vehicleNumber": "2059",
-      "year": "2026",
-      "model": "МАЗ-303Т",
-      "park": "ТП2",
-      "garageNumber": "",
-      "factoryNumber": "",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true
-      }
-    },
-    {
-      "type": "ТУАХ",
-      "vehicleNumber": "2058",
-      "year": "2026",
-      "model": "МАЗ-303Т",
       "park": "ТП2",
       "garageNumber": "",
       "factoryNumber": "",
@@ -25474,18 +25404,6 @@
     },
     {
       "type": "Трамвай",
-      "vehicleNumber": "159",
-      "year": "2010",
-      "model": "БКМ-60102",
-      "park": "ТрамП",
-      "garageNumber": "",
-      "factoryNumber": "0166",
-      "livery": "бирюзовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Трамвай",
       "vehicleNumber": "160",
       "year": "2010",
       "model": "БКМ-60102",
@@ -25524,7 +25442,7 @@
       "type": "Трамвай",
       "vehicleNumber": "166",
       "year": "2011",
-      "model": "БКМ-60102",
+      "model": "БКМ-60102МН",
       "park": "ТрамП",
       "garageNumber": "",
       "factoryNumber": "0171",
@@ -25536,7 +25454,7 @@
       "type": "Трамвай",
       "vehicleNumber": "167",
       "year": "2011",
-      "model": "БКМ-60102",
+      "model": "БКМ-60102МН",
       "park": "ТрамП",
       "garageNumber": "",
       "factoryNumber": "0172",
