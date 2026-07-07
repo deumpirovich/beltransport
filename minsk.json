@@ -1,5 +1,5 @@
 {
-  "updatedAt": "07.07.2026 10:51",
+  "updatedAt": "07.07.2026 18:50",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -276,7 +276,7 @@
       "model": "МАЗ-303Т",
       "park": "ТП3",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000163",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
