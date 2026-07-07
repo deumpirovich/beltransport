@@ -1,6 +1,126 @@
 {
-  "updatedAt": "06.07.2026 20:20",
+  "updatedAt": "07.07.2026 10:56",
   "vehicles": [
+    {
+      "type": "ТУАХ",
+      "model": "МАЗ-303Т20",
+      "year": "2026",
+      "deliveryDate": "07.2026",
+      "park": "ТП4",
+      "licensePlate": "4328",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {
+        "type": true,
+        "model": true,
+        "year": true,
+        "deliveryDate": true,
+        "park": true,
+        "color": true,
+        "vehicleNumber": true
+      }
+    },
+    {
+      "type": "ТУАХ",
+      "model": "МАЗ-303Т20",
+      "year": "2026",
+      "deliveryDate": "07.2026",
+      "park": "ТП2",
+      "licensePlate": "2062",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {
+        "type": true,
+        "model": true,
+        "year": true,
+        "deliveryDate": true,
+        "park": true,
+        "color": true,
+        "vehicleNumber": true
+      }
+    },
+    {
+      "type": "ТУАХ",
+      "model": "МАЗ-303Т20",
+      "year": "2026",
+      "deliveryDate": "07.2026",
+      "park": "ТП2",
+      "licensePlate": "2061",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {
+        "type": true,
+        "model": true,
+        "year": true,
+        "deliveryDate": true,
+        "park": true,
+        "color": true,
+        "vehicleNumber": true
+      }
+    },
+    {
+      "type": "ТУАХ",
+      "model": "МАЗ-303Т20",
+      "year": "2026",
+      "deliveryDate": "07.2026",
+      "park": "ТП2",
+      "licensePlate": "2059",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {
+        "type": true,
+        "model": true,
+        "year": true,
+        "deliveryDate": true,
+        "park": true,
+        "color": true,
+        "vehicleNumber": true
+      }
+    },
+    {
+      "type": "ТУАХ",
+      "model": "МАЗ-303Т20",
+      "year": "2026",
+      "deliveryDate": "07.2026",
+      "park": "ТП2",
+      "licensePlate": "2058",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {
+        "type": true,
+        "model": true,
+        "year": true,
+        "deliveryDate": true,
+        "park": true,
+        "color": true,
+        "vehicleNumber": true
+      }
+    },
+    {
+      "type": "ТУАХ",
+      "model": "БКМ-43300D",
+      "year": "2026",
+      "deliveryDate": "07.2026",
+      "park": "ТП2",
+      "licensePlate": "2520",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {
+        "type": true,
+        "model": true,
+        "year": true,
+        "deliveryDate": true,
+        "park": true,
+        "color": true,
+        "vehicleNumber": true
+      }
+    },
     {
       "type": "ТУАХ",
       "model": "БКМ-43300D",
@@ -12,7 +132,13 @@
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": true,
+        "type": true,
+        "model": true,
+        "year": true,
+        "deliveryDate": true,
+        "park": true,
+        "color": true
       }
     },
     {
@@ -54,7 +180,7 @@
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
