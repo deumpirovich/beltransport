@@ -1,5 +1,5 @@
 {
-  "updatedAt": "07.07.2026 18:50",
+  "updatedAt": "08.07.2026 07:16",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -123,22 +123,22 @@
     },
     {
       "type": "ТУАХ",
-      "model": "БКМ-43300D",
+      "model": "",
       "year": "2026",
       "deliveryDate": "07.2026",
       "park": "ТП5",
-      "licensePlate": "5303",
+      "licensePlate": "5143",
       "factoryNumber": "",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
-        "vehicleNumber": true,
-        "type": true,
+        "vehicleNumber": false,
+        "type": false,
         "model": true,
-        "year": true,
-        "deliveryDate": true,
-        "park": true,
-        "color": true
+        "year": false,
+        "deliveryDate": false,
+        "park": false,
+        "color": false
       }
     },
     {
@@ -176,7 +176,7 @@
       "deliveryDate": "06.2026",
       "park": "ТП4",
       "licensePlate": "4326",
-      "factoryNumber": "",
+      "factoryNumber": "T0000173",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
@@ -214,7 +214,7 @@
       "deliveryDate": "06.2026",
       "park": "ТП4",
       "licensePlate": "4325",
-      "factoryNumber": "",
+      "factoryNumber": "T0000166",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
