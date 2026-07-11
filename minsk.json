@@ -1,6 +1,18 @@
 {
-  "updatedAt": "08.07.2026 13:34",
+  "updatedAt": "11.07.2026 12:50",
   "vehicles": [
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "3683",
+      "year": "2026",
+      "model": "БКМ-433D",
+      "park": "ТП3",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {}
+    },
     {
       "type": "ТУАХ",
       "vehicleNumber": "4335",
@@ -174,7 +186,7 @@
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
-        "vehicleNumber": true,
+        "vehicleNumber": false,
         "year": false,
         "model": false,
         "park": false
@@ -192,9 +204,10 @@
       "noteHtml": "",
       "gray": {
         "vehicleNumber": true,
-        "year": false,
-        "model": false,
-        "park": false
+        "year": true,
+        "model": true,
+        "park": true,
+        "livery": true
       }
     },
     {
@@ -280,11 +293,11 @@
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "livery": true
+        "vehicleNumber": false,
+        "year": false,
+        "model": false,
+        "park": false,
+        "livery": false
       }
     },
     {
@@ -298,11 +311,11 @@
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "livery": true
+        "vehicleNumber": false,
+        "year": false,
+        "model": false,
+        "park": false,
+        "livery": false
       }
     },
     {
@@ -330,11 +343,11 @@
       "model": "БКМ-433D",
       "park": "ТП2",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000081",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
