@@ -1,5 +1,5 @@
 {
-  "updatedAt": "11.07.2026 12:52",
+  "updatedAt": "13.07.2026 09:54",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -219,13 +219,13 @@
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
-        "type": true,
-        "model": true,
-        "year": true,
-        "deliveryDate": true,
-        "park": true,
+        "type": false,
+        "model": false,
+        "year": false,
+        "deliveryDate": false,
+        "park": false,
         "vehicleNumber": true,
-        "color": true
+        "color": false
       }
     },
     {
@@ -239,12 +239,12 @@
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
-        "type": true,
-        "model": true,
-        "year": true,
-        "deliveryDate": true,
-        "park": true,
-        "color": true,
+        "type": false,
+        "model": false,
+        "year": false,
+        "deliveryDate": false,
+        "park": false,
+        "color": false,
         "vehicleNumber": true
       }
     },
@@ -389,11 +389,11 @@
       "deliveryDate": "06.2026",
       "park": "ТП4",
       "licensePlate": "4327",
-      "factoryNumber": "",
+      "factoryNumber": "T0000164",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
