@@ -1,5 +1,5 @@
 {
-  "updatedAt": "14.07.2026 16:50",
+  "updatedAt": "15.07.2026 07:52",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -7,7 +7,31 @@
       "year": "2026",
       "deliveryDate": "07.2026",
       "park": "ТП3",
+      "licensePlate": "3684",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {}
+    },
+    {
+      "type": "ТУАХ",
+      "model": "БКМ-43300D",
+      "year": "2026",
+      "deliveryDate": "07.2026",
+      "park": "ТП3",
       "licensePlate": "3683",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {}
+    },
+    {
+      "type": "ТУАХ",
+      "model": "БКМ-43300D",
+      "year": "2026",
+      "deliveryDate": "07.2026",
+      "park": "ТП3",
+      "licensePlate": "3682",
       "factoryNumber": "",
       "garageNumber": "",
       "color": "салатовый",
@@ -39,13 +63,13 @@
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
-        "vehicleNumber": true,
-        "model": true,
-        "type": true,
-        "year": true,
-        "deliveryDate": true,
-        "color": true,
-        "park": true
+        "vehicleNumber": false,
+        "model": false,
+        "type": false,
+        "year": false,
+        "deliveryDate": false,
+        "color": false,
+        "park": false
       }
     },
     {
@@ -79,13 +103,13 @@
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
-        "type": true,
-        "model": true,
-        "year": true,
-        "deliveryDate": true,
-        "park": true,
-        "vehicleNumber": true,
-        "color": true
+        "type": false,
+        "model": false,
+        "year": false,
+        "deliveryDate": false,
+        "park": false,
+        "vehicleNumber": false,
+        "color": false
       }
     },
     {
@@ -295,7 +319,7 @@
       "deliveryDate": "07.2026",
       "park": "ТП2",
       "licensePlate": "2059",
-      "factoryNumber": "",
+      "factoryNumber": "T0000161",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
