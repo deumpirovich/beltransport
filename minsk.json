@@ -1,5 +1,5 @@
 {
-  "updatedAt": "16.07.2026 18:59",
+  "updatedAt": "17.07.2026 13:14",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -173,7 +173,7 @@
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
-        "vehicleNumber": true,
+        "vehicleNumber": false,
         "year": false,
         "model": false,
         "park": false,
