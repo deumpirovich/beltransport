@@ -1,5 +1,5 @@
 {
-  "updatedAt": "22.07.2026 09:55",
+  "updatedAt": "22.07.2026 12:03",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -8507,18 +8507,6 @@
       "model": "МАЗ-103с",
       "park": "АП6",
       "garageNumber": "42674",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АО2245-7",
-      "year": "2014",
-      "model": "МАЗ-103с",
-      "park": "АП6",
-      "garageNumber": "42668",
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
