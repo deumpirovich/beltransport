@@ -1,6 +1,18 @@
 {
-  "updatedAt": "22.07.2026 09:58",
+  "updatedAt": "23.07.2026 10:40",
   "vehicles": [
+    {
+      "type": "ТУАХ",
+      "model": "МАЗ-303Т20",
+      "year": "2026",
+      "deliveryDate": "07.2026",
+      "park": "ТП3",
+      "licensePlate": "3389",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {}
+    },
     {
       "type": "ТУАХ",
       "model": "МАЗ-303Т20",
@@ -180,7 +192,7 @@
         "year": false,
         "deliveryDate": false,
         "park": false,
-        "vehicleNumber": true,
+        "vehicleNumber": false,
         "color": false
       }
     },
