@@ -1,5 +1,5 @@
 {
-  "updatedAt": "01.08.2026 10:00",
+  "updatedAt": "01.08.2026 10:19",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -16170,18 +16170,6 @@
       "park": "ТП2",
       "garageNumber": "",
       "factoryNumber": "80000199",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "2206",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП2",
-      "garageNumber": "",
-      "factoryNumber": "80000217",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
