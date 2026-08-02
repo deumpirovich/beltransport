@@ -1,5 +1,5 @@
 {
-  "updatedAt": "02.08.2026 11:12",
+  "updatedAt": "02.08.2026 22:04",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -19994,18 +19994,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "4612",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП4",
-      "garageNumber": "",
-      "factoryNumber": "80000246",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "4616",
       "year": "2008",
       "model": "БКМ-321",
@@ -20618,18 +20606,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "4684",
-      "year": "2009",
-      "model": "БКМ-321",
-      "park": "ТП4",
-      "garageNumber": "",
-      "factoryNumber": "90000364",
-      "livery": "салатовый",
-      "noteHtml": "⇐ 2238",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "4685",
       "year": "2009",
       "model": "БКМ-321",
@@ -20638,18 +20614,6 @@
       "factoryNumber": "90000468",
       "livery": "салатовый",
       "noteHtml": "⇐ 2284",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "4691",
-      "year": "2010",
-      "model": "БКМ-321",
-      "park": "ТП4",
-      "garageNumber": "",
-      "factoryNumber": "А0000527",
-      "livery": "салатовый",
-      "noteHtml": "⇐ 2700",
       "gray": {}
     },
     {
@@ -20746,18 +20710,6 @@
       "factoryNumber": "90000359",
       "livery": "салатовый",
       "noteHtml": "⇐ 3041",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "4701",
-      "year": "2009",
-      "model": "БКМ-321",
-      "park": "ТП4",
-      "garageNumber": "",
-      "factoryNumber": "90000360",
-      "livery": "салатовый",
-      "noteHtml": "⇐ 3042",
       "gray": {}
     },
     {
