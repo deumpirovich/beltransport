@@ -1,5 +1,5 @@
 {
-  "updatedAt": "02.08.2026 22:05",
+  "updatedAt": "03.08.2026 09:07",
   "vehicles": [
     {
       "type": "Троллейбус",
@@ -56,12 +56,12 @@
     {
       "type": "Троллейбус",
       "model": "БКМ-32100",
-      "year": "",
+      "year": "2008",
       "park": "ТП4",
-      "licensePlate": "",
+      "licensePlate": "4683 (2201)",
       "exNumber": "",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "80000187",
       "writeoffDate": "07.2026",
       "note": "",
       "gray": {}
