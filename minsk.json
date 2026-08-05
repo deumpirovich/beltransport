@@ -1,5 +1,5 @@
 {
-  "updatedAt": "04.08.2026 13:44",
+  "updatedAt": "05.08.2026 15:07",
   "vehicles": [
     {
       "type": "Электробус",
@@ -22932,7 +22932,7 @@
       "model": "МАЗ-303Т",
       "park": "ТП5",
       "garageNumber": "",
-      "factoryNumber": "T00000177",
+      "factoryNumber": "T0000177",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
@@ -23046,7 +23046,7 @@
       "model": "БКМ-433D",
       "park": "ТП5",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000086",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
