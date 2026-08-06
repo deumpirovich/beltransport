@@ -1,6 +1,18 @@
 {
-  "updatedAt": "05.08.2026 15:08",
+  "updatedAt": "06.08.2026 16:45",
   "vehicles": [
+    {
+      "type": "ТУАХ",
+      "model": "БКМ-43300D",
+      "year": "2026",
+      "deliveryDate": "08.2026",
+      "park": "ТП5",
+      "licensePlate": "5305",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {}
+    },
     {
       "type": "ТУАХ",
       "model": "МАЗ-303Т20",
