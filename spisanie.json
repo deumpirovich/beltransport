@@ -1,5 +1,5 @@
 {
-  "updatedAt": "07.08.2026 12:43",
+  "updatedAt": "08.08.2026 18:41",
   "vehicles": [
     {
       "type": "Троллейбус",
@@ -160,12 +160,12 @@
     {
       "type": "Троллейбус",
       "model": "БКМ-32100",
-      "year": "",
+      "year": "2009",
       "park": "ТП2",
-      "licensePlate": "",
+      "licensePlate": "2214",
       "exNumber": "",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "90000320",
       "writeoffDate": "07.2026",
       "note": "",
       "gray": {}
@@ -173,12 +173,12 @@
     {
       "type": "Троллейбус",
       "model": "БКМ-32100",
-      "year": "2009",
+      "year": "2008",
       "park": "ТП2",
       "licensePlate": "2206",
       "exNumber": "",
       "garageNumber": "",
-      "factoryNumber": "90000217",
+      "factoryNumber": "80000217",
       "writeoffDate": "07.2026",
       "note": "",
       "gray": {}
