@@ -1,5 +1,5 @@
 {
-  "updatedAt": "10.08.2026 18:21",
+  "updatedAt": "10.08.2026 18:42",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -33,7 +33,7 @@
       "park": "АП6",
       "garageNumber": "33390",
       "factoryNumber": "",
-      "livery": "зелёный",
+      "livery": "жёлтый",
       "noteHtml": "",
       "gray": {}
     },
