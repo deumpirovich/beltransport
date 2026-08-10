@@ -1,6 +1,42 @@
 {
-  "updatedAt": "08.08.2026 18:39",
+  "updatedAt": "10.08.2026 18:21",
   "vehicles": [
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "5307",
+      "year": "2026",
+      "model": "БКМ-433D",
+      "park": "ТП5",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {}
+    },
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "5306",
+      "year": "2026",
+      "model": "БКМ-433D",
+      "park": "ТП5",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {}
+    },
+    {
+      "type": "Автобус",
+      "vehicleNumber": "АЕ3912-7",
+      "year": "2008",
+      "model": "МАЗ-203",
+      "park": "АП6",
+      "garageNumber": "33390",
+      "factoryNumber": "",
+      "livery": "зелёный",
+      "noteHtml": "",
+      "gray": {}
+    },
     {
       "type": "ТУАХ",
       "vehicleNumber": "5305",
