@@ -1,5 +1,5 @@
 {
-  "updatedAt": "10.08.2026 18:42",
+  "updatedAt": "11.08.2026 18:19",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -923,7 +923,7 @@
       "model": "МАЗ-303Т",
       "park": "ТП5",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000178",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
@@ -10937,18 +10937,6 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "АС4035-7",
-      "year": "2019",
-      "model": "Неман-4202",
-      "park": "АП5",
-      "garageNumber": "15172",
-      "factoryNumber": "",
-      "livery": "белый / перевозчик \"Минсктранс\"",
-      "noteHtml": "⇐ 62529 ⇐ АП2 - 14941",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
       "vehicleNumber": "АС4072-7",
       "year": "2019",
       "model": "Неман-4202",
@@ -14645,18 +14633,6 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "АС1881-7",
-      "year": "2018",
-      "model": "МАЗ-203",
-      "park": "АП6",
-      "garageNumber": "15172",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
       "vehicleNumber": "АС1882-7",
       "year": "2018",
       "model": "МАЗ-203",
@@ -17101,18 +17077,6 @@
       "factoryNumber": "F0000175",
       "livery": "салатовый",
       "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "5606",
-      "year": "2015",
-      "model": "БКМ-321",
-      "park": "ТП5",
-      "garageNumber": "",
-      "factoryNumber": "F0001188",
-      "livery": "салатовый",
-      "noteHtml": "⇐ 2742",
       "gray": {}
     },
     {
@@ -22860,18 +22824,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "3046",
-      "year": "2009",
-      "model": "БКМ-321",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "90000367",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "3047",
       "year": "2009",
       "model": "БКМ-321",
@@ -23328,18 +23280,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "5502",
-      "year": "2009",
-      "model": "БКМ-321",
-      "park": "ТП5",
-      "garageNumber": "",
-      "factoryNumber": "90000314",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "5506",
       "year": "2009",
       "model": "БКМ-321",
@@ -23640,18 +23580,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "5553",
-      "year": "2009",
-      "model": "БКМ-321",
-      "park": "ТП5",
-      "garageNumber": "",
-      "factoryNumber": "90000473",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "5601",
       "year": "2009",
       "model": "БКМ-321 (у/п)",
@@ -23732,18 +23660,6 @@
       "factoryNumber": "90000029",
       "livery": "салатовый",
       "noteHtml": "⇐ 2611",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "5627",
-      "year": "2009",
-      "model": "БКМ-333",
-      "park": "ТП5",
-      "garageNumber": "",
-      "factoryNumber": "90000115",
-      "livery": "салатовый",
-      "noteHtml": "⇐ 2607",
       "gray": {}
     },
     {
@@ -24276,18 +24192,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "3095",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "80000254",
-      "livery": "салатовый",
-      "noteHtml": "⇐ 2211",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "3446",
       "year": "2008",
       "model": "БКМ-321",
@@ -24396,18 +24300,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "3494",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "80000297",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "4593",
       "year": "2008",
       "model": "БКМ-321",
@@ -24462,18 +24354,6 @@
       "park": "ТП5",
       "garageNumber": "",
       "factoryNumber": "80000302",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "5452",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП5",
-      "garageNumber": "",
-      "factoryNumber": "80000117",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
@@ -24540,18 +24420,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "5473",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП5",
-      "garageNumber": "",
-      "factoryNumber": "80000158",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "5630",
       "year": "2008",
       "model": "БКМ-321",
@@ -24560,18 +24428,6 @@
       "factoryNumber": "80000155",
       "livery": "салатовый",
       "noteHtml": "⇐ 2199",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "5643",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП5",
-      "garageNumber": "",
-      "factoryNumber": "80000083",
-      "livery": "салатовый",
-      "noteHtml": "⇐ 2176",
       "gray": {}
     },
     {
