@@ -1,5 +1,5 @@
 {
-  "updatedAt": "11.08.2026 18:04",
+  "updatedAt": "12.08.2026 09:19",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -110,7 +110,7 @@
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
