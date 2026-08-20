@@ -1,5 +1,5 @@
 {
-  "updatedAt": "11.08.2026 18:13",
+  "updatedAt": "20.08.2026 13:14",
   "vehicles": [
     {
       "type": "Автобус",
@@ -266,8 +266,8 @@
       "model": "БКМ-60102МН",
       "year": "2010",
       "park": "ТрП",
-      "licensePlate": "166",
-      "exNumber": "159",
+      "licensePlate": "159",
+      "exNumber": "",
       "garageNumber": "",
       "factoryNumber": "0166",
       "writeoffDate": "06.2026",

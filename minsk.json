@@ -1,5 +1,5 @@
 {
-  "updatedAt": "20.08.2026 11:18",
+  "updatedAt": "20.08.2026 13:13",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -21412,14 +21412,14 @@
     },
     {
       "type": "Трамвай",
-      "vehicleNumber": "159",
+      "vehicleNumber": "166",
       "year": "2011",
       "model": "БКМ-60102МН",
       "park": "ТрамП",
       "garageNumber": "",
       "factoryNumber": "0171",
       "livery": "бирюзовый",
-      "noteHtml": "⇐ 166",
+      "noteHtml": "<br>",
       "gray": {}
     },
     {
