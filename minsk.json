@@ -1,5 +1,5 @@
 {
-  "updatedAt": "20.08.2026 20:16",
+  "updatedAt": "21.08.2026 11:34",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -21160,18 +21160,6 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "АК4208-7",
-      "year": "2011",
-      "model": "МАЗ-103",
-      "park": "ТП2",
-      "garageNumber": "41025",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "⇐ АП2",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
       "vehicleNumber": "АК4793-7",
       "year": "2011",
       "model": "МАЗ-203",
@@ -22545,18 +22533,6 @@
       "model": "МАЗ-203",
       "park": "ТП1",
       "garageNumber": "12611",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АК0884-7",
-      "year": "2009",
-      "model": "МАЗ-203",
-      "park": "ТП1",
-      "garageNumber": "25781",
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",

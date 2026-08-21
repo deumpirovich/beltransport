@@ -1,6 +1,32 @@
 {
-  "updatedAt": "20.08.2026 13:14",
+  "updatedAt": "21.08.2026 11:34",
   "vehicles": [
+    {
+      "type": "Автобус",
+      "model": "МАЗ-203",
+      "year": "2009",
+      "park": "ТП1",
+      "licensePlate": "АК0884-7",
+      "exNumber": "",
+      "garageNumber": "25781",
+      "factoryNumber": "",
+      "writeoffDate": "08.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Автобус",
+      "model": "МАЗ-103",
+      "year": "2011",
+      "park": "ТП2",
+      "licensePlate": "АК4208-7",
+      "exNumber": "",
+      "garageNumber": "41025",
+      "factoryNumber": "",
+      "writeoffDate": "08.2026",
+      "note": "",
+      "gray": {}
+    },
     {
       "type": "Автобус",
       "model": "Неман-4202",
