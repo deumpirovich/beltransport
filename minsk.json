@@ -1,5 +1,5 @@
 {
-  "updatedAt": "21.08.2026 19:46",
+  "updatedAt": "22.08.2026 11:12",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -26,7 +26,7 @@
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
@@ -813,7 +813,7 @@
       "model": "МАЗ-303Т",
       "park": "ТП4",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000183",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
@@ -827,7 +827,7 @@
       "model": "МАЗ-303Т",
       "park": "ТП4",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000182",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
@@ -999,7 +999,7 @@
       "model": "МАЗ-303Т",
       "park": "ТП5",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000186",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
