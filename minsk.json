@@ -1,5 +1,5 @@
 {
-  "updatedAt": "22.08.2026 11:12",
+  "updatedAt": "23.08.2026 22:00",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -31,15 +31,17 @@
     },
     {
       "type": "ТУАХ",
-      "vehicleNumber": "5307",
+      "vehicleNumber": "4334",
       "year": "2026",
-      "model": "БКМ-433D",
-      "park": "ТП5",
+      "model": "МАЗ-303Т",
+      "park": "ТП4",
       "garageNumber": "",
       "factoryNumber": "",
       "livery": "салатовый",
       "noteHtml": "",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true
+      }
     },
     {
       "type": "ТУАХ",
@@ -507,7 +509,7 @@
       "model": "МАЗ-303Т",
       "park": "ТП3",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000185",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
