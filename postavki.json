@@ -1,6 +1,20 @@
 {
-  "updatedAt": "24.08.2026 17:31",
+  "updatedAt": "24.08.2026 18:28",
   "vehicles": [
+    {
+      "type": "ТУАХ",
+      "model": "БКМ-43300D",
+      "year": "2026",
+      "deliveryDate": "08.2026",
+      "park": "ТП5",
+      "licensePlate": "5307",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {
+        "vehicleNumber": true
+      }
+    },
     {
       "type": "ТУАХ",
       "model": "БКМ-43300D",
