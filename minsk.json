@@ -1,6 +1,18 @@
 {
-  "updatedAt": "28.08.2026 11:45",
+  "updatedAt": "30.08.2026 19:50",
   "vehicles": [
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "3686",
+      "year": "2026",
+      "model": "БКМ-433D",
+      "park": "ТП3",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {}
+    },
     {
       "type": "Автобус",
       "vehicleNumber": "",
