@@ -1,5 +1,5 @@
 {
-  "updatedAt": "04.09.2026 10:02",
+  "updatedAt": "04.09.2026 12:09",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -22900,30 +22900,6 @@
       "park": "ТП2",
       "garageNumber": "",
       "factoryNumber": "90000346",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "2236",
-      "year": "2009",
-      "model": "БКМ-321",
-      "park": "ТП2",
-      "garageNumber": "",
-      "factoryNumber": "90000363",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "2242",
-      "year": "2009",
-      "model": "БКМ-321",
-      "park": "ТП2",
-      "garageNumber": "",
-      "factoryNumber": "90000368",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
