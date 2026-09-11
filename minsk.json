@@ -1,5 +1,5 @@
 {
-  "updatedAt": "10.09.2026 19:23",
+  "updatedAt": "11.09.2026 07:32",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -121,7 +121,7 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "",
+      "vehicleNumber": "ВВ4874-7",
       "year": "2026",
       "model": "МАЗ-303",
       "park": "АП5",
@@ -133,7 +133,7 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "",
+      "vehicleNumber": "ВВ4881-7",
       "year": "2026",
       "model": "МАЗ-303",
       "park": "АП5",
@@ -145,7 +145,7 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "",
+      "vehicleNumber": "ВВ4916-7",
       "year": "2026",
       "model": "МАЗ-303",
       "park": "АП5",
