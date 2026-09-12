@@ -1,5 +1,5 @@
 {
-  "updatedAt": "12.09.2026 07:05",
+  "updatedAt": "12.09.2026 19:54",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -75,7 +75,7 @@
       "park": "АП5",
       "licensePlate": "BB4874-7",
       "factoryNumber": "",
-      "garageNumber": "",
+      "garageNumber": "43760",
       "color": "жёлтый",
       "gray": {}
     },
