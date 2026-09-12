@@ -1,5 +1,5 @@
 {
-  "updatedAt": "11.09.2026 07:44",
+  "updatedAt": "12.09.2026 07:05",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -379,7 +379,7 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "",
+      "vehicleNumber": "ВВ4907-7",
       "year": "2026",
       "model": "МАЗ-303",
       "park": "АП5",
