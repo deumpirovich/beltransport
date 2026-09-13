@@ -1,5 +1,5 @@
 {
-  "updatedAt": "13.09.2026 04:44",
+  "updatedAt": "13.09.2026 20:48",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -137,7 +137,7 @@
       "year": "2026",
       "model": "МАЗ-303",
       "park": "АП5",
-      "garageNumber": "",
+      "garageNumber": "15260",
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
