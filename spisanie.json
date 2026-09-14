@@ -1,5 +1,5 @@
 {
-  "updatedAt": "13.09.2026 04:45",
+  "updatedAt": "14.09.2026 18:42",
   "vehicles": [
     {
       "type": "Автобус",
@@ -297,7 +297,7 @@
       "garageNumber": "15172",
       "factoryNumber": "",
       "writeoffDate": "08.2026",
-      "note": "",
+      "note": "Передан в Трамвайный парк",
       "gray": {}
     },
     {
