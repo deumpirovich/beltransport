@@ -1,5 +1,5 @@
 {
-  "updatedAt": "15.09.2026 15:06",
+  "updatedAt": "16.09.2026 19:57",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -99,7 +99,7 @@
       "park": "АП5",
       "licensePlate": "ВВ4916-7",
       "factoryNumber": "",
-      "garageNumber": "",
+      "garageNumber": "25534",
       "color": "жёлтый",
       "gray": {}
     },
@@ -339,7 +339,7 @@
       "park": "ТП2",
       "licensePlate": "ВВ4888-7",
       "factoryNumber": "",
-      "garageNumber": "",
+      "garageNumber": "44050",
       "color": "жёлтый",
       "gray": {}
     },
@@ -351,7 +351,7 @@
       "park": "ТП2",
       "licensePlate": "ВВ4901-7",
       "factoryNumber": "",
-      "garageNumber": "",
+      "garageNumber": "44051",
       "color": "жёлтый",
       "gray": {}
     },
@@ -363,7 +363,7 @@
       "park": "ТП2",
       "licensePlate": "ВВ4910-7",
       "factoryNumber": "",
-      "garageNumber": "",
+      "garageNumber": "44052",
       "color": "жёлтый",
       "gray": {}
     },
@@ -375,7 +375,7 @@
       "park": "ТП2",
       "licensePlate": "ВВ4917-7",
       "factoryNumber": "",
-      "garageNumber": "",
+      "garageNumber": "44053",
       "color": "жёлтый",
       "gray": {}
     },
