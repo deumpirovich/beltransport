@@ -1,5 +1,5 @@
 {
-  "updatedAt": "17.09.2026 17:48",
+  "updatedAt": "18.09.2026 13:26",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -3478,7 +3478,7 @@
       "deliveryDate": "12.2024",
       "park": "АП5",
       "licensePlate": "ААЕ066-7",
-      "factoryNumber": "",
+      "factoryNumber": "R0000064",
       "garageNumber": "34355",
       "color": "жёлтый",
       "gray": {}
@@ -3490,7 +3490,7 @@
       "deliveryDate": "12.2024",
       "park": "АП5",
       "licensePlate": "ААЕ069-7",
-      "factoryNumber": "",
+      "factoryNumber": "R0000061",
       "garageNumber": "43745",
       "color": "жёлтый",
       "gray": {}
@@ -3994,7 +3994,7 @@
       "deliveryDate": "10.2024",
       "park": "АП5",
       "licensePlate": "ААЕ046-7",
-      "factoryNumber": "",
+      "factoryNumber": "R0000058",
       "garageNumber": "25497",
       "color": "жёлтый",
       "gray": {}
@@ -4006,7 +4006,7 @@
       "deliveryDate": "10.2024",
       "park": "АП5",
       "licensePlate": "ААЕ047-7",
-      "factoryNumber": "",
+      "factoryNumber": "R0000056",
       "garageNumber": "25501",
       "color": "жёлтый",
       "gray": {}
@@ -4018,7 +4018,7 @@
       "deliveryDate": "10.2024",
       "park": "АП5",
       "licensePlate": "ААЕ048-7",
-      "factoryNumber": "",
+      "factoryNumber": "R0000059",
       "garageNumber": "25518",
       "color": "жёлтый",
       "gray": {}
@@ -4030,7 +4030,7 @@
       "deliveryDate": "10.2024",
       "park": "АП5",
       "licensePlate": "ААЕ049-7",
-      "factoryNumber": "",
+      "factoryNumber": "R0000063",
       "garageNumber": "43737",
       "color": "жёлтый",
       "gray": {}
@@ -4042,7 +4042,7 @@
       "deliveryDate": "10.2024",
       "park": "АП5",
       "licensePlate": "ААЕ050-7",
-      "factoryNumber": "",
+      "factoryNumber": "R0000060",
       "garageNumber": "34339",
       "color": "жёлтый",
       "gray": {}
@@ -4054,7 +4054,7 @@
       "deliveryDate": "10.2024",
       "park": "АП5",
       "licensePlate": "ААЕ061-7",
-      "factoryNumber": "",
+      "factoryNumber": "R0000062",
       "garageNumber": "34347",
       "color": "жёлтый",
       "gray": {}
@@ -4066,7 +4066,7 @@
       "deliveryDate": "10.2024",
       "park": "АП5",
       "licensePlate": "ААЕ062-7",
-      "factoryNumber": "",
+      "factoryNumber": "R0000057",
       "garageNumber": "43729",
       "color": "жёлтый",
       "gray": {}
