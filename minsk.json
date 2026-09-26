@@ -1,6 +1,66 @@
 {
-  "updatedAt": "24.09.2026 18:50",
+  "updatedAt": "26.09.2026 22:04",
   "vehicles": [
+    {
+      "type": "Автобус",
+      "vehicleNumber": "",
+      "year": "2026",
+      "model": "МАЗ-216",
+      "park": "АП6",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "жёлтый",
+      "noteHtml": "",
+      "gray": {}
+    },
+    {
+      "type": "Автобус",
+      "vehicleNumber": "",
+      "year": "2026",
+      "model": "МАЗ-216",
+      "park": "АП6",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "жёлтый",
+      "noteHtml": "",
+      "gray": {}
+    },
+    {
+      "type": "Автобус",
+      "vehicleNumber": "",
+      "year": "2026",
+      "model": "МАЗ-216",
+      "park": "АП7",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "жёлтый",
+      "noteHtml": "",
+      "gray": {}
+    },
+    {
+      "type": "Автобус",
+      "vehicleNumber": "",
+      "year": "2026",
+      "model": "МАЗ-216",
+      "park": "АП7",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "жёлтый",
+      "noteHtml": "",
+      "gray": {}
+    },
+    {
+      "type": "Автобус",
+      "vehicleNumber": "",
+      "year": "2026",
+      "model": "МАЗ-216",
+      "park": "АП7",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "жёлтый",
+      "noteHtml": "",
+      "gray": {}
+    },
     {
       "type": "ТУАХ",
       "vehicleNumber": "4337",
