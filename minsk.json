@@ -1,5 +1,5 @@
 {
-  "updatedAt": "01.10.2026 13:01",
+  "updatedAt": "01.10.2026 15:49",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -21590,18 +21590,6 @@
       "model": "МАЗ-203",
       "park": "ТП2",
       "garageNumber": "31895",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "⇐ АП2",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АК6477-7",
-      "year": "2011",
-      "model": "МАЗ-203",
-      "park": "ТП2",
-      "garageNumber": "41114",
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "⇐ АП2",

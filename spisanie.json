@@ -1,5 +1,5 @@
 {
-  "updatedAt": "01.10.2026 13:02",
+  "updatedAt": "01.10.2026 15:52",
   "vehicles": [
     {
       "type": "Троллейбус",
@@ -160,11 +160,11 @@
     {
       "type": "Автобус",
       "model": "МАЗ-203",
-      "year": "",
+      "year": "2011",
       "park": "ТП2",
-      "licensePlate": "",
+      "licensePlate": "АК6477-7",
       "exNumber": "",
-      "garageNumber": "",
+      "garageNumber": "41114",
       "factoryNumber": "",
       "writeoffDate": "09.2026",
       "note": "",
