@@ -1,5 +1,5 @@
 {
-  "updatedAt": "02.10.2026 18:26",
+  "updatedAt": "02.10.2026 18:32",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -10,7 +10,7 @@
       "licensePlate": "2521",
       "factoryNumber": "T0000106",
       "garageNumber": "",
-      "color": "",
+      "color": "салатовый",
       "gray": {}
     },
     {
@@ -22,7 +22,7 @@
       "licensePlate": "2522",
       "factoryNumber": "T0000107",
       "garageNumber": "",
-      "color": "",
+      "color": "салатовый",
       "gray": {}
     },
     {
