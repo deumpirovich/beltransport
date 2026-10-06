@@ -1,5 +1,5 @@
 {
-  "updatedAt": "05.10.2026 19:23",
+  "updatedAt": "06.10.2026 10:42",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -86,11 +86,11 @@
       "model": "БКМ-433D",
       "park": "ТП5",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000109",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
