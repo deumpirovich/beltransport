@@ -1,6 +1,30 @@
 {
-  "updatedAt": "06.10.2026 10:42",
+  "updatedAt": "08.10.2026 13:31",
   "vehicles": [
+    {
+      "type": "Автобус",
+      "model": "МАЗ-216.047",
+      "year": "2026",
+      "deliveryDate": "10.2026",
+      "park": "АП5",
+      "licensePlate": "",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "",
+      "gray": {}
+    },
+    {
+      "type": "Автобус",
+      "model": "МАЗ-216.047",
+      "year": "2026",
+      "deliveryDate": "10.2026",
+      "park": "АП5",
+      "licensePlate": "",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "",
+      "gray": {}
+    },
     {
       "type": "ТУАХ",
       "model": "БКМ-43300D",
@@ -123,9 +147,9 @@
       "year": "2026",
       "deliveryDate": "10.2026",
       "park": "АП7",
-      "licensePlate": "",
+      "licensePlate": "ВВ5205-7",
       "factoryNumber": "",
-      "garageNumber": "",
+      "garageNumber": "34835",
       "color": "жёлтый",
       "gray": {}
     },
@@ -135,9 +159,9 @@
       "year": "2026",
       "deliveryDate": "10.2026",
       "park": "АП7",
-      "licensePlate": "",
+      "licensePlate": "ВВ5284-7",
       "factoryNumber": "",
-      "garageNumber": "",
+      "garageNumber": "24414",
       "color": "жёлтый",
       "gray": {}
     },
@@ -147,9 +171,9 @@
       "year": "2026",
       "deliveryDate": "10.2026",
       "park": "АП7",
-      "licensePlate": "",
+      "licensePlate": "ВВ5277-7",
       "factoryNumber": "",
-      "garageNumber": "",
+      "garageNumber": "34843",
       "color": "жёлтый",
       "gray": {}
     },
