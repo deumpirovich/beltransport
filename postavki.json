@@ -1,5 +1,5 @@
 {
-  "updatedAt": "08.10.2026 13:31",
+  "updatedAt": "09.10.2026 07:52",
   "vehicles": [
     {
       "type": "Автобус",
@@ -123,9 +123,9 @@
       "year": "2026",
       "deliveryDate": "10.2026",
       "park": "АП6",
-      "licensePlate": "",
+      "licensePlate": "ВВ5197-7",
       "factoryNumber": "",
-      "garageNumber": "",
+      "garageNumber": "15717",
       "color": "жёлтый",
       "gray": {}
     },
@@ -135,9 +135,9 @@
       "year": "2026",
       "deliveryDate": "10.2026",
       "park": "АП6",
-      "licensePlate": "",
+      "licensePlate": "ВВ5212-7",
       "factoryNumber": "",
-      "garageNumber": "",
+      "garageNumber": "24473",
       "color": "жёлтый",
       "gray": {}
     },

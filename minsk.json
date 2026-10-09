@@ -1,5 +1,5 @@
 {
-  "updatedAt": "08.10.2026 13:30",
+  "updatedAt": "09.10.2026 07:49",
   "vehicles": [
     {
       "type": "Автобус",
@@ -119,11 +119,11 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "",
+      "vehicleNumber": "ВВ5197-7",
       "year": "2026",
       "model": "МАЗ-216",
       "park": "АП6",
-      "garageNumber": "",
+      "garageNumber": "15717",
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
@@ -131,11 +131,11 @@
     },
     {
       "type": "Автобус",
-      "vehicleNumber": "",
+      "vehicleNumber": "ВВ5212-7",
       "year": "2026",
       "model": "МАЗ-216",
       "park": "АП6",
-      "garageNumber": "",
+      "garageNumber": "24473",
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
@@ -147,8 +147,8 @@
       "year": "2026",
       "model": "МАЗ-216",
       "park": "АП7",
-      "garageNumber": "",
-      "factoryNumber": "34835",
+      "garageNumber": "34835",
+      "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
       "gray": {}
@@ -159,8 +159,8 @@
       "year": "2026",
       "model": "МАЗ-216",
       "park": "АП7",
-      "garageNumber": "",
-      "factoryNumber": "34843",
+      "garageNumber": "34843",
+      "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
       "gray": {}
@@ -171,8 +171,8 @@
       "year": "2026",
       "model": "МАЗ-216",
       "park": "АП7",
-      "garageNumber": "",
-      "factoryNumber": "24414",
+      "garageNumber": "24414",
+      "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
       "gray": {}
