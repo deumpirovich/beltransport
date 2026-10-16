@@ -1,5 +1,5 @@
 {
-  "updatedAt": "15.10.2026 10:55",
+  "updatedAt": "16.10.2026 19:36",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -22,7 +22,7 @@
       "deliveryDate": "10.2026",
       "park": "АП5",
       "licensePlate": "ВВ5328-7",
-      "factoryNumber": "",
+      "factoryNumber": "43771",
       "garageNumber": "",
       "color": "жёлтый",
       "gray": {}
@@ -33,8 +33,8 @@
       "year": "2026",
       "deliveryDate": "10.2026",
       "park": "АП5",
-      "licensePlate": "ВВ5412-7",
-      "factoryNumber": "",
+      "licensePlate": "ВВ5402-7",
+      "factoryNumber": "25542",
       "garageNumber": "",
       "color": "жёлтый",
       "gray": {}

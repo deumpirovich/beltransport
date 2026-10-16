@@ -1,5 +1,5 @@
 {
-  "updatedAt": "15.10.2026 10:54",
+  "updatedAt": "16.10.2026 19:35",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -21,7 +21,7 @@
       "year": "2026",
       "model": "МАЗ-216",
       "park": "АП5",
-      "garageNumber": "",
+      "garageNumber": "43771",
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
@@ -33,7 +33,7 @@
       "year": "2026",
       "model": "МАЗ-216",
       "park": "АП5",
-      "garageNumber": "",
+      "garageNumber": "25542",
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
@@ -23253,18 +23253,6 @@
       "park": "ТП3",
       "garageNumber": "",
       "factoryNumber": "90000429",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "3063",
-      "year": "2009",
-      "model": "БКМ-321 (у/п)",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "90000433",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
