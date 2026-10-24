@@ -1,6 +1,60 @@
 {
-  "updatedAt": "23.10.2026 18:04",
+  "updatedAt": "24.10.2026 10:22",
   "vehicles": [
+    {
+      "type": "ТУАХ",
+      "model": "МАЗ-303Т20",
+      "year": "2026",
+      "deliveryDate": "10.2026",
+      "park": "ТП5",
+      "licensePlate": "5147",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {
+        "vehicleNumber": true
+      }
+    },
+    {
+      "type": "ТУАХ",
+      "model": "МАЗ-303Т20",
+      "year": "2026",
+      "deliveryDate": "10.2026",
+      "park": "ТП2",
+      "licensePlate": "2061",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {
+        "vehicleNumber": true
+      }
+    },
+    {
+      "type": "ТУАХ",
+      "model": "МАЗ-303Т20",
+      "year": "2026",
+      "deliveryDate": "10.2026",
+      "park": "ТП2",
+      "licensePlate": "2062",
+      "factoryNumber": "",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {
+        "vehicleNumber": true
+      }
+    },
+    {
+      "type": "ТУАХ",
+      "model": "МАЗ-303Т20",
+      "year": "2026",
+      "deliveryDate": "10.2026",
+      "park": "ТП3",
+      "licensePlate": "3393",
+      "factoryNumber": "T0000194",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {}
+    },
     {
       "type": "ТУАХ",
       "model": "МАЗ-303Т20",
@@ -86,7 +140,7 @@
       "deliveryDate": "10.2026",
       "park": "ТП3",
       "licensePlate": "3689",
-      "factoryNumber": "",
+      "factoryNumber": "T0000108",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {}

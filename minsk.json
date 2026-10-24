@@ -1,6 +1,60 @@
 {
-  "updatedAt": "23.10.2026 18:03",
+  "updatedAt": "24.10.2026 10:23",
   "vehicles": [
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "5147",
+      "year": "2026",
+      "model": "МАЗ-303Т",
+      "park": "ТП5",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {
+        "vehicleNumber": true
+      }
+    },
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "2061",
+      "year": "2026",
+      "model": "МАЗ-303Т",
+      "park": "ТП2",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {
+        "vehicleNumber": true
+      }
+    },
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "2062",
+      "year": "2026",
+      "model": "МАЗ-303Т",
+      "park": "ТП2",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {
+        "vehicleNumber": true
+      }
+    },
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "3393",
+      "year": "2026",
+      "model": "МАЗ-303Т",
+      "park": "ТП3",
+      "garageNumber": "",
+      "factoryNumber": "T0000194",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {}
+    },
     {
       "type": "ТУАХ",
       "vehicleNumber": "3392",
@@ -86,7 +140,7 @@
       "model": "БКМ-433D",
       "park": "ТП3",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000108",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
