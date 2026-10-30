@@ -1,6 +1,118 @@
 {
-  "updatedAt": "29.10.2026 16:13",
+  "updatedAt": "30.10.2026 19:26",
   "vehicles": [
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "5153",
+      "year": "2026",
+      "model": "МАЗ-303Т",
+      "park": "ТП5",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {
+        "vehicleNumber": true
+      }
+    },
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "5152",
+      "year": "2026",
+      "model": "МАЗ-303Т",
+      "park": "ТП5",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {
+        "vehicleNumber": true
+      }
+    },
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "5151",
+      "year": "2026",
+      "model": "МАЗ-303Т",
+      "park": "ТП5",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {
+        "vehicleNumber": true
+      }
+    },
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "5150",
+      "year": "2026",
+      "model": "МАЗ-303Т",
+      "park": "ТП5",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {
+        "vehicleNumber": true
+      }
+    },
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "4341",
+      "year": "2026",
+      "model": "МАЗ-303Т",
+      "park": "ТП4",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {
+        "vehicleNumber": true
+      }
+    },
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "4340",
+      "year": "2026",
+      "model": "МАЗ-303Т",
+      "park": "ТП4",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {
+        "vehicleNumber": true
+      }
+    },
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "4339",
+      "year": "2026",
+      "model": "МАЗ-303Т",
+      "park": "ТП4",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {
+        "vehicleNumber": true
+      }
+    },
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "3396",
+      "year": "2026",
+      "model": "МАЗ-303Т",
+      "park": "ТП3",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {
+        "vehicleNumber": true
+      }
+    },
     {
       "type": "ТУАХ",
       "vehicleNumber": "3395",
@@ -52,18 +164,6 @@
       "gray": {
         "vehicleNumber": true
       }
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "3063",
-      "year": "2009",
-      "model": "БКМ-321 (у/п)",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "90000433",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
     },
     {
       "type": "ТУАХ",
@@ -864,18 +964,6 @@
       "gray": {}
     },
     {
-      "type": "Автобус",
-      "vehicleNumber": "АЕ3912-7",
-      "year": "2008",
-      "model": "МАЗ-203",
-      "park": "АП6",
-      "garageNumber": "33390",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
       "type": "ТУАХ",
       "vehicleNumber": "5305",
       "year": "2026",
@@ -1389,7 +1477,7 @@
       "model": "БКМ-433D",
       "park": "ТП3",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000093",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
@@ -17258,18 +17346,6 @@
       "gray": {}
     },
     {
-      "type": "Автобус",
-      "vehicleNumber": "АО3849-7",
-      "year": "2015",
-      "model": "МАЗ-203c",
-      "park": "АП7",
-      "garageNumber": "44695",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
       "type": "Троллейбус",
       "vehicleNumber": "2625",
       "year": "2015",
@@ -18227,18 +18303,6 @@
       "factoryNumber": "",
       "livery": "серый / перевозчик \"Минсктранс\"",
       "noteHtml": "⇐ АП2 - 14702",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АН8645-7",
-      "year": "2014",
-      "model": "Любава АВР-19",
-      "park": "АП5",
-      "garageNumber": "62545",
-      "factoryNumber": "",
-      "livery": "серый",
-      "noteHtml": "7ТЕХ0532; ⇐ АП2 - 014729",
       "gray": {}
     },
     {
@@ -22610,6 +22674,18 @@
       "gray": {}
     },
     {
+      "type": "Троллейбус",
+      "vehicleNumber": "3063",
+      "year": "2009",
+      "model": "БКМ-321 (у/п)",
+      "park": "ТП3",
+      "garageNumber": "",
+      "factoryNumber": "90000433",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {}
+    },
+    {
       "type": "Автобус",
       "vehicleNumber": "АЕ8935-7",
       "year": "2009",
@@ -22808,30 +22884,6 @@
       "model": "МАЗ-107",
       "park": "АП6",
       "garageNumber": "14851",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АЕ9573-7",
-      "year": "2009",
-      "model": "МАЗ-105 (у/п)",
-      "park": "АП6",
-      "garageNumber": "23558",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АЕ9574-7",
-      "year": "2009",
-      "model": "МАЗ-105",
-      "park": "АП6",
-      "garageNumber": "14869",
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "",
@@ -23472,25 +23524,6 @@
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "3495",
-      "year": "2009",
-      "model": "БКМ-321",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "90000334",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "factoryNumber": true,
-        "livery": true
-      }
     },
     {
       "type": "Троллейбус",
@@ -24250,6 +24283,18 @@
     },
     {
       "type": "Автобус",
+      "vehicleNumber": "АЕ3912-7",
+      "year": "2008",
+      "model": "МАЗ-203",
+      "park": "АП6",
+      "garageNumber": "33390",
+      "factoryNumber": "",
+      "livery": "жёлтый",
+      "noteHtml": "",
+      "gray": {}
+    },
+    {
+      "type": "Автобус",
       "vehicleNumber": "АЕ3749-7",
       "year": "2008",
       "model": "МАЗ-103 (у/п)",
@@ -24742,18 +24787,6 @@
     },
     {
       "type": "Троллейбус",
-      "vehicleNumber": "5468",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП5",
-      "garageNumber": "",
-      "factoryNumber": "80000149",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
       "vehicleNumber": "5469",
       "year": "2008",
       "model": "БКМ-321",
@@ -24762,18 +24795,6 @@
       "factoryNumber": "80000150",
       "livery": "салатовый",
       "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "5630",
-      "year": "2008",
-      "model": "БКМ-321",
-      "park": "ТП5",
-      "garageNumber": "",
-      "factoryNumber": "80000155",
-      "livery": "салатовый",
-      "noteHtml": "⇐ 2199",
       "gray": {}
     },
     {

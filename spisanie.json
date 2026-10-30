@@ -1,6 +1,110 @@
 {
-  "updatedAt": "27.10.2026 11:26",
+  "updatedAt": "30.10.2026 19:22",
   "vehicles": [
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-32100",
+      "year": "2008",
+      "park": "ТП5",
+      "licensePlate": "5468",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "80000149",
+      "writeoffDate": "10.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-32100",
+      "year": "2008",
+      "park": "ТП5",
+      "licensePlate": "5630 (2199)",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "80000155",
+      "writeoffDate": "10.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Троллейбус",
+      "model": "БКМ-33300",
+      "year": "",
+      "park": "ТП3",
+      "licensePlate": "",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "writeoffDate": "10.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Автобус",
+      "model": "МАЗ-107",
+      "year": "",
+      "park": "АП7",
+      "licensePlate": "",
+      "exNumber": "",
+      "garageNumber": "",
+      "factoryNumber": "",
+      "writeoffDate": "10.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Автобус",
+      "model": "МАЗ-203с",
+      "year": "2015",
+      "park": "АП7",
+      "licensePlate": "АО3849-7",
+      "exNumber": "",
+      "garageNumber": "44695",
+      "factoryNumber": "",
+      "writeoffDate": "10.2026",
+      "note": "Передан в музей",
+      "gray": {}
+    },
+    {
+      "type": "Автобус",
+      "model": "МАЗ-105 (у/п)",
+      "year": "2009",
+      "park": "АП6",
+      "licensePlate": "АЕ9573-7",
+      "exNumber": "",
+      "garageNumber": "23558",
+      "factoryNumber": "",
+      "writeoffDate": "10.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Автобус",
+      "model": "МАЗ-105",
+      "year": "2009",
+      "park": "АП6",
+      "licensePlate": "АЕ9574-7",
+      "exNumber": "",
+      "garageNumber": "14869",
+      "factoryNumber": "",
+      "writeoffDate": "10.2026",
+      "note": "",
+      "gray": {}
+    },
+    {
+      "type": "Автобус",
+      "model": "Любава АВР-19",
+      "year": "2014",
+      "park": "АП5",
+      "licensePlate": "АН8645-7 (7ТЕХ0532)",
+      "exNumber": "",
+      "garageNumber": "62545",
+      "factoryNumber": "",
+      "writeoffDate": "10.2026",
+      "note": "",
+      "gray": {}
+    },
     {
       "type": "Троллейбус",
       "model": "БКМ-33300",
@@ -78,13 +182,13 @@
       "writeoffDate": "09.2026",
       "note": "",
       "gray": {
-        "type": true,
-        "model": true,
-        "year": true,
-        "park": true,
-        "vehicleNumber": true,
-        "factoryNumber": true,
-        "writeoffDate": true
+        "type": false,
+        "model": false,
+        "year": false,
+        "park": false,
+        "vehicleNumber": false,
+        "factoryNumber": false,
+        "writeoffDate": false
       }
     },
     {
