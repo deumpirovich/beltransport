@@ -1,5 +1,5 @@
 {
-  "updatedAt": "30.10.2026 19:22",
+  "updatedAt": "03.11.2026 09:47",
   "vehicles": [
     {
       "type": "Троллейбус",
@@ -30,12 +30,12 @@
     {
       "type": "Троллейбус",
       "model": "БКМ-33300",
-      "year": "",
+      "year": "2009",
       "park": "ТП3",
-      "licensePlate": "",
+      "licensePlate": "3602",
       "exNumber": "",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "90000082",
       "writeoffDate": "10.2026",
       "note": "",
       "gray": {}

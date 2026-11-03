@@ -1,5 +1,5 @@
 {
-  "updatedAt": "30.10.2026 19:26",
+  "updatedAt": "03.11.2026 09:46",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -23521,18 +23521,6 @@
       "park": "ТП3",
       "garageNumber": "",
       "factoryNumber": "90000469",
-      "livery": "салатовый",
-      "noteHtml": "",
-      "gray": {}
-    },
-    {
-      "type": "Троллейбус",
-      "vehicleNumber": "3602",
-      "year": "2009",
-      "model": "БКМ-333",
-      "park": "ТП3",
-      "garageNumber": "",
-      "factoryNumber": "90000082",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {}
