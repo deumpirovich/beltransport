@@ -1,6 +1,18 @@
 {
-  "updatedAt": "03.11.2026 09:46",
+  "updatedAt": "06.11.2026 14:24",
   "vehicles": [
+    {
+      "type": "ТУАХ",
+      "vehicleNumber": "5154",
+      "year": "2026",
+      "model": "МАЗ-303Т",
+      "park": "ТП5",
+      "garageNumber": "",
+      "factoryNumber": "T0000201",
+      "livery": "салатовый",
+      "noteHtml": "",
+      "gray": {}
+    },
     {
       "type": "ТУАХ",
       "vehicleNumber": "5153",
@@ -8,11 +20,11 @@
       "model": "МАЗ-303Т",
       "park": "ТП5",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000193",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
@@ -22,11 +34,11 @@
       "model": "МАЗ-303Т",
       "park": "ТП5",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000221",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
@@ -36,11 +48,11 @@
       "model": "МАЗ-303Т",
       "park": "ТП5",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000218",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
@@ -50,11 +62,11 @@
       "model": "МАЗ-303Т",
       "park": "ТП5",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000204",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
@@ -144,11 +156,11 @@
       "model": "МАЗ-303Т",
       "park": "ТП5",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000211",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
@@ -158,11 +170,11 @@
       "model": "МАЗ-303Т",
       "park": "ТП5",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000197",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
@@ -186,11 +198,11 @@
       "model": "МАЗ-303Т",
       "park": "ТП5",
       "garageNumber": "",
-      "factoryNumber": "",
+      "factoryNumber": "T0000230",
       "livery": "салатовый",
       "noteHtml": "",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {

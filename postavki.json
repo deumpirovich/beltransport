@@ -1,6 +1,18 @@
 {
-  "updatedAt": "30.10.2026 19:35",
+  "updatedAt": "06.11.2026 14:29",
   "vehicles": [
+    {
+      "type": "ТУАХ",
+      "model": "МАЗ-303Т20",
+      "year": "2026",
+      "deliveryDate": "11.2026",
+      "park": "ТП5",
+      "licensePlate": "5154",
+      "factoryNumber": "T0000201",
+      "garageNumber": "",
+      "color": "салатовый",
+      "gray": {}
+    },
     {
       "type": "ТУАХ",
       "model": "МАЗ-303Т20",
@@ -8,11 +20,11 @@
       "deliveryDate": "10.2026",
       "park": "ТП5",
       "licensePlate": "5153",
-      "factoryNumber": "",
+      "factoryNumber": "T0000193",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
@@ -22,11 +34,11 @@
       "deliveryDate": "10.2026",
       "park": "ТП5",
       "licensePlate": "5152",
-      "factoryNumber": "",
+      "factoryNumber": "T0000221",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
@@ -36,11 +48,11 @@
       "deliveryDate": "10.2026",
       "park": "ТП5",
       "licensePlate": "5151",
-      "factoryNumber": "",
+      "factoryNumber": "T0000218",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
@@ -50,11 +62,11 @@
       "deliveryDate": "10.2026",
       "park": "ТП5",
       "licensePlate": "5150",
-      "factoryNumber": "",
+      "factoryNumber": "T0000204",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
@@ -144,11 +156,11 @@
       "deliveryDate": "10.2026",
       "park": "ТП5",
       "licensePlate": "5149",
-      "factoryNumber": "",
+      "factoryNumber": "T0000211",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
@@ -158,11 +170,11 @@
       "deliveryDate": "10.2026",
       "park": "ТП5",
       "licensePlate": "5148",
-      "factoryNumber": "",
+      "factoryNumber": "T0000197",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
@@ -186,11 +198,11 @@
       "deliveryDate": "10.2026",
       "park": "ТП5",
       "licensePlate": "5147",
-      "factoryNumber": "",
+      "factoryNumber": "T0000230",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
