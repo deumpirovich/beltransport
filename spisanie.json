@@ -1,5 +1,5 @@
 {
-  "updatedAt": "03.11.2026 09:47",
+  "updatedAt": "08.11.2026 11:44",
   "vehicles": [
     {
       "type": "Троллейбус",
@@ -43,15 +43,23 @@
     {
       "type": "Автобус",
       "model": "МАЗ-107",
-      "year": "",
+      "year": "2009",
       "park": "АП7",
-      "licensePlate": "",
+      "licensePlate": "AI2215-7",
       "exNumber": "",
-      "garageNumber": "",
+      "garageNumber": "23647",
       "factoryNumber": "",
       "writeoffDate": "10.2026",
       "note": "",
-      "gray": {}
+      "gray": {
+        "year": true,
+        "vehicleNumber": true,
+        "type": true,
+        "model": true,
+        "park": true,
+        "garageNumber": true,
+        "writeoffDate": true
+      }
     },
     {
       "type": "Автобус",

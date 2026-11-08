@@ -1,5 +1,5 @@
 {
-  "updatedAt": "07.11.2026 10:08",
+  "updatedAt": "08.11.2026 11:43",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -23079,7 +23079,14 @@
       "factoryNumber": "",
       "livery": "жёлтый",
       "noteHtml": "⇐ 13640",
-      "gray": {}
+      "gray": {
+        "vehicleNumber": true,
+        "year": true,
+        "model": true,
+        "park": true,
+        "garageNumber": true,
+        "livery": true
+      }
     },
     {
       "type": "Автобус",
