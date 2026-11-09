@@ -1,5 +1,5 @@
 {
-  "updatedAt": "08.11.2026 11:43",
+  "updatedAt": "09.11.2026 09:48",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -23068,25 +23068,6 @@
       "livery": "жёлтый",
       "noteHtml": "⇐ 33804",
       "gray": {}
-    },
-    {
-      "type": "Автобус",
-      "vehicleNumber": "АІ2215-7",
-      "year": "2009",
-      "model": "МАЗ-107",
-      "park": "АП7",
-      "garageNumber": "23647",
-      "factoryNumber": "",
-      "livery": "жёлтый",
-      "noteHtml": "⇐ 13640",
-      "gray": {
-        "vehicleNumber": true,
-        "year": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "livery": true
-      }
     },
     {
       "type": "Автобус",

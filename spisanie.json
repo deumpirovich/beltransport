@@ -1,5 +1,5 @@
 {
-  "updatedAt": "08.11.2026 11:44",
+  "updatedAt": "09.11.2026 09:50",
   "vehicles": [
     {
       "type": "Троллейбус",
@@ -52,13 +52,13 @@
       "writeoffDate": "10.2026",
       "note": "",
       "gray": {
-        "year": true,
-        "vehicleNumber": true,
-        "type": true,
-        "model": true,
-        "park": true,
-        "garageNumber": true,
-        "writeoffDate": true
+        "year": false,
+        "vehicleNumber": false,
+        "type": false,
+        "model": false,
+        "park": false,
+        "garageNumber": false,
+        "writeoffDate": false
       }
     },
     {
