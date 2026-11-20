@@ -1,5 +1,5 @@
 {
-  "updatedAt": "17.11.2026 10:57",
+  "updatedAt": "20.11.2026 10:01",
   "vehicles": [
     {
       "type": "ТУАХ",
@@ -76,11 +76,11 @@
       "deliveryDate": "10.2026",
       "park": "ТП4",
       "licensePlate": "4341",
-      "factoryNumber": "",
+      "factoryNumber": "T0000196",
       "garageNumber": "",
       "color": "салатовый",
       "gray": {
-        "vehicleNumber": true
+        "vehicleNumber": false
       }
     },
     {
